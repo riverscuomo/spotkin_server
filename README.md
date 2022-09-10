@@ -18,22 +18,8 @@ For example, I have a playlist called "Rivers Radio" that is updated by Spotnik 
     us viral	3
     recent weezer	2
     big on the internet	2
-    Easy 70s	2
-    rock this	2
-    hot country	1
-    hyperpop	1
-    ao60s	1
-    allOut50s	1
-    alt00s	1
-    classic punk	1
-    early alt	1
-    alt80s	1
-    metal	1
-    alt90s	1
-    broadway	1
-    chorus_music	1
-    Low Priority	1
-
+    etc.
+    
 I developed this script because I didn't like fiddling with the Spotify app all the time. I just wanted a great selection of music in one playlist every day. I've been it using it every day for a few years. It's run automatically at 2am by a Windows Task Scheduler job. It works best when you draw from many playlists, especially:
 
 - dynamic playlists like "New Music Friday" or "Today's Top Hits" because they frequently change
