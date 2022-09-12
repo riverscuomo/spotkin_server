@@ -50,31 +50,14 @@ The script will need the unique ID for one of your Spotify playlists. To get the
 
 ### Environment Variables
 
-You can specify custom environment variables to include using a `.env` file.  Alternatively, you can set them manually using the information below.
+You can specify custom variables to include using a `.env` file.  Alternatively, you can set them as Environment Variables.
 
-#### Windows
-
-FIRST SET UP ENVIRONMENT VARIABLES ON YOUR COMPUTER, [SEE HERE FOR INSTRUCTIONS](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10).
-
-To set all 4 in a one-liner on Windows:
-
-```cmd
-set SPOTIFY_CLIENT_ID=xxx && set SPOTIFY_CLIENT_SECRET=xxx && set SPOTIFY_REDIRECT_URI=http://localhost:8080 && set SPOTIFY_USER=xxx
 ```
-
-To view all currently set environment variables, use the command `set`.
-
-#### MacOS/Linux
-
-To set all 4 in a one-liner on Linux: ([Instructions](https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-set-environment-variables-in-linux/))
-
-```cmd
- export SPOTIFY_CLIENT_ID=xxx && export SPOTIFY_CLIENT_SECRET=xxx && export SPOTIFY_REDIRECT_URI='http://localhost:8080' && export SPOTIFY_USER=xxx
+SPOTIFY_CLIENT_ID=xxx
+SPOTIFY_CLIENT_SECRET=xxx
+SPOTIFY_REDIRECT_URI=http://localhost:8080
+SPOTIFY_USER=xxx
 ```
-
-Note that there is a space before the first export.  This is intentional and should not be removed: a leading space in most terminals instructs the terminal not to lodge the command in the history file, leaving fewer traces of your environment keys in side effecting channels.
-
-To view all currently set environment variables, use the command `env`. You can filter down to just the above using `env | egrep '(SPOTIFY|PLAYLIST)'`
 
 ### Define one or more jobs (target playlists to update along with the source playlists and how many tracks to take from each source)
 By default, the jobs specified in `spotnik.data._default_jobs` are used.  You can add a custom jobs file in the `spotnik/data` folder and specify the name in your .env file usimg the `JOBS_FILE` variable.   
