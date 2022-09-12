@@ -3,4 +3,4 @@ python-decouple==3.6
 python_dateutil==2.8.2
 python-dotenv==0.21.0
 rich==11.2.0
-argparse==1.4.0
+# argparse==1.4.0
