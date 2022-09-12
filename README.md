@@ -57,7 +57,12 @@ SPOTIFY_CLIENT_ID=xxx
 SPOTIFY_CLIENT_SECRET=xxx
 SPOTIFY_REDIRECT_URI=http://localhost:8080
 SPOTIFY_USER=xxx
+JOBS_FILE=path_to_jobs_file
+ADD_LIST=path_to_add_list_csv
 ```
+### Poetry
+poetry init
+poetry install
 
 ### Define one or more jobs (target playlists to update along with the source playlists and how many tracks to take from each source)
 By default, the jobs specified in `spotnik.data._default_jobs` are used.  You can add a custom jobs file in the `spotnik/data` folder and specify the name in your .env file usimg the `JOBS_FILE` variable.   

@@ -6,19 +6,30 @@ import random
 from spotnik.post_description import *
 from spotnik.api import *
 from rich import print
-from spotnik.config import ADD_LIST_FILE
-from spotnik.config import JOBS_FILE
+# from spotnik.config import ADD_LIST_FILE
+# from spotnik.config import JOBS_FILE
 from spotnik.utils import *
 from dotenv import load_dotenv, find_dotenv
 import csv
 import os
+from dotenv import dotenv_values
 
-
+config = dotenv_values(".env")
+# print(config)
 load_dotenv()
+# print(load_dotenv(find_dotenv()))
+# print(JOBS_FILE)
+
+JOBS_FILE_PATH = os.getenv("JOBS_FILE_PATH")
+ADD_LIST_FILE_PATH = os.getenv("ADD_LIST_FILE_PATH")
+# print(JOBS_FILE)
+# print(ADD_LIST_FILE)
+
+# ADD_LIST_FILE_PATH = r"
 
 def get_data():
     log("getting the user's add list from csv file...")
-    with open(ADD_LIST_FILE) as csvfile:
+    with open(ADD_LIST_FILE_PATH) as csvfile:
         data = csv.DictReader(csvfile)
     return data
 
@@ -27,9 +38,9 @@ def import_jobs():
     log("importing jobs from file...")
 
     try:
-        return import_module(f"{JOBS_FILE}", package="spotnik").jobs
+        return import_module(f"{JOBS_FILE_PATH}", package="spotnik").jobs
     except ValueError as e:
-        print(f"Error importing from fiat file: {JOBS_FILE} - {e}")
+        print(f"Error importing from fiat file: {JOBS_FILE_PATH} - {e}")
 
 
 def main():
@@ -40,7 +51,7 @@ def main():
 
     jobs = import_jobs()
 
-    data = get_data()()
+    data = get_data()
 
     for job in jobs:
 
