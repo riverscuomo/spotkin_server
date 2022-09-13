@@ -6,6 +6,7 @@ import random
 from spotnik.post_description import *
 from spotnik.api import *
 from rich import print
+
 # from spotnik.config import ADD_LIST_FILE
 # from spotnik.config import JOBS_FILE
 from spotnik.utils import *
@@ -14,7 +15,7 @@ import csv
 import os
 from dotenv import dotenv_values
 
-config = dotenv_values(".env")
+# config = dotenv_values(".env")
 # print(config)
 load_dotenv()
 # print(load_dotenv(find_dotenv()))
@@ -27,11 +28,14 @@ ADD_LIST_FILE_PATH = os.getenv("ADD_LIST_FILE_PATH")
 
 # ADD_LIST_FILE_PATH = r"
 
+
 def get_data():
     log("getting the user's add list from csv file...")
     with open(ADD_LIST_FILE_PATH) as csvfile:
-        data = csv.DictReader(csvfile)
+        reader = csv.DictReader(csvfile)
+        data = list(reader)
     return data
+
 
 def import_jobs():
 
@@ -120,8 +124,6 @@ def main():
         post_description(spotify, job)
 
     return "Success!"
-
-
 
 
 def build_artist_genres(spotify, tracks):
