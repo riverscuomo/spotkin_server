@@ -1,18 +1,16 @@
-target_playlist_id_1 = "7Li5tNS13DgGF0FAgwjATf"
-target_playlist_id_2 = "0N2bOLIZ5DuSmAei1KewbF"
+target_playlist_id_1 = "6jcJtdYUNjkvILpKVswb74"
+target_playlist_id_2 = "2ZNTBqllvyC4xYPAefmRBd"
 
 jobs = [
     {
         "playlist_id": target_playlist_id_1,
-        "name": "Spotnik Example Playlist 1",
-        "description": "These are the songs I'm listening to today.",
+        "name": "Radio Dito",
+        "description": "These are the songs Im listening to today.",
         "remove_low_energy": False,
         "last_track_ids": ["3eWGQXWe5cDY8xNQwaXtzs"],
         "banned_artist_names": [
             "khalid",
-            "the beatles",
             "halsey",
-            "the beach boys",
             "devo",
             "big sean",
             "e-40",
@@ -20,14 +18,12 @@ jobs = [
             "gang of four",
         ],
         "banned_song_titles": [
-            "should i stay or should i go",
-            "high hopes",
             "blister in the sun",
             "waiting room",
-            "psycho killer",
             "sweet jane",
             "generals and majors",
             "marquee moon",
+            "never gonna give you up"
         ],
         "banned_track_ids": [
             "0QIjsbm2fh1cJ45XO9eGqq",
@@ -62,8 +58,8 @@ jobs = [
     },
     {
         "playlist_id": target_playlist_id_2,
-        "name": "Spotnik Example Playlist 2",
-        "description": "These are the songs I'm lifting to today.",
+        "name": "Radio Dito 2",
+        "description": "These are the songs I sleep to today.",
         "remove_low_energy": True,
         "last_track_ids": [],
     },
