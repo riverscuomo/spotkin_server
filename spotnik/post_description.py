@@ -8,7 +8,7 @@ from spotnik.utils import *
 def getFact():
     # get the random fact
     with open(
-        r"spotnik\data\randomfacts.txt",
+        r"spotnik/data/randomfacts.txt",
         "r+",
         encoding="utf-8",
     ) as file:

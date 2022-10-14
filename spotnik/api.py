@@ -46,7 +46,7 @@ def get_spotify():
     try:
         token = util.prompt_for_user_token(
             SPOTIFY_USER,
-            redirect_uri="http://localhost:8080",
+            redirect_uri="http://localhost:8080/callback",
             scope=SPOTIFY_SCOPE,
             client_id=SPOTIFY_CLIENT_ID,
             client_secret=SPOTIPY_CLIENT_SECRET,
@@ -55,7 +55,7 @@ def get_spotify():
         os.remove(f".cache-{SPOTIFY_USER}")
         token = util.prompt_for_user_token(
             SPOTIFY_USER,
-            redirect_uri="http://localhost:8080",
+            redirect_uri="http://localhost:8080/callback",
             scope=SPOTIFY_SCOPE,
             client_id=SPOTIFY_CLIENT_ID,
             client_secret=SPOTIPY_CLIENT_SECRET,

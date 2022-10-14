@@ -4,7 +4,7 @@ import random
 def getFact():
     # get the random fact
     with open(
-        r"C:\RC Dropbox\Rivers Cuomo\Apps\kyoko\data\randomfacts.txt",
+        r"spotnik/data/data/randomfacts.txt",
         "r+",
         encoding="utf-8",
     ) as file:
