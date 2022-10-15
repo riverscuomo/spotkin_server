@@ -1,5 +1,3 @@
-
-
 import os, random, base64
 
 def getImage():
