@@ -6,7 +6,7 @@ from spotnik.utils import *
 
 from rich import print
 
-SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
+SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played, ugc-image-upload"
 SPOTIFY_SCOPE_WARNING = "signing into spotify...\nIf this program or another program with the same client_id\nhas changed scopes, you'll need to reauthorize each time.\nMake sure all programs have the same scope."
 SPOTIFY_USER = os.getenv("SPOTIFY_USER")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")

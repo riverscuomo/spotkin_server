@@ -4,6 +4,7 @@ from spotnik.get_all_tracks import get_all_tracks
 from spotnik.bans import *
 import random
 from spotnik.post_description import *
+from spotnik.update_cover import *
 from spotnik.api import *
 from rich import print
 
@@ -122,6 +123,9 @@ def main():
 
         # change the playlist description to a random fact
         post_description(spotify, job)
+
+        # change the playlist cover to a random predefined image
+        update_cover(spotify, job)
 
     return "Success!"
 

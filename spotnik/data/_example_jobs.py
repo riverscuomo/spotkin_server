@@ -7,6 +7,7 @@ jobs = [
         "name": "Spotnik Example Playlist 1",
         "description": "These are the songs I'm listening to today.",
         "remove_low_energy": False,
+        "randomize_cover": True,
         "last_track_ids": ["3eWGQXWe5cDY8xNQwaXtzs"],
         "banned_artist_names": [
             "khalid",
@@ -65,6 +66,7 @@ jobs = [
         "name": "Spotnik Example Playlist 2",
         "description": "These are the songs I'm lifting to today.",
         "remove_low_energy": True,
+        "randomize_cover": False,
         "last_track_ids": [],
     },
 ]
