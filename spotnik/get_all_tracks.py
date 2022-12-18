@@ -1,5 +1,5 @@
 from spotnik.extract_id import extract_id
-from spotnik.api import get_playlist_tracks
+from spotnik.api import sample_playlist_tracks
 
 
 def get_all_tracks(data, job, spotify):
@@ -35,7 +35,7 @@ def get_all_tracks(data, job, spotify):
         # for logging purposes
         playlist_name = row["Name"]
 
-        new_tracks = get_playlist_tracks(
+        new_tracks = sample_playlist_tracks(
             spotify,
             playlist_id,
             quantity,

@@ -1,4 +1,5 @@
 import os
+import random
 import spotipy
 import spotipy.util as util
 from json.decoder import JSONDecodeError
@@ -67,13 +68,25 @@ def get_spotify():
         print(SPOTIFY_SCOPE_WARNING)
     return spotify
 
-
-def get_playlist_tracks(spotify, playlist_id, limit, name):
+def sample_playlist_tracks(spotify, playlist_id, limit, name):
     print(
-        f"- returning a maximum of {limit} Spotify tracks from the playlist '{name}'..."  # with ID: {playlist_id}..."
+        f"- sampling a maximum of {limit} Spotify tracks from the playlist '{name}'... "  # with ID: {playlist_id}..."
     )
-    results = spotify.playlist_tracks(playlist_id, limit=limit)
-    return results["items"]
+    all_tracks = get_playlist_tracks(spotify, playlist_id)
+    # remove tracks with None type ids
+    all_tracks = [track for track in all_tracks if track["track"]["id"] is not None]
+    return random.sample(all_tracks, min(limit, len(all_tracks)))
+
+def get_playlist_tracks(spotify, playlist_id):
+    """
+    Returns all tracks in a given playlist.
+    """
+    results = spotify.playlist_tracks(playlist_id)
+    tracks = results["items"]
+    while results["next"]:
+        results = spotify.next(results)
+        tracks.extend(results["items"])
+    return tracks
 
 
 def get_artists_genres(spotify, artist_ids):
