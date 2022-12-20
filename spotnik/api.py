@@ -3,12 +3,12 @@ import random
 import spotipy
 import spotipy.util as util
 from json.decoder import JSONDecodeError
+from spotipy.oauth2 import SpotifyOAuth
 from spotnik.utils import *
 
 from rich import print
 
 SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
-SPOTIFY_SCOPE_WARNING = "signing into spotify...\nIf this program or another program with the same client_id\nhas changed scopes, you'll need to reauthorize each time.\nMake sure all programs have the same scope."
 SPOTIFY_USER = os.getenv("SPOTIFY_USER")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
@@ -44,28 +44,15 @@ def oauthStepTwo():
 def get_spotify():
     log("get_spotify...")
 
-    try:
-        token = util.prompt_for_user_token(
-            SPOTIFY_USER,
-            redirect_uri="http://localhost:8080",
-            scope=SPOTIFY_SCOPE,
-            client_id=SPOTIFY_CLIENT_ID,
-            client_secret=SPOTIPY_CLIENT_SECRET,
-        )
-    except (AttributeError, JSONDecodeError):
-        os.remove(f".cache-{SPOTIFY_USER}")
-        token = util.prompt_for_user_token(
-            SPOTIFY_USER,
-            redirect_uri="http://localhost:8080",
-            scope=SPOTIFY_SCOPE,
-            client_id=SPOTIFY_CLIENT_ID,
-            client_secret=SPOTIPY_CLIENT_SECRET,
-        )
+    auth_manager=SpotifyOAuth(
+        scope=SPOTIFY_SCOPE, 
+        redirect_uri="http://localhost:8080", 
+        client_id=SPOTIFY_CLIENT_ID, 
+        client_secret=SPOTIPY_CLIENT_SECRET
+    )
 
-    if token:
-        spotify = spotipy.Spotify(auth=token)
-    else:
-        print(SPOTIFY_SCOPE_WARNING)
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    
     return spotify
 
 def sample_playlist_tracks(spotify, playlist_id, limit, name):
