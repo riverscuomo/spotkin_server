@@ -117,7 +117,7 @@ def main():
 
         print("updating spotify playlist")
         result = spotify.user_playlist_replace_tracks(
-            SPOTIFY_USER, job["playlist_id"], updated_tracks
+            spotify.me()["id"], job["playlist_id"], updated_tracks
         )
 
         # change the playlist description to a random fact

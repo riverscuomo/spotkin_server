@@ -35,5 +35,5 @@ def post_description(spotify, job):
     Still relevant? I don't know.
     """
     spotify.user_playlist_change_details(
-        os.getenv("SPOTIFY_USER"), job["playlist_id"], description=description
+        spotify.me()["id"], job["playlist_id"], description=description
     )
