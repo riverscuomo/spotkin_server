@@ -104,21 +104,22 @@ def main():
 
         random.shuffle(updated_tracks)
 
-        limit = 100 - len(job["last_track_ids"])
-
-        if len(updated_tracks) > limit:
-
-            print(len(updated_tracks))
-            updated_tracks = updated_tracks[:limit]
-
         # if you've specify a track or tracks to always add at the end (for easy access, for example,
         # nature sounds or white noise)
         updated_tracks.extend(job["last_track_ids"])
 
         print("updating spotify playlist")
+        # empty playlist
         result = spotify.user_playlist_replace_tracks(
-            spotify.me()["id"], job["playlist_id"], updated_tracks
+            spotify.me()["id"], job["playlist_id"], []
         )
+
+        limit = 100
+
+        for chunk in (updated_tracks[i:i+limit] for i in range(0, len(updated_tracks), limit)):
+            result = spotify.user_playlist_add_tracks(
+                spotify.me()["id"], job["playlist_id"], chunk
+            )
 
         # change the playlist description to a random fact
         post_description(spotify, job)
