@@ -4,8 +4,10 @@ import spotipy
 import spotipy.util as util
 from json.decoder import JSONDecodeError
 from spotnik.utils import *
-
 from rich import print
+from dotenv import load_dotenv
+
+load_dotenv()
 
 SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
 SPOTIFY_SCOPE_WARNING = "signing into spotify...\nIf this program or another program with the same client_id\nhas changed scopes, you'll need to reauthorize each time.\nMake sure all programs have the same scope."
@@ -74,7 +76,7 @@ def sample_playlist_tracks(spotify, playlist_id, limit, name):
     )
     all_tracks = get_playlist_tracks(spotify, playlist_id)
     # remove tracks with None type ids
-    all_tracks = [track for track in all_tracks if track["track"]["id"] is not None]
+    all_tracks = [track for track in all_tracks if track["track"] is not None and track["track"]["id"] is not None]
     return random.sample(all_tracks, min(limit, len(all_tracks)))
 
 def get_playlist_tracks(spotify, playlist_id):

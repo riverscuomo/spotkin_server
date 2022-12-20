@@ -6,20 +6,13 @@ import random
 from spotnik.post_description import *
 from spotnik.api import *
 from rich import print
-
-# from spotnik.config import ADD_LIST_FILE
-# from spotnik.config import JOBS_FILE
 from spotnik.utils import *
-from dotenv import load_dotenv, find_dotenv
 import csv
 import os
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 
-# config = dotenv_values(".env")
-# print(config)
 load_dotenv()
-# print(load_dotenv(find_dotenv()))
-# print(JOBS_FILE)
+
 
 JOBS_FILE_PATH = os.getenv("JOBS_FILE_PATH")
 ADD_LIST_FILE_PATH = os.getenv("ADD_LIST_FILE_PATH")
