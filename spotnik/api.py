@@ -40,7 +40,7 @@ def oauthStepTwo():
     print(token)
 
 
-def get_spotify():
+def get_spotify() -> spotipy.Spotify:
     log("get_spotify...")
 
     auth_manager=SpotifyOAuth(
@@ -54,7 +54,7 @@ def get_spotify():
     
     return spotify
 
-def sample_playlist_tracks(spotify, playlist_id, limit, name):
+def sample_playlist_tracks(spotify: spotipy.Spotify, playlist_id, limit, name):
     print(
         f"- sampling a maximum of {limit} Spotify tracks from the playlist '{name}'... "  # with ID: {playlist_id}..."
     )
@@ -63,7 +63,7 @@ def sample_playlist_tracks(spotify, playlist_id, limit, name):
     all_tracks = [track for track in all_tracks if track["track"]["id"] is not None]
     return random.sample(all_tracks, min(limit, len(all_tracks)))
 
-def get_playlist_tracks(spotify, playlist_id):
+def get_playlist_tracks(spotify: spotipy.Spotify, playlist_id):
     """
     Returns all tracks in a given playlist.
     """
@@ -75,7 +75,7 @@ def get_playlist_tracks(spotify, playlist_id):
     return tracks
 
 
-def get_artists_genres(spotify, artist_ids):
+def get_artists_genres(spotify: spotipy.Spotify, artist_ids):
     print("- returning artist genres for artist ids...")
     chunks = divide_chunks(artist_ids, 50)
     artist_genres = []
@@ -89,7 +89,7 @@ def get_artists_genres(spotify, artist_ids):
     return artist_genres
 
 
-def get_audio_features(spotify, track_ids):
+def get_audio_features(spotify: spotipy.Spotify, track_ids):
     print("- returning get_audio_features track ids...")
     chunks = divide_chunks(track_ids, 100)
     audio_features = []
@@ -99,6 +99,6 @@ def get_audio_features(spotify, track_ids):
     return audio_features
 
 
-def get_playlist_track_ids(spotify, playlist_id, limit, skip_recents=None, name=""):
+def get_playlist_track_ids(spotify: spotipy.Spotify, playlist_id, limit, skip_recents=None, name=""):
     tracks = get_playlist_tracks(spotify, playlist_id, limit, name)
     return [x["track"]["id"] for x in tracks if x["track"] is not None]
