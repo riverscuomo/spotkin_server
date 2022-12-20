@@ -2,7 +2,7 @@
 
 A python package that updates one or more of your Spotify playlists every day with a random selection of songs from any public playlists. 
 
-For example, I have a playlist called "Rivers Radio" that is updated by Spotnik every day with this recipe:
+For example, I have a playlist called ["Rivers Radio"](https://open.spotify.com/playlist/1HaQfSGjNzIsiC5qOsCUcW?si=861bc59c458b4b0a) that is updated by Spotnik every day with this recipe:
     
     PLAYLIST NAME / QUANTITY OF SONGS TO TAKE
     albumsImCheckingOut	8
