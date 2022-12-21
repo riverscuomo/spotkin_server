@@ -65,12 +65,14 @@ def main():
 
         updated_tracks = []
 
+        # make list of just the track objects while also eliminating duplicates
         tracks = list({v["track"]["id"]: v["track"] for v in tracks}.values())
 
         track_ids = [x["id"] for x in tracks]
 
         audio_features = get_audio_features(spotify, track_ids)
         artists_genres = build_artist_genres(spotify, tracks)
+        filter = PlaylistFilter(job, audio_features)
 
         # Cull banned items from your list
         for track in tracks:
@@ -83,21 +85,7 @@ def main():
                 (x for x in artists_genres if x["artist_id"] == artist_id), None
             )
 
-            if is_banned_by_genre(job, artist_genre, artist_name, track_name):
-                continue
-
-            if is_banned_by_track_id(job, track_id, artist_name, track_name):
-                continue
-
-            if is_banned_by_artist_name(job, artist_name, track_name):
-                continue
-
-            if is_banned_by_song_title(job, artist_name, track_name):
-                continue
-
-            if is_banned_by_low_energy(
-                job, track_name, artist_name, track, audio_features
-            ):
+            if filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
                 continue
 
             updated_tracks.append(track["id"])
