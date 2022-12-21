@@ -51,7 +51,7 @@ class PlaylistFilter:
         if "remove_low_energy" not in self.job or self.job["remove_low_energy"] is False:
             return False
 
-        audio_feature = next((x for x in self.audio_features if x["id"] == track["id"]), None)
+        audio_feature = self.audio_features[track["id"]]
 
         loudness = audio_feature["loudness"]
         energy = audio_feature["energy"]

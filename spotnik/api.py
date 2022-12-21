@@ -96,7 +96,7 @@ def get_audio_features(spotify: spotipy.Spotify, track_ids):
     for chunk in chunks:
         result = spotify.audio_features(chunk)
         audio_features.extend(iter(result))
-    return audio_features
+    return {v["id"]: v for v in audio_features}
 
 
 def get_playlist_track_ids(spotify: spotipy.Spotify, playlist_id, limit, skip_recents=None, name=""):
