@@ -1,4 +1,3 @@
-from spotnik.extract_id import extract_id
 from spotnik.api import sample_playlist_tracks
 
 
@@ -30,7 +29,7 @@ def get_all_tracks(data, job, spotify):
         quantity = int(quantity)
 
         # parse the id of the playlist from whatever the user has entered in config.py
-        playlist_id = extract_id(row)
+        playlist_id = row["Playlist ID"]
 
         # for logging purposes
         playlist_name = row["Name"]

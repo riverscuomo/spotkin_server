@@ -58,12 +58,14 @@ def main():
 
         updated_tracks = []
 
+        # make list of just the track objects while also eliminating duplicates
         tracks = list({v["track"]["id"]: v["track"] for v in tracks}.values())
 
         track_ids = [x["id"] for x in tracks]
 
         audio_features = get_audio_features(spotify, track_ids)
         artists_genres = build_artist_genres(spotify, tracks)
+        filter = PlaylistFilter(job, audio_features)
 
         # Cull banned items from your list
         for track in tracks:
@@ -76,42 +78,29 @@ def main():
                 (x for x in artists_genres if x["artist_id"] == artist_id), None
             )
 
-            if is_banned_by_genre(job, artist_genre, artist_name, track_name):
-                continue
-
-            if is_banned_by_track_id(job, track_id, artist_name, track_name):
-                continue
-
-            if is_banned_by_artist_name(job, artist_name, track_name):
-                continue
-
-            if is_banned_by_song_title(job, artist_name, track_name):
-                continue
-
-            if is_banned_by_low_energy(
-                job, track_name, artist_name, track, audio_features
-            ):
+            if filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
                 continue
 
             updated_tracks.append(track["id"])
 
         random.shuffle(updated_tracks)
 
-        limit = 100 - len(job["last_track_ids"])
-
-        if len(updated_tracks) > limit:
-
-            print(len(updated_tracks))
-            updated_tracks = updated_tracks[:limit]
-
         # if you've specify a track or tracks to always add at the end (for easy access, for example,
         # nature sounds or white noise)
         updated_tracks.extend(job["last_track_ids"])
 
         print("updating spotify playlist")
+        # empty playlist
         result = spotify.user_playlist_replace_tracks(
-            SPOTIFY_USER, job["playlist_id"], updated_tracks
+            spotify.me()["id"], job["playlist_id"], []
         )
+
+        limit = 100
+
+        for chunk in (updated_tracks[i:i+limit] for i in range(0, len(updated_tracks), limit)):
+            result = spotify.user_playlist_add_tracks(
+                spotify.me()["id"], job["playlist_id"], chunk
+            )
 
         # change the playlist description to a random fact
         post_description(spotify, job)

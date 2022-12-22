@@ -3,6 +3,7 @@ import random
 import spotipy
 import spotipy.util as util
 from json.decoder import JSONDecodeError
+from spotipy.oauth2 import SpotifyOAuth
 from spotnik.utils import *
 from rich import print
 from dotenv import load_dotenv
@@ -10,8 +11,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
-SPOTIFY_SCOPE_WARNING = "signing into spotify...\nIf this program or another program with the same client_id\nhas changed scopes, you'll need to reauthorize each time.\nMake sure all programs have the same scope."
-SPOTIFY_USER = os.getenv("SPOTIFY_USER")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URL = os.getenv("SPOTIFY_REDIRECT_URL")
@@ -43,34 +42,21 @@ def oauthStepTwo():
     print(token)
 
 
-def get_spotify():
+def get_spotify() -> spotipy.Spotify:
     log("get_spotify...")
 
-    try:
-        token = util.prompt_for_user_token(
-            SPOTIFY_USER,
-            redirect_uri="http://localhost:8080",
-            scope=SPOTIFY_SCOPE,
-            client_id=SPOTIFY_CLIENT_ID,
-            client_secret=SPOTIPY_CLIENT_SECRET,
-        )
-    except (AttributeError, JSONDecodeError):
-        os.remove(f".cache-{SPOTIFY_USER}")
-        token = util.prompt_for_user_token(
-            SPOTIFY_USER,
-            redirect_uri="http://localhost:8080",
-            scope=SPOTIFY_SCOPE,
-            client_id=SPOTIFY_CLIENT_ID,
-            client_secret=SPOTIPY_CLIENT_SECRET,
-        )
+    auth_manager=SpotifyOAuth(
+        scope=SPOTIFY_SCOPE, 
+        redirect_uri="http://localhost:8080", 
+        client_id=SPOTIFY_CLIENT_ID, 
+        client_secret=SPOTIPY_CLIENT_SECRET
+    )
 
-    if token:
-        spotify = spotipy.Spotify(auth=token)
-    else:
-        print(SPOTIFY_SCOPE_WARNING)
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    
     return spotify
 
-def sample_playlist_tracks(spotify, playlist_id, limit, name):
+def sample_playlist_tracks(spotify: spotipy.Spotify, playlist_id, limit, name):
     print(
         f"- sampling a maximum of {limit} Spotify tracks from the playlist '{name}'... "  # with ID: {playlist_id}..."
     )
@@ -79,7 +65,7 @@ def sample_playlist_tracks(spotify, playlist_id, limit, name):
     all_tracks = [track for track in all_tracks if track["track"] is not None and track["track"]["id"] is not None]
     return random.sample(all_tracks, min(limit, len(all_tracks)))
 
-def get_playlist_tracks(spotify, playlist_id):
+def get_playlist_tracks(spotify: spotipy.Spotify, playlist_id):
     """
     Returns all tracks in a given playlist.
     """
@@ -91,7 +77,7 @@ def get_playlist_tracks(spotify, playlist_id):
     return tracks
 
 
-def get_artists_genres(spotify, artist_ids):
+def get_artists_genres(spotify: spotipy.Spotify, artist_ids):
     print("- returning artist genres for artist ids...")
     chunks = divide_chunks(artist_ids, 50)
     artist_genres = []
@@ -105,16 +91,16 @@ def get_artists_genres(spotify, artist_ids):
     return artist_genres
 
 
-def get_audio_features(spotify, track_ids):
+def get_audio_features(spotify: spotipy.Spotify, track_ids):
     print("- returning get_audio_features track ids...")
     chunks = divide_chunks(track_ids, 100)
     audio_features = []
     for chunk in chunks:
         result = spotify.audio_features(chunk)
         audio_features.extend(iter(result))
-    return audio_features
+    return {v["id"]: v for v in audio_features}
 
 
-def get_playlist_track_ids(spotify, playlist_id, limit, skip_recents=None, name=""):
+def get_playlist_track_ids(spotify: spotipy.Spotify, playlist_id, limit, skip_recents=None, name=""):
     tracks = get_playlist_tracks(spotify, playlist_id, limit, name)
     return [x["track"]["id"] for x in tracks if x["track"] is not None]

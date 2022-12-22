@@ -56,7 +56,6 @@ You can specify custom variables to include using a `.env` file.  Alternatively,
 SPOTIFY_CLIENT_ID=xxx
 SPOTIFY_CLIENT_SECRET=xxx
 SPOTIFY_REDIRECT_URI=http://localhost:8080
-SPOTIFY_USER=xxx
 JOBS_FILE=path_to_jobs_file
 ADD_LIST=path_to_add_list_csv
 ```

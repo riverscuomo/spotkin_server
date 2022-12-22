@@ -7,6 +7,5 @@
 # SPOTIFY_CLIENT_ID = dconfig("SPOTIFY_CLIENT_ID")
 # SPOTIFY_CLIENT_SECRET = dconfig("SPOTIFY_CLIENT_SECRET")
 # SPOTIFY_REDIRECT_URI = dconfig("SPOTIFY_REDIRECT_URI", default="http://localhost:8080")
-# SPOTIFY_USER = dconfig("SPOTIFY_USER")
 # JOBS_FILE = dconfig("JOBS_FILE", default=".data._example_jobs")
 # ADD_LIST_FILE = dconfig("ADD_LIST_FILE", default="spotnik/data/_default_add_list.csv")
