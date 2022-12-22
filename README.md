@@ -101,10 +101,4 @@ Once you have completed all the installation steps, run Spotnik script by runnin
 ## Contributing
 Feel free to make pull requests for any changes you'd like to see.  
 
-I'd love to see another way for users to input and save their add list and jobs list.
-Before sharing this project on GitHub, I used a google sheet for the add list and the jobs list. Here is the add list:
-https://docs.google.com/document/d/1LXNyJCR7qJJd1Oe6lytXRmCJH_ytePfnTISdNQYMOgA/edit
-It was super convenient and easy to manage and it was usually open in my chrome browser. I decided to take it out of this commit because it would require another auth flow to access a google sheet.
-Let me know how you think a user should input and save their add list and jobs list.
-
-I'm also curious to see how people see this package interacting with my previously shared https://github.com/riverscuomo/new-albums
+see [discussions](https://github.com/riverscuomo/spotnik/discussions/11) for some ideas.
