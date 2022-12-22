@@ -28,12 +28,6 @@ def post_description(spotify, job):
 
     description = f"{fact}..." + job["description"]
 
-    """ 
-    MUST UPDATE SPOTIPY LIKE THIS:
-    https://stackoverflow.com/questions/47028093/attributeerror-spotify-object-has-no-attribute-current-user-saved-tracks
-
-    Still relevant? I don't know.
-    """
     spotify.user_playlist_change_details(
         spotify.me()["id"], job["playlist_id"], description=description
     )
