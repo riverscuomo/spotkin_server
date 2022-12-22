@@ -1,8 +1,6 @@
 import os
 import random
 import spotipy
-import spotipy.util as util
-from json.decoder import JSONDecodeError
 from spotipy.oauth2 import SpotifyOAuth
 from spotnik.utils import *
 from rich import print
@@ -58,7 +56,7 @@ def get_spotify() -> spotipy.Spotify:
 
 def sample_playlist_tracks(spotify: spotipy.Spotify, playlist_id, limit, name):
     print(
-        f"- sampling a maximum of {limit} Spotify tracks from the playlist '{name}'... "  # with ID: {playlist_id}..."
+        f"- sampling up to {limit} Spotify tracks from the playlist '{name}'... "
     )
     all_tracks = get_playlist_tracks(spotify, playlist_id)
     # remove tracks with None type ids

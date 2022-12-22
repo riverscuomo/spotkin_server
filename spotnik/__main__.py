@@ -16,10 +16,6 @@ load_dotenv()
 
 JOBS_FILE_PATH = os.getenv("JOBS_FILE_PATH")
 ADD_LIST_FILE_PATH = os.getenv("ADD_LIST_FILE_PATH")
-# print(JOBS_FILE)
-# print(ADD_LIST_FILE)
-
-# ADD_LIST_FILE_PATH = r"
 
 
 def get_data():

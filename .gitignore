@@ -1,4 +1,5 @@
 .vscode/
+poetry.lock
 
 .cache-*
 # Byte-compiled / optimized / DLL files
