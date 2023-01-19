@@ -54,6 +54,7 @@ def get_spotify() -> spotipy.Spotify:
     
     return spotify
 
+
 def sample_playlist_tracks(spotify: spotipy.Spotify, playlist_id, limit, name):
     print(
         f"- sampling up to {limit} Spotify tracks from the playlist '{name}'... "
@@ -62,6 +63,7 @@ def sample_playlist_tracks(spotify: spotipy.Spotify, playlist_id, limit, name):
     # remove tracks with None type ids
     all_tracks = [track for track in all_tracks if track["track"] is not None and track["track"]["id"] is not None]
     return random.sample(all_tracks, min(limit, len(all_tracks)))
+
 
 def get_playlist_tracks(spotify: spotipy.Spotify, playlist_id):
     """

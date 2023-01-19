@@ -10,6 +10,8 @@ from utils import *
 import csv
 import os
 from dotenv import load_dotenv
+import gspreader
+import gspread
 
 load_dotenv()
 
@@ -43,12 +45,29 @@ def main():
     spotify = get_spotify()
 
     jobs = import_jobs()
+    print(jobs[0])
 
-    data = get_data()
+    # data = get_data()
+
+    # print(data[0:2])
+
+    sheet = gspreader.get_sheet("Spotify Controller", "recipes")
+    data = sheet.get_all_records(head=1)
+
+    # headers = ["Source Playlists", "Playlist ID" ,"Notes",	"Skip Recents"]
+
+    # target_playlist_names = [x for x in data[0].keys() if x not in headers ]
+
+    # jobs = [{"name": x} for x in target_playlist_names]
+    # print(jobs)
+    # print(data[0])
+
+    # exit()
 
     for job in jobs:
 
-        log(f"Spotnik playlist '{job['name']}'")
+        # log(f"Spotnik playlist '{job['name']}'")
+        log(f"Spotnik playlist 'Rivers Radio'")
 
         tracks = get_all_tracks(data, job, spotify)
 
