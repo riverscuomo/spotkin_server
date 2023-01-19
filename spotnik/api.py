@@ -2,7 +2,7 @@ import os
 import random
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from spotnik.utils import *
+from utils import *
 from rich import print
 from dotenv import load_dotenv
 

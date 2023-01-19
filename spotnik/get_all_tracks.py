@@ -1,4 +1,4 @@
-from spotnik.api import sample_playlist_tracks
+from api import sample_playlist_tracks
 
 
 def get_all_tracks(data, job, spotify):
