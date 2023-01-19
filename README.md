@@ -1,4 +1,4 @@
-# Spotnik
+# Spotnik [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 
 A python package that updates one or more of your Spotify playlists every day with a random selection of tracks from any public playlists. 
 
