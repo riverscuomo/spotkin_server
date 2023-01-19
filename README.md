@@ -62,6 +62,13 @@ JOBS_FILE=path_to_jobs_file
 ADD_LIST=path_to_add_list_csv
 
 #### For importing data from Google Sheets (preferred but not yet implemented)
+Share your google spreadsheet with the client_email address in your google credentials file.  The spreadsheet should be called "Spotify Controller" and have a sheet named "recipes" like this
+https://docs.google.com/spreadsheets/d/1z5MejG6EKg8rf8vYKeFhw9XT_3PxkDFOrPSEKT_jYqI/edit#gid=1936655481
+
+Share your google spreadsheet with the client_email address in your google credentials file.
+
+Set the following environment variables to get the data from the sheet:
+
 GSPREADER_GOOGLE_CLIENT_EMAIL=client_email_from_your_creds.json
 GSPREADER_GOOGLE_CREDS_PATH=path_to_your_creds.json
 
