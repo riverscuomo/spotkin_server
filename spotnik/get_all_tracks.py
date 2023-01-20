@@ -1,7 +1,7 @@
 from api import sample_playlist_tracks
 
 
-def get_all_tracks(data, job, spotify):
+def get_all_tracks(job, spotify):
     """
     This function will get the tracks from the playlists the user has specified in data/add_list.csv
     """
@@ -11,28 +11,29 @@ def get_all_tracks(data, job, spotify):
     )
     my_picks = []
 
-    for row in data:
+    for row in job["recipe"]:
+        quantity = int(row["quantity"])
 
-        try:
-            # How many songs you want to grab from the source playlist for this target playlist
-            quantity = int(row[target_playlist_name])
-        except KeyError:
-            print(
-                f"Error: '{target_playlist_name}' not found in the header row of add_list.csv"
-            )
-            exit()
+        # try:
+        #     # How many songs you want to grab from the source playlist for this target playlist
+        #     quantity = int(row["quantity"])
+        # except KeyError:
+        #     print(
+        #         f"Error: '{target_playlist_name}' not found in the header row of add_list.csv"
+        #     )
+        #     exit()
 
         if quantity is None or quantity == "" or quantity < 1:
             # print("skipping row...")
             continue
 
-        quantity = int(quantity)
+        # quantity = int(quantity)
 
         # parse the id of the playlist from whatever the user has entered in config.py
-        playlist_id = row["Playlist ID"]
+        playlist_id = row["source_playlist_id"]
 
         # for logging purposes
-        playlist_name = row["Name"]
+        playlist_name = row["source_playlist_name"]
 
         new_tracks = sample_playlist_tracks(
             spotify,

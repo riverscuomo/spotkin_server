@@ -16,26 +16,76 @@ import gspread
 load_dotenv()
 
 
-JOBS_FILE_PATH = os.getenv("JOBS_FILE_PATH")
-ADD_LIST_FILE_PATH = os.getenv("ADD_LIST_FILE_PATH")
+def get_settings():
+    
+    log("gettings jobs...")
+
+    settings_sheet = gspreader.get_sheet("Spotify Controller", "settings")
+    data = settings_sheet.get_all_records()
+    # target_playlist_names = list()
+
+    jobs = [{"name": x} for x in list(data[0].keys())[1:]]
+    settings = [x["setting"] for x in data]
+
+    # print(jobs)
+    # print(settings)
+
+    for job in jobs:
+
+        for row in data:
+            
+            item = row[job["name"]]
+
+            if "||" in item:
+                items = item.split("||")
+                items = [x.strip() for x in items if x.strip() != ""]
+                job[row["setting"]] = items
+
+            elif item in ["TRUE", "FALSE"]:
+                item = item == "TRUE"
+                job[row["setting"]] = item
+
+            else:
+                job[row["setting"]] = item.strip()
+
+            """ This is ugly but I needed a quick fix for the fact that we need some of the setting guaranteed to be lists """
+
+            list_types = ['last_track_ids',
+                'banned_artist_names',
+                'banned_song_titles',
+                'banned_track_ids',
+                'banned_genres',
+                'exceptions_to_banned_genres',]
+
+            if row["setting"] in list_types:
+                if type(job[row["setting"]]) != list:
+                    if job[row["setting"]] == "":
+                        job[row["setting"]] = []
+                    else:
+                        job[row["setting"]] = [job[row["setting"]]]
+
+        
+
+    
+
+    return jobs
 
 
-def get_data():
-    log("getting the user's add list from csv file...")
-    with open(ADD_LIST_FILE_PATH) as csvfile:
-        reader = csv.DictReader(csvfile)
-        data = list(reader)
-    return data
+def get_recipes(jobs: list):
+    recipe_sheet = gspreader.get_sheet("Spotify Controller", "recipes")
+    recipe_data = recipe_sheet.get_all_records(head=1)
 
+    for job in jobs:
+        job["recipe"] = []
+        for row in recipe_data:
+            if row[job["name"]] != 0:
+                job["recipe"].append({
+                "source_playlist_name": row["source_playlist_name"],
+                "source_playlist_id": row["source_playlist_id"],
+                "quantity": row[job["name"]],
+            })
 
-def import_jobs():
-
-    log("importing jobs from file...")
-
-    try:
-        return import_module(f"{JOBS_FILE_PATH}", package="spotnik").jobs
-    except ValueError as e:
-        print(f"Error importing from fiat file: {JOBS_FILE_PATH} - {e}")
+    return jobs
 
 
 def main():
@@ -44,39 +94,31 @@ def main():
 
     spotify = get_spotify()
 
-    jobs = import_jobs()
-    print(jobs[0])
+    # jobs = import_jobs()
+    # print(jobs[0])
 
     # data = get_data()
 
-    # print(data[0:2])
+    jobs = get_settings()
+    
+    jobs = get_recipes(jobs)
 
-    sheet = gspreader.get_sheet("Spotify Controller", "recipes")
-    data = sheet.get_all_records(head=1)
-
-    # headers = ["Source Playlists", "Playlist ID" ,"Notes",	"Skip Recents"]
-
-    # target_playlist_names = [x for x in data[0].keys() if x not in headers ]
-
-    # jobs = [{"name": x} for x in target_playlist_names]
     # print(jobs)
-    # print(data[0])
-
-    # exit()
 
     for job in jobs:
 
-        # log(f"Spotnik playlist '{job['name']}'")
-        log(f"Spotnik playlist 'Rivers Radio'")
+        log(f"Spotnik playlist '{job['name']}'")
+        # log(f"Spotnik playlist 'Rivers Radio'")
 
-        tracks = get_all_tracks(data, job, spotify)
+        tracks = get_all_tracks(job, spotify)
 
         updated_tracks = []
 
-        # make list of just the track objects while also eliminating duplicates
-        tracks = list({v["track"]["id"]: v["track"] for v in tracks}.values())
+        # make list of just the track objects while also eliminating duplicates and empty tracks
+        tracks = list({v["track"]["id"]: v["track"] for v in tracks }.values())
 
         track_ids = [x["id"] for x in tracks]
+        # print(track_ids)
 
         audio_features = get_audio_features(spotify, track_ids)
         artists_genres = build_artist_genres(spotify, tracks)
@@ -104,6 +146,8 @@ def main():
         # nature sounds or white noise)
         updated_tracks.extend(job["last_track_ids"])
 
+        
+
         print("updating spotify playlist")
         # empty playlist
         result = spotify.user_playlist_replace_tracks(
@@ -111,6 +155,8 @@ def main():
         )
 
         limit = 100
+
+        print(updated_tracks)
 
         for chunk in (updated_tracks[i:i+limit] for i in range(0, len(updated_tracks), limit)):
             result = spotify.user_playlist_add_tracks(
@@ -134,3 +180,26 @@ def build_artist_genres(spotify, tracks):
 if __name__ == "__main__":
 
     main()
+
+
+
+# JOBS_FILE_PATH = os.getenv("JOBS_FILE_PATH")
+# ADD_LIST_FILE_PATH = os.getenv("ADD_LIST_FILE_PATH")
+
+
+# def get_data():
+#     log("getting the user's add list from csv file...")
+#     with open(ADD_LIST_FILE_PATH) as csvfile:
+#         reader = csv.DictReader(csvfile)
+#         data = list(reader)
+#     return data
+
+
+# def import_jobs():
+
+#     log("importing jobs from file...")
+
+#     try:
+#         return import_module(f"{JOBS_FILE_PATH}", package="spotnik").jobs
+#     except ValueError as e:
+#         print(f"Error importing from fiat file: {JOBS_FILE_PATH} - {e}")
