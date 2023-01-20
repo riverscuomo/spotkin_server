@@ -58,31 +58,12 @@ GSPREADER_GOOGLE_CLIENT_EMAIL=client_email_from_your_creds.json
 GSPREADER_GOOGLE_CREDS_PATH=path_to_your_creds.json
 
 ### To add more target playlists
-Simply add columns in the "recipes" sheet (with the playlist name and the number of tracks to take from each source playlist) and columns in the "settings" sheet (with any desired settings).
+Simply add columns in the "recipes" sheet and in the "settings" sheet.
 
-```
 ### Poetry
 poetry init
 poetry install
 
-
-### Create a Virtual Environment (optional)
-
-These steps is not necessary, but recommended for environment isolation. You could use [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html) (and [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/index.html)) or just the built-in [venv](https://docs.python.org/3/library/venv.html).
-
-### Install dependencies
-
-Installing the package adds the dependencies specified in the setup.py file
-
-```
-pip install .
-```
-
-### Local development
-
-The package can be installed in develop mode to allow you to make changes locally.
-
-`pip install . develop`  
 
 ## Running
 
