@@ -2,23 +2,7 @@
 
 A python package that updates one or more of your Spotify playlists every day with a random selection of tracks from any public playlists. 
 
-For example, I have a playlist called ["Rivers Radio"](https://open.spotify.com/playlist/1HaQfSGjNzIsiC5qOsCUcW?si=861bc59c458b4b0a) that is updated by Spotnik every day with this recipe:
-    
-    PLAYLIST NAME / QUANTITY OF TRACKS TO TAKE
-    albumsImCheckingOut	8
-    new albums	7
-    nostalgia	7
-    new music friday	7
-    nu metal	6
-    fivehundredalbums	6
-    new_music_friday_picks	5
-    liked_songs_picks	5
-    tiktok	3
-    today's top hits	3
-    us viral	3
-    recent weezer	2
-    big on the internet	2
-    etc.
+For example, I have a playlist called ["Rivers Radio"](https://open.spotify.com/playlist/1HaQfSGjNzIsiC5qOsCUcW?si=861bc59c458b4b0a) that is updated by Spotnik every day.
     
 I developed this script because I didn't like fiddling with the Spotify app all the time. I just wanted a great selection of music in one playlist every day. I've been it using it every day for a few years. It's run automatically at 2am by a Windows Task Scheduler job. It works best when you draw from many playlists, especially:
 
@@ -46,7 +30,7 @@ Additionally, the Spotnik script uses an Authorization Code Flow. Due to this, y
 
 ### Spotify Playlist Id
 
-The script will need the unique ID for one of your Spotify playlists. To get the ID for a playlist, in Spotify, right-click on the playlist > Share > Copy Share Link. The link will contain the playlist ID. It is the string between `playlist/` and `?si=`.
+The script will need the unique ID for at least one of your Spotify playlists. This is where your Spotnik playlist will be updated. To get the ID for a playlist, in Spotify, right-click on the playlist > Share > Copy Share Link. The link will contain the playlist ID. It is the string between `playlist/` and `?si=`.
 
 ### Environment Variables
 
@@ -56,14 +40,15 @@ You can specify custom variables to include using a `.env` file.  Alternatively,
 SPOTIFY_CLIENT_ID=xxx
 SPOTIFY_CLIENT_SECRET=xxx
 SPOTIFY_REDIRECT_URI=http://localhost:8080
+```
 
-#### For importing data from a CSV file (will be deprecated)
-JOBS_FILE=path_to_jobs_file
-ADD_LIST=path_to_add_list_csv
-
-#### For importing data from Google Sheets (preferred but not yet implemented)
-Share your google spreadsheet with the client_email address in your google credentials file.  The spreadsheet should be called "Spotify Controller" and have a sheet named "recipes" like this
+#### For importing data from Google Sheets
+Make a copy of this google sheet:
 https://docs.google.com/spreadsheets/d/1z5MejG6EKg8rf8vYKeFhw9XT_3PxkDFOrPSEKT_jYqI/edit#gid=1936655481
+
+The spreadsheet should be called "Spotify Controller" and have a sheet named "recipes" and a sheet "settings"
+
+Put your target playlist id(s) in the `playlist_id` row of the settings sheet.
 
 Share your google spreadsheet with the client_email address in your google credentials file.
 
@@ -72,21 +57,13 @@ Set the following environment variables to get the data from the sheet:
 GSPREADER_GOOGLE_CLIENT_EMAIL=client_email_from_your_creds.json
 GSPREADER_GOOGLE_CREDS_PATH=path_to_your_creds.json
 
+### To add more target playlists
+Simply add columns in the "recipes" sheet (with the playlist name and the number of tracks to take from each source playlist) and columns in the "settings" sheet (with any desired settings).
+
 ```
 ### Poetry
 poetry init
 poetry install
-
-### Define one or more jobs (target playlists to update along with the source playlists and how many tracks to take from each source)
-By default, the jobs specified in `spotnik.data._default_jobs` are used.  You can add a custom jobs file in the `spotnik/data` folder and specify the name in your .env file usimg the `JOBS_FILE` variable.   
-
-### Define your add list in a CSV file
-Each row is a source playlist you want to pull tracks from to add to your target playlists. It will have at least 3 columns:
-- Name: the name of the source playlist (for display purposes only)
-- PlaylistId: the id of the source playlist
-- And then as many target playlist names as you want. The value for each target playlist name should be the number of tracks to take from that playlist.  For example, if you want to take 5 tracks from the playlist "new music friday" and add them to your "Rivers Radio" playlist, you would have a line like this:
-
-```new music friday,37i9dQZF1DX4JAvHpjipBk,7```
 
 
 ### Create a Virtual Environment (optional)
