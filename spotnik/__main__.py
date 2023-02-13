@@ -1,12 +1,12 @@
 from importlib import import_module
 from re import X
-from get_all_tracks import get_all_tracks
-from bans import *
+from spotnik.spotnik.get_all_tracks import get_all_tracks
+from spotnik.spotnik.bans import *
 import random
-from post_description import *
-from api import *
+from spotnik.spotnik.post_description import *
+from spotnik.spotnik.api import *
 from rich import print
-from utils import *
+from spotnik.spotnik.utils import *
 import csv
 import os
 from dotenv import load_dotenv
@@ -14,6 +14,8 @@ import gspreader
 import gspread
 
 load_dotenv()
+
+print("spotnik.setup main...")
 
 
 def get_settings():

@@ -2,12 +2,12 @@ import random
 import re
 import os
 from rich import print
-from spotnik.utils import *
+from spotnik.spotnik.utils import *
 
 
 def getFact():
     # get the random fact
-    fact_path = os.path.join("spotnik", "data", "randomfacts.txt")
+    fact_path = "spotnik\\spotnik\\data\\randomfacts.txt"#os.path.join("spotnik.spotnik", "data", "randomfacts.txt")
     with open(
         fact_path,
         "r+",
