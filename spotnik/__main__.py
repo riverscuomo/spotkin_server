@@ -1,12 +1,12 @@
 from importlib import import_module
 from re import X
-from spotnik.spotnik.get_all_tracks import get_all_tracks
-from spotnik.spotnik.bans import *
+from spotnik.scripts.get_all_tracks import get_all_tracks
+from spotnik.scripts.bans import *
 import random
-from spotnik.spotnik.post_description import *
-from spotnik.spotnik.api import *
+from spotnik.scripts.post_description import *
+from spotnik.scripts.api import *
 from rich import print
-from spotnik.spotnik.utils import *
+from spotnik.scripts.utils import *
 import csv
 import os
 from dotenv import load_dotenv

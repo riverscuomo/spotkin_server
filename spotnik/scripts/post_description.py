@@ -2,7 +2,7 @@ import random
 import re
 import os
 from rich import print
-from spotnik.spotnik.utils import *
+from spotnik.scripts.utils import *
 
 
 def getFact():

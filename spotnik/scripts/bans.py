@@ -1,4 +1,4 @@
-from spotnik.spotnik.utils import *
+from spotnik.scripts.utils import *
 
 class PlaylistFilter:
     """Determines whether songs belong in the playlist or not based on a job."""
