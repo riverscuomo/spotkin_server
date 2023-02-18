@@ -18,6 +18,8 @@ load_dotenv()
 print("spotnik.setup main...")
 
 
+
+
 def get_settings():
     
     log("gettings jobs...")
