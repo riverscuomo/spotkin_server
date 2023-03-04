@@ -1,4 +1,6 @@
-# Spotnik [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+# Spotkin [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+
+## (in the middle of re-naming hell: at first it was 'spotkin' then I changed it to 'spotnik' now I'm changing it back to 'spotkin'. It's supposed to be short for 'spotify controller'.)
 
 A python package that updates one or more of your Spotify playlists every day with a random selection of tracks from any public playlists. 
 
