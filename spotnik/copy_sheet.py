@@ -17,7 +17,7 @@ def copy_sheet(service_file, gmail):
 	if (val_wks):
 	    copied_sh.del_worksheet(val_wks[0])
 
-	copied_sh.share(gmail)
+	copied_sh.share(gmail, role="writer")
 	print('shared sheet "%s" to %s' % (SHEET_TITLE, gmail))
 	return
 
