@@ -42,8 +42,15 @@ SPOTIFY_CLIENT_SECRET=xxx
 SPOTIFY_REDIRECT_URI=http://localhost:8080
 ```
 
-#### For importing data from Google Sheets
-Make a copy of this google sheet:
+### Setup your settings in Google Sheets
+### Import with our script:
+Tiny script to copy the template sheet to a user-specified gmail.
+The function can be imported:
+
+python3 copy_sheet.py "/path/to/credentials.json" "myemail@gmail.com"
+TLDR: fetches the template sheet, duplicates it and shares the duplicated sheet to a gmail.
+
+### Manually make a copy:
 https://docs.google.com/spreadsheets/d/1z5MejG6EKg8rf8vYKeFhw9XT_3PxkDFOrPSEKT_jYqI/edit#gid=1936655481
 
 The spreadsheet should be called "Spotify Controller" and have a sheet named "recipes" and a sheet "settings"
@@ -58,7 +65,7 @@ GSPREADER_GOOGLE_CLIENT_EMAIL=client_email_from_your_creds.json
 GSPREADER_GOOGLE_CREDS_PATH=path_to_your_creds.json
 
 ### To add more target playlists
-Simply add columns in the "recipes" sheet and in the "settings" sheet.
+Simply add columns in the "recipes" sheet and in the "settings" sheet. I like keeping it to one or two.
 
 ### Poetry
 poetry init
