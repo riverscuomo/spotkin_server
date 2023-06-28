@@ -10,7 +10,7 @@ load_dotenv()
 
 SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URL = os.getenv("SPOTIFY_REDIRECT_URL")
 
 
@@ -35,7 +35,7 @@ def oauthStepTwo():
     token = oauth.fetch_token(
         token_url,
         authorization_response=authorization_response,
-        client_secret=SPOTIPY_CLIENT_SECRET,
+        client_secret=SPOTIFY_CLIENT_SECRET,
     )
     print(token)
 
@@ -47,7 +47,7 @@ def get_spotify() -> spotipy.Spotify:
         scope=SPOTIFY_SCOPE, 
         redirect_uri="http://localhost:8080", 
         client_id=SPOTIFY_CLIENT_ID, 
-        client_secret=SPOTIPY_CLIENT_SECRET
+        client_secret=SPOTIFY_CLIENT_SECRET
     )
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
