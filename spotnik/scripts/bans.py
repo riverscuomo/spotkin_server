@@ -36,7 +36,7 @@ class PlaylistFilter:
 
         elif (
             artist_genre in self.job["banned_genres"]
-            and not artist_name in self.job["exceptions_to_banned_genres"]
+            and artist_name not in self.job["exceptions_to_banned_genres"]
         ):
             log(
                 f"Removed {track_name} by {artist_name} because genre {artist_genre} is in this playlist's banned genres"
