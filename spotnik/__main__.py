@@ -158,7 +158,7 @@ def main():
 
         audio_features = get_audio_features(spotify, track_ids)
         artists_genres = build_artist_genres(spotify, tracks)
-        filter = PlaylistFilter(job, audio_features)
+        playlist_filter = PlaylistFilter(job, audio_features)
 
         # Cull banned items from your list
         for track in tracks:
@@ -171,7 +171,7 @@ def main():
                 (x for x in artists_genres if x["artist_id"] == artist_id), None
             )
 
-            if filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
+            if playlist_filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
                 continue
 
             updated_tracks.append(track["id"])
