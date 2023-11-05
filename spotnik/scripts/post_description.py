@@ -5,9 +5,14 @@ from rich import print
 from spotnik.scripts.utils import *
 
 
+
 def getFact():
     # get the random fact
-    fact_path = "spotnik\\spotnik\\data\\randomfacts.txt"#os.path.join("spotnik.spotnik", "data", "randomfacts.txt")
+    # fact_path = "spotnik\\spotnik\\data\\randomfacts.txt"
+    # fact_path = os.path.join("spotnik.spotnik", "data", "randomfacts.txt")
+    # fact_path = "..\\data\\randomfacts.txt"
+    # fact_path = spotnik.data.randomfacts.txt
+    fact_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'randomfacts.txt')
     with open(
         fact_path,
         "r+",

@@ -12,7 +12,8 @@ SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-r
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URL = os.getenv("SPOTIFY_REDIRECT_URL")
-
+# print('SPOTIPY_CLIENT_SECRET', SPOTIPY_CLIENT_SECRET)
+# print(os.environ())
 
 def oauthStepTwo():
     from requests_oauthlib import OAuth2Session

@@ -18,7 +18,23 @@ load_dotenv()
 print("spotnik.setup main...")
 
 
-def get_settings():
+def get_jobs_with_their_settings():
+    """
+    Retrieves job settings from a Google Spreadsheet named "Spotify Controller" and the sheet "settings".
+    
+    The function reads all records from the sheet and transforms them into a list of dictionaries, where each dictionary represents a job.
+    Each job is a dictionary with the job name as the key and the job settings as the values.
+    
+    The settings are processed as follows:
+    - If a setting contains "||", it is split into a list of items.
+    - If a setting is "TRUE" or "FALSE", it is converted to a boolean value.
+    - Otherwise, the setting is stripped of leading and trailing whitespace.
+    
+    For certain settings that are guaranteed to be lists (specified in `list_types`), if the setting is not already a list, it is converted into a list.
+    
+    Returns:
+        jobs (list of dict): A list of dictionaries, where each dictionary represents a job with its settings.
+    """
     
     log("gettings jobs...")
 
@@ -66,14 +82,24 @@ def get_settings():
                     else:
                         job[row["setting"]] = [job[row["setting"]]]
 
-        
-
-    
-
     return jobs
 
 
-def get_recipes(jobs: list):
+def get_recipes_for_each_job(jobs: list):
+    """
+    Retrieves recipe data from a Google Spreadsheet named "Spotify Controller" and the sheet "recipes".
+    
+    The function reads all records from the sheet and transforms them into a list of dictionaries, where each dictionary represents a recipe.
+    Each recipe is a dictionary with the source playlist name, source playlist id, and quantity as the keys and the corresponding values from the sheet as the values.
+    
+    The function then iterates over the list of jobs. For each job, it creates a new list of recipes where the quantity is not zero and adds this list to the job dictionary under the key "recipe".
+    
+    Args:
+        jobs (list): A list of job dictionaries.
+        
+    Returns:
+        jobs (list): The input list of job dictionaries, but with each job now including a "recipe" key with a list of recipe dictionaries.
+    """
     recipe_sheet = gspreader.get_sheet("Spotify Controller", "recipes")
     recipe_data = recipe_sheet.get_all_records(head=1)
 
@@ -109,9 +135,9 @@ def main():
 
     # data = get_data()
 
-    jobs = get_settings()
+    jobs = get_jobs_with_their_settings()
     
-    jobs = get_recipes(jobs)
+    jobs = get_recipes_for_each_job(jobs)
 
     # print(jobs)
 
