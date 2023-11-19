@@ -93,13 +93,29 @@ def get_artists_genres(spotify: spotipy.Spotify, artist_ids):
 
 
 def get_audio_features(spotify: spotipy.Spotify, track_ids):
+    """
+    Retrieves audio features for a list of track IDs from the Spotify API.
+
+    Args:
+        spotify: An instance of the `spotipy.Spotify` class representing the Spotify API client.
+        track_ids: A list of track IDs for which to retrieve audio features.
+
+    Returns:
+        A dictionary mapping each track ID to its corresponding audio features, excluding any features that are None.
+
+    Examples:
+        spotify = spotipy.Spotify()
+        track_ids = ["track1", "track2", "track3"]
+        features = get_audio_features(spotify, track_ids)
+        # Returns: {"track1": {"id": "track1", "feature": "data"}, "track2": {"id": "track2", "feature": "data"}, "track3": {"id": "track3", "feature": "data"}}
+    """
     print("- returning get_audio_features track ids...")
     chunks = divide_chunks(track_ids, 100)
     audio_features = []
     for chunk in chunks:
         result = spotify.audio_features(chunk)
         audio_features.extend(iter(result))
-    return {v["id"]: v for v in audio_features}
+    return {v["id"]: v for v in audio_features if v is not None}
 
 
 def get_playlist_track_ids(spotify: spotipy.Spotify, playlist_id, limit, skip_recents=None, name=""):
