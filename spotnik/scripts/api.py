@@ -1,9 +1,8 @@
 import os
 import random
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy import SpotifyOAuth, Spotify
 from spotnik.scripts.utils import *
-from rich import print
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,53 +10,44 @@ load_dotenv()
 SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-SPOTIFY_REDIRECT_URL = os.getenv("SPOTIFY_REDIRECT_URL")
-# print('SPOTIPY_CLIENT_SECRET', SPOTIPY_CLIENT_SECRET)
-# print(os.environ())
+SPOTIFY_REDIRECT_URL = "http://localhost:8080"
+scope = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played,user-top-read"
+SPOTIPY_USER = os.getenv("SPOTIPY_USER")
 
-def oauthStepTwo():
-    from requests_oauthlib import OAuth2Session
-
-    auth_url = "https://accounts.spotify.com/authorize"
-    token_url = "https://accounts.spotify.com/api/token"
-
-    scope = "playlist-modify-private"
-    oauth = OAuth2Session(
-        SPOTIFY_CLIENT_ID, redirect_uri=SPOTIFY_REDIRECT_URL, scope=scope
+def get_spotify_client(refresh_token: str = None, timeout: int = 20) -> Spotify:
+    log("[get_spotify] Creating Spotify client")
+    print(SPOTIFY_REDIRECT_URL)
+    auth_manager = SpotifyOAuth(
+        client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+        redirect_uri="http://localhost:8080",
+        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played",
+        cache_path=".cache-file"  # Optional: where to store the token info
     )
 
-    authorization_url, state = oauth.authorization_url(auth_url)
+    return spotipy.Spotify(auth_manager=auth_manager)
 
-    print("Please go to %s and authorize access." % authorization_url)
 
-    authorization_response = input("Enter the full callback URL")
-    print(authorization_response)
+def get_spotify(timeout=20) -> spotipy.Spotify:
+    log("[get_spotify] Creating Spotify client")
+    print(SPOTIFY_REDIRECT_URL)
 
-    token = oauth.fetch_token(
-        token_url,
-        authorization_response=authorization_response,
+    # This code currently uses the deprecated username parameter.
+    token = SpotifyOAuth(
+        client_id=SPOTIFY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,
-    )
-    print(token)
-
-
-def get_spotify() -> spotipy.Spotify:
-    log("get_spotify...")
-
-    auth_manager=SpotifyOAuth(
-        scope=SPOTIFY_SCOPE, 
-        redirect_uri="http://localhost:8080", 
-        client_id=SPOTIFY_CLIENT_ID, 
-        client_secret=SPOTIPY_CLIENT_SECRET
+        redirect_uri=SPOTIFY_REDIRECT_URL,
+        scope=scope,
+        username=SPOTIPY_USER,
+        requests_timeout=timeout,
     )
 
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    
+    spotify = spotipy.Spotify(auth_manager=token, requests_timeout=timeout)
     return spotify
 
 
 def sample_playlist_tracks(spotify: spotipy.Spotify, playlist_id, limit, name):
-    print(
+    log(
         f"- sampling up to {limit} Spotify tracks from the playlist '{name}'... "
     )
     all_tracks = get_playlist_tracks(spotify, playlist_id)
@@ -79,7 +69,7 @@ def get_playlist_tracks(spotify: spotipy.Spotify, playlist_id):
 
 
 def get_artists_genres(spotify: spotipy.Spotify, artist_ids):
-    print("- returning artist genres for artist ids...")
+    log("- returning artist genres for artist ids...")
     chunks = divide_chunks(artist_ids, 50)
     artist_genres = []
     for chunk in chunks:
@@ -109,7 +99,7 @@ def get_audio_features(spotify: spotipy.Spotify, track_ids):
         features = get_audio_features(spotify, track_ids)
         # Returns: {"track1": {"id": "track1", "feature": "data"}, "track2": {"id": "track2", "feature": "data"}, "track3": {"id": "track3", "feature": "data"}}
     """
-    print("- returning get_audio_features track ids...")
+    log("- returning get_audio_features track ids...")
     chunks = divide_chunks(track_ids, 100)
     audio_features = []
     for chunk in chunks:

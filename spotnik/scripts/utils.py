@@ -8,6 +8,9 @@ def divide_chunks(l, n):
 
 
 def log(message):
-    print("=============================================")
-    print(message)
-    # print("=============================================")
+    with open("spotnik/log.txt", "a") as file:
+        file.write("=============================================\n")
+        file.write(message + "\n")
+        print(message)
+        
+        # file.write("=============================================\n")

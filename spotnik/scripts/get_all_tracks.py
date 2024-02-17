@@ -1,4 +1,5 @@
 from spotnik.scripts.api import sample_playlist_tracks
+from spotnik.scripts.utils import log
 
 
 def get_all_tracks(job, spotify):
@@ -6,7 +7,7 @@ def get_all_tracks(job, spotify):
     This function will get the tracks from the playlists the user has specified in data/add_list.csv
     """
     target_playlist_name = job["name"]
-    print(
+    log(
         f"Getting tracks from the playlists earmarked for the {target_playlist_name} playlist..."
     )
     my_picks = []
@@ -18,13 +19,13 @@ def get_all_tracks(job, spotify):
         #     # How many songs you want to grab from the source playlist for this target playlist
         #     quantity = int(row["quantity"])
         # except KeyError:
-        #     print(
+        #     log(
         #         f"Error: '{target_playlist_name}' not found in the header row of add_list.csv"
         #     )
         #     exit()
 
         if quantity is None or quantity == "" or quantity < 1:
-            # print("skipping row...")
+            # log("skipping row...")
             continue
 
         # quantity = int(quantity)

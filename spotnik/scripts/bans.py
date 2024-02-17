@@ -51,7 +51,10 @@ class PlaylistFilter:
         if "remove_low_energy" not in self.job or self.job["remove_low_energy"] is False:
             return False
 
-        audio_feature = self.audio_features[track["id"]]
+        try:
+            audio_feature = self.audio_features[track["id"]]
+        except KeyError:
+            return False
 
         loudness = audio_feature["loudness"]
         energy = audio_feature["energy"]
@@ -59,24 +62,24 @@ class PlaylistFilter:
         acousticness = audio_feature["acousticness"]
 
         if loudness < -15:
-            print(f"- {track_name} by {artist_name} banned for low loudness: {loudness}")
+            log(f"- {track_name} by {artist_name} banned for low loudness: {loudness}")
             return True
 
         # danceability =  audio_feature["danceability"]
 
         elif energy < 0.51:
-            print(f"- {track_name} by {artist_name} banned for low energy: {energy}")
+            log(f"- {track_name} by {artist_name} banned for low energy: {energy}")
             return True
 
         elif acousticness > 0.42:
-            print(
+            log(
                 f"- {track_name} by {artist_name} banned for high acousticness: {acousticness}"
             )
             return True
         # instrumentalness =  audio_feature["instrumentalness"]
         # liveness =  audio_feature[{} banned for iveness"]
         # tempo_spotify =  audio_feature["tempo"]
-        # print(audio_feature["id"],loudness,danceability,energy,speechiness,acousticness,instrumentalness,liveness,tempo_spotify)
+        # log(audio_feature["id"],loudness,danceability,energy,speechiness,acousticness,instrumentalness,liveness,tempo_spotify)
         # if energy > 0.5:
         else:
             return False
@@ -115,7 +118,7 @@ class PlaylistFilter:
 #     # headerRange = "A1:ZZ1"
 
 #     # banned_artist_names = getColValues(sheet, headerRange, "artist_name")
-#     # # print(banned_artist_names)
+#     # # log(banned_artist_names)
 #     # # sys.exit()
 #     # bannedSongs = getColValues(sheet, headerRange, "title")
 #     # bannedURIs = getColValues(sheet, headerRange, "uri")

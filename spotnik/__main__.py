@@ -1,21 +1,19 @@
-from importlib import import_module
+from datetime import datetime
 from re import X
+from rivertils.rivertils import sleep
 from spotnik.scripts.get_all_tracks import get_all_tracks
 from spotnik.scripts.bans import *
 import random
 from spotnik.scripts.post_description import *
 from spotnik.scripts.api import *
-from rich import print
 from spotnik.scripts.utils import *
-import csv
-import os
 from dotenv import load_dotenv
 import gspreader
 import gspread
 
 load_dotenv()
 
-print("spotnik.setup main...")
+log("spotnik.setup main...")
 
 
 def get_jobs_with_their_settings():
@@ -39,19 +37,29 @@ def get_jobs_with_their_settings():
     log("gettings jobs...")
 
     settings_sheet = gspreader.get_sheet("Spotify Controller", "settings")
-    data = settings_sheet.get_all_records()
-    # target_playlist_names = list()
+    log(f'got sheet:{str(settings_sheet)}')
+
+    x = 0
+    while x < 10:
+        try:
+            data = settings_sheet.get_all_records()
+            break
+        except gspread.exceptions.APIError as e:
+            log(f'Error getting sheet data: {e}')
+            x += 1
+            sleep(10)
+    
 
     jobs = [{"name": x} for x in list(data[0].keys())[1:]]
     settings = [x["setting"] for x in data]
 
-    # print(jobs)
-    # print(settings)
+    # log(jobs)
+    # log(settings)
 
     for job in jobs:
 
         for row in data:
-            
+
             item = row[job["name"]]
 
             if "||" in item:
@@ -127,11 +135,13 @@ def build_artist_genres(spotify, tracks):
 def main():
 
     log("spotnik.setup main...")
+    log(str(datetime.now()))
 
-    spotify = get_spotify()
+    # spotify = get_spotify()
+    spotify = get_spotify_client()
 
     # jobs = import_jobs()
-    # print(jobs[0])
+    # log(jobs[0])
 
     # data = get_data()
 
@@ -139,7 +149,7 @@ def main():
     
     jobs = get_recipes_for_each_job(jobs)
 
-    # print(jobs)
+    # log(jobs)
 
     for job in jobs:
 
@@ -154,7 +164,7 @@ def main():
         tracks = list({v["track"]["id"]: v["track"] for v in tracks }.values())
 
         track_ids = [x["id"] for x in tracks]
-        # print(track_ids)
+        # log(track_ids)
 
         audio_features = get_audio_features(spotify, track_ids)
         artists_genres = build_artist_genres(spotify, tracks)
@@ -184,7 +194,7 @@ def main():
 
         
 
-        print("updating spotify playlist")
+        log("updating spotify playlist")
         # empty playlist
         result = spotify.user_playlist_replace_tracks(
             spotify.me()["id"], job["playlist_id"], []
@@ -192,7 +202,7 @@ def main():
 
         limit = 100
 
-        print(updated_tracks)
+        # log(updated_tracks)
 
         for chunk in (updated_tracks[i:i+limit] for i in range(0, len(updated_tracks), limit)):
             result = spotify.user_playlist_add_tracks(
@@ -231,4 +241,4 @@ if __name__ == "__main__":
 #     try:
 #         return import_module(f"{JOBS_FILE_PATH}", package="spotnik").jobs
 #     except ValueError as e:
-#         print(f"Error importing from fiat file: {JOBS_FILE_PATH} - {e}")
+#         log(f"Error importing from fiat file: {JOBS_FILE_PATH} - {e}")

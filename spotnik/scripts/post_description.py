@@ -1,7 +1,6 @@
 import random
 import re
 import os
-from rich import print
 from spotnik.scripts.utils import *
 
 
