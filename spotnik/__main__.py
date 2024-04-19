@@ -53,8 +53,7 @@ def get_jobs_with_their_settings():
     jobs = [{"name": x} for x in list(data[0].keys())[1:]]
     settings = [x["setting"] for x in data]
 
-    # log(jobs)
-    # log(settings)
+    print(settings)
 
     for job in jobs:
 
@@ -177,6 +176,9 @@ def main():
             track_name = track["name"]
             artist_id = track["artists"][0]["id"]
             artist_name = track["artists"][0]["name"]
+            if "mozzy" in artist_name.lower():
+                log("found mozzy")
+
             artist_genre = next(
                 (x for x in artists_genres if x["artist_id"] == artist_id), None
             )

@@ -34,8 +34,10 @@ class PlaylistFilter:
         if "banned_genres" not in self.job or artist_genre is None:
             return False
 
+        # want to try being more aggressive here. 
+        # Now a banned genre 'rap' will reject 'Cali rap', 'trap' and 'rap metal' etc.
         elif (
-            artist_genre in self.job["banned_genres"]
+            self.job["banned_genres"] in artist_genre
             and artist_name not in self.job["exceptions_to_banned_genres"]
         ):
             log(
