@@ -1,5 +1,5 @@
-from spotnik.scripts.api import sample_playlist_tracks
-from spotnik.scripts.utils import log
+from spotkin.scripts.api import sample_playlist_tracks
+from spotkin.scripts.utils import log
 
 
 def get_all_tracks(job, spotify):

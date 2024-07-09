@@ -2,6 +2,9 @@
 poetry.lock
 log.txt
 
+# Rivers's venv
+.9
+
 .cache-*
 # Byte-compiled / optimized / DLL files
 __pycache__/

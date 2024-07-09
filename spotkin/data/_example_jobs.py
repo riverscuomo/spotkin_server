@@ -4,7 +4,7 @@
 # jobs = [
 #     {
 #         "playlist_id": target_playlist_id_1,
-#         "name": "Spotnik Example Playlist 1",
+#         "name": "spotkin Example Playlist 1",
 #         "description": "These are the songs I'm listening to today.",
 #         "remove_low_energy": False,
 #         "last_track_ids": ["3eWGQXWe5cDY8xNQwaXtzs"],
@@ -62,7 +62,7 @@
 #     },
 #     {
 #         "playlist_id": target_playlist_id_2,
-#         "name": "Spotnik Example Playlist 2",
+#         "name": "spotkin Example Playlist 2",
 #         "description": "These are the songs I'm lifting to today.",
 #         "remove_low_energy": True,
 #         "last_track_ids": [],

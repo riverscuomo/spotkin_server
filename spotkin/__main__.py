@@ -1,19 +1,19 @@
 from datetime import datetime
 from re import X
 from rivertils.rivertils import sleep
-from spotnik.scripts.get_all_tracks import get_all_tracks
-from spotnik.scripts.bans import *
+from spotkin.scripts.get_all_tracks import get_all_tracks
+from spotkin.scripts.bans import *
 import random
-from spotnik.scripts.post_description import *
-from spotnik.scripts.api import *
-from spotnik.scripts.utils import *
+from spotkin.scripts.post_description import *
+from spotkin.scripts.api import *
+from spotkin.scripts.utils import *
 from dotenv import load_dotenv
 import gspreader
 import gspread
 
 load_dotenv()
 
-log("spotnik.setup main...")
+log("spotkin.setup main...")
 
 
 def get_jobs_with_their_settings():
@@ -133,7 +133,7 @@ def build_artist_genres(spotify, tracks):
 
 def main():
 
-    log("spotnik.setup main...")
+    log("spotkin.setup main...")
     log(str(datetime.now()))
 
     # spotify = get_spotify()
@@ -152,8 +152,8 @@ def main():
 
     for job in jobs:
 
-        log(f"Spotnik playlist '{job['name']}'")
-        # log(f"Spotnik playlist 'Rivers Radio'")
+        log(f"spotkin playlist '{job['name']}'")
+        # log(f"spotkin playlist 'Rivers Radio'")
 
         tracks = get_all_tracks(job, spotify)
 
@@ -241,6 +241,6 @@ if __name__ == "__main__":
 #     log("importing jobs from file...")
 
 #     try:
-#         return import_module(f"{JOBS_FILE_PATH}", package="spotnik").jobs
+#         return import_module(f"{JOBS_FILE_PATH}", package="spotkin").jobs
 #     except ValueError as e:
 #         log(f"Error importing from fiat file: {JOBS_FILE_PATH} - {e}")

@@ -1,10 +1,10 @@
 # Spotkin [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 
-## (in the middle of re-naming hell: at first it was 'spotkin' then I changed it to 'spotnik' now I'm changing it back to 'spotkin'. It's supposed to be short for 'spotify controller'.)
+## (in the middle of re-naming hell: at first it was 'spotkin' then I changed it to 'spotkin' now I'm changing it back to 'spotkin'. It's supposed to be short for 'spotify controller'.)
 
 A python package that updates one or more of your Spotify playlists every day with a random selection of tracks from any public playlists. 
 
-For example, I have a playlist called ["Rivers Radio"](https://open.spotify.com/playlist/1HaQfSGjNzIsiC5qOsCUcW?si=861bc59c458b4b0a) that is updated by Spotnik every day.
+For example, I have a playlist called ["Rivers Radio"](https://open.spotify.com/playlist/1HaQfSGjNzIsiC5qOsCUcW?si=861bc59c458b4b0a) that is updated by spotkin every day.
     
 I developed this script because I didn't like fiddling with the Spotify app all the time. I just wanted a great selection of music in one playlist every day. I've been it using it every day for a few years. It's run automatically at 2am by a Windows Task Scheduler job. It works best when you draw from many playlists, especially:
 
@@ -20,7 +20,7 @@ I find that I tweak my recipe about once a week.
 
 ## Installation
 
-Before you can run the Spotnik script, there are some pre-requisites the script assumes.
+Before you can run the spotkin script, there are some pre-requisites the script assumes.
 
 ### Spotify Developer Account
 
@@ -28,11 +28,11 @@ The script will need a Spotify **Client Id** and **Client Secret** to interact w
 
 Register for a [developer account](https://developer.spotify.com) on Spotify. After registering, create a new app. Once you create a new app, a Client Id and Client Secret will be generated. You will need these in later steps.
 
-Additionally, the Spotnik script uses an Authorization Code Flow. Due to this, you will need to set a redirect URL for your app. To add a redirect URL, open the app's settings. Note: The Spotnik script is only intended to run locally, on your machine, so add a redirect link to `http://localhost:8080`.
+Additionally, the spotkin script uses an Authorization Code Flow. Due to this, you will need to set a redirect URL for your app. To add a redirect URL, open the app's settings. Note: The spotkin script is only intended to run locally, on your machine, so add a redirect link to `http://localhost:8080`.
 
 ### Spotify Playlist Id
 
-The script will need the unique ID for at least one of your Spotify playlists. This is where your Spotnik playlist will be updated. To get the ID for a playlist, in Spotify, right-click on the playlist > Share > Copy Share Link. The link will contain the playlist ID. It is the string between `playlist/` and `?si=`.
+The script will need the unique ID for at least one of your Spotify playlists. This is where your spotkin playlist will be updated. To get the ID for a playlist, in Spotify, right-click on the playlist > Share > Copy Share Link. The link will contain the playlist ID. It is the string between `playlist/` and `?si=`.
 
 ### Environment Variables
 
@@ -76,10 +76,10 @@ poetry install
 
 ## Running
 
-Once you have completed all the installation steps, run Spotnik script by running `py -m spotnik`.
+Once you have completed all the installation steps, run spotkin script by running `py -m spotkin`.
 
 
 ## Contributing
 Feel free to make pull requests for any changes you'd like to see.  
 
-see [discussions](https://github.com/riverscuomo/spotnik/discussions/11) for some ideas.
+see [discussions](https://github.com/riverscuomo/spotkin/discussions/11) for some ideas.

@@ -20,4 +20,4 @@
 
 ## v0.1.0 ()
 
-- First release of `spotnik`
+- First release of `spotkin`
