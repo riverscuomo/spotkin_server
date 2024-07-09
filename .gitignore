@@ -1,6 +1,7 @@
 .vscode/
 poetry.lock
 log.txt
+launch.json
 
 # Rivers's venv
 .9

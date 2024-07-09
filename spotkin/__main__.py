@@ -1,15 +1,15 @@
 from datetime import datetime
 from re import X
-from rivertils.rivertils import sleep
-from spotkin.scripts.get_all_tracks import get_all_tracks
+from time import sleep
+from spotkin.scripts.process_job import process_job
 from spotkin.scripts.bans import *
-import random
 from spotkin.scripts.post_description import *
 from spotkin.scripts.api import *
 from spotkin.scripts.utils import *
 from dotenv import load_dotenv
 import gspreader
 import gspread
+from rich import print
 
 load_dotenv()
 
@@ -119,16 +119,8 @@ def get_recipes_for_each_job(jobs: list):
                 "source_playlist_id": row["source_playlist_id"],
                 "quantity": row[job["name"]],
             })
-
+    print(jobs)
     return jobs
-
-
-def build_artist_genres(spotify, tracks):
-    # list of artist ids to you can get the genre objects in one call
-    artists = [track["artists"][0] for track in tracks]
-    artist_ids = [artist["id"] for artist in artists]
-    artist_ids = list(set(artist_ids))
-    return get_artists_genres(spotify, artist_ids)
 
 
 def main():
@@ -152,71 +144,9 @@ def main():
 
     for job in jobs:
 
-        log(f"spotkin playlist '{job['name']}'")
-        # log(f"spotkin playlist 'Rivers Radio'")
-
-        tracks = get_all_tracks(job, spotify)
-
-        updated_tracks = []
-
-        # make list of just the track objects while also eliminating duplicates and empty tracks
-        tracks = list({v["track"]["id"]: v["track"] for v in tracks }.values())
-
-        track_ids = [x["id"] for x in tracks]
-        # log(track_ids)
-
-        audio_features = get_audio_features(spotify, track_ids)
-        artists_genres = build_artist_genres(spotify, tracks)
-        playlist_filter = PlaylistFilter(job, audio_features)
-
-        # Cull banned items from your list
-        for track in tracks:
-
-            track_id = track["id"]
-            track_name = track["name"]
-            artist_id = track["artists"][0]["id"]
-            artist_name = track["artists"][0]["name"]
-            if "mozzy" in artist_name.lower():
-                log("found mozzy")
-
-            artist_genre = next(
-                (x for x in artists_genres if x["artist_id"] == artist_id), None
-            )
-
-            if playlist_filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
-                continue
-
-            updated_tracks.append(track["id"])
-
-        random.shuffle(updated_tracks)
-
-        # if you've specify a track or tracks to always add at the end (for easy access, for example,
-        # nature sounds or white noise)
-        updated_tracks.extend(job["last_track_ids"])
-
-        
-
-        log("updating spotify playlist")
-        # empty playlist
-        result = spotify.user_playlist_replace_tracks(
-            spotify.me()["id"], job["playlist_id"], []
-        )
-
-        limit = 100
-
-        # log(updated_tracks)
-
-        for chunk in (updated_tracks[i:i+limit] for i in range(0, len(updated_tracks), limit)):
-            result = spotify.user_playlist_add_tracks(
-                spotify.me()["id"], job["playlist_id"], chunk
-            )
-
-        # change the playlist description to a random fact
-        post_description(spotify, job)
+        process_job(spotify, job)
 
     return "Success!"
-
-
 
 if __name__ == "__main__":
 

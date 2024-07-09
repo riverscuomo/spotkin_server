@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
+from spotkin.scripts.api import get_spotify_client
+from spotkin.scripts.process_job import process_job
 
 # Load environment variables
 load_dotenv()
@@ -13,15 +15,25 @@ CORS(app)
 def index():
     return jsonify({"message": "Welcome to the Spotkin API!"})
 
-# Example endpoint
-@app.route('/update_playlist', methods=['POST'])
-def update_playlist_route():
-    data = request.json
-    playlist_id = data.get('playlist_id')
-    # Call your existing function to update the playlist
-    # response = update_playlist(playlist_id)  # Ensure this function is imported properly
-    response = "Playlist updated!"  # Placeholder response
-    return jsonify({"message": response})
+@app.route('/process_jobs', methods=['POST'])
+def process_jobs():
+    print("process_jobs")
+    if request.is_json:
+        jobs = request.get_json()
+
+        spotify = get_spotify_client()
+
+        for job in jobs:
+            process_job(spotify, job)
+
+
+        return jsonify({"message": "Jobs processed", "job_count": len(jobs)}), 200
+    else:
+        return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
+    # return jsonify({"message": "test!"})
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
