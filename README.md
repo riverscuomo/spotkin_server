@@ -1,6 +1,5 @@
 # Spotkin [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
-
-## (in the middle of re-naming hell: at first it was 'spotkin' then I changed it to 'spotkin' now I'm changing it back to 'spotkin'. It's supposed to be short for 'spotify controller'.)
+Note: I renamed the project from "Spotnik".
 
 A python package that updates one or more of your Spotify playlists every day with a random selection of tracks from any public playlists. 
 
@@ -68,11 +67,6 @@ GSPREADER_GOOGLE_CREDS_PATH=path_to_your_creds.json
 
 ### To add more target playlists
 Simply add columns in the "recipes" sheet and in the "settings" sheet. I like keeping it to one or two.
-
-### Poetry
-poetry init
-poetry install
-
 
 ## Running
 
