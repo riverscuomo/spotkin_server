@@ -41,6 +41,9 @@ You can specify custom variables to include using a `.env` file.  Alternatively,
 SPOTIFY_CLIENT_ID=xxx
 SPOTIFY_CLIENT_SECRET=xxx
 SPOTIFY_REDIRECT_URI=http://localhost:8080
+
+FLASK_APP=server.py
+FLASK_ENV=development
 ```
 
 ### Setup your settings in Google Sheets
@@ -71,6 +74,7 @@ Simply add columns in the "recipes" sheet and in the "settings" sheet. I like ke
 ## Running
 
 Once you have completed all the installation steps, run spotkin script by running `py -m spotkin`.
+Run the server with 'flask run"
 
 
 ## Contributing
