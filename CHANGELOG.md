@@ -1,6 +1,9 @@
 # Changelog
 
-<!--next-version-placeholder-->
+2024-07-09
+rename to "spotkin" from "spotnik.
+removed poetry
+added Flask
 
 
 
