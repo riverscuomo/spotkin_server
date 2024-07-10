@@ -25,7 +25,11 @@ def get_spotify_client(refresh_token: str = None, timeout: int = 20) -> Spotify:
         cache_path=".cache-file"  # Optional: where to store the token info
     )
 
-    return spotipy.Spotify(auth_manager=auth_manager)
+    client = spotipy.Spotify(auth_manager=auth_manager)
+
+    print(client.current_user())
+
+    return client
 
 
 def get_spotify(timeout=20) -> spotipy.Spotify:
