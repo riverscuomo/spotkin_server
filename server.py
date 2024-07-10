@@ -17,8 +17,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-
 app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')
+
+# Determine the redirect URI from environment variables
 redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
 
 @app.route('/')
@@ -47,8 +48,13 @@ def callback():
     code = request.args.get('code')
     token_info = auth_manager.get_access_token(code)
     session['token_info'] = token_info
-    return redirect(url_for('process_jobs'))
+    return redirect(url_for('success'))
 
+@app.route('/success')
+def success():
+    return 'Authentication successful! You can now use the /process_jobs endpoint via POST requests.'
+
+@login_required
 def get_spotify_client_for_api():
     token_info = get_token()
     if not token_info:
@@ -79,7 +85,6 @@ def process_jobs():
     spotify = get_spotify_client_for_api()
 
     if not spotify:
-        # Sending JSON response suitable for API clients when authentication is required
         return jsonify({'status': 'error', 'message': 'Authentication required. Go to /spotify-login'}), 401
     
     try:
