@@ -3,7 +3,7 @@ from flask import Flask, jsonify, redirect, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-from spotkin.scripts.api import get_spotify_client
+# from spotkin.scripts.api import get_spotify_client_for_api
 from spotkin.scripts.process_job import process_job
 import os
 from flask import Flask, redirect, url_for, session
@@ -51,7 +51,7 @@ def callback():
     session['token_info'] = token_info
     return redirect(url_for('process_jobs'))
 
-def get_spotify_client():
+def get_spotify_client_for_api():
     token_info = get_token()
     if not token_info:
         return None
@@ -77,35 +77,33 @@ def get_token():
 
 @app.route('/process_jobs', methods=['POST'])
 def process_jobs():
-    spotify = get_spotify_client()
+    print("process_jobs")
+    spotify = get_spotify_client_for_api()
+
     if not spotify:
         return redirect(url_for('spotify_login'))
     
     try:
         user = spotify.current_user()
         print(user)
-        # Your job processing logic using the `spotify` client
-        return jsonify({'status': 'Jobs processed'}), 200
+
+        if request.is_json:
+            jobs = request.get_json()
+
+            spotify = get_spotify_client_for_api()
+
+            for job in jobs:
+                process_job(spotify, job)
+
+
+            return jsonify({"message": "Jobs processed", "job_count": len(jobs)}), 200
+        else:
+            return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
+
+
     except Exception as e:
         print(str(e))
         return jsonify({'status': 'Error processing jobs', 'error': str(e)}), 500
-
-# @app.route('/process_jobs', methods=['POST'])
-# def process_jobs():
-#     print("process_jobs")
-#     if request.is_json:
-#         jobs = request.get_json()
-
-#         spotify = get_spotify_client()
-
-#         for job in jobs:
-#             process_job(spotify, job)
-
-
-#         return jsonify({"message": "Jobs processed", "job_count": len(jobs)}), 200
-#     else:
-#         return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
-#     # return jsonify({"message": "test!"})
 
 
 
