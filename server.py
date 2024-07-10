@@ -54,7 +54,6 @@ def callback():
 def success():
     return 'Authentication successful! You can now use the /process_jobs endpoint via POST requests.'
 
-@login_required
 def get_spotify_client_for_api():
     token_info = get_token()
     if not token_info:
@@ -85,6 +84,7 @@ def process_jobs():
     spotify = get_spotify_client_for_api()
 
     if not spotify:
+        # Sending JSON response suitable for API clients when authentication is required
         return jsonify({'status': 'error', 'message': 'Authentication required. Go to /spotify-login'}), 401
     
     try:
