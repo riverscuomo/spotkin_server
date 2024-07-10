@@ -1,1 +1,1 @@
-web: gunicorn spotkin:app
+web: gunicorn server:app
