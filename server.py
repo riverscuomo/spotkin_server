@@ -15,92 +15,22 @@ from spotipy.oauth2 import SpotifyOAuth
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
-
 app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')
 
-# Determine the redirect URI from environment variables
-redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
-
-
-# Set session cookie settings if making cross-origin requests
-app.config.update(
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Lax',
-    SESSION_COOKIE_SECURE=True
-)
-
-
-@app.route('/')
-def home():
-    return 'Home - Go to /spotify-login to login with Spotify.'
-
-@app.route('/spotify-login')
-def spotify_login():
-    auth_manager = SpotifyOAuth(
-        client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
-        redirect_uri=redirect_uri,
-        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
-    )
-    auth_url = auth_manager.get_authorize_url()
-    return jsonify({'auth_url': auth_url})
-
-@app.route('/callback')
-def callback():
-    auth_manager = SpotifyOAuth(
-        client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
-        redirect_uri=redirect_uri,
-        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
-    )
-    code = request.args.get('code')
-    token_info = auth_manager.get_access_token(code)
-    session['token_info'] = token_info
-    print(f'Token info set in session: {token_info}')  # Debug statement
-    return redirect(url_for('success'))
-
-@app.route('/success')
-def success():
-    # print session data to debug
-    print(f'Success route session data: {session}')
-    return 'Authentication successful! You can now use the /process_jobs endpoint via POST requests.'
-
-def get_spotify_client_for_api():
-    token_info = get_token()
-    if not token_info:
-        return None
-    client = spotipy.Spotify(auth=token_info['access_token'])
-    return client
-
-def get_token():
-    token_info = session.get('token_info', None)
-    print(f'Checking for token_info in session: {token_info}')  # Debug statement
-    if not token_info:
-        return None
-    now = int(time.time())
-    is_expired = token_info['expires_at'] - now < 60
-    if is_expired:
-        auth_manager = SpotifyOAuth(
-            client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-            client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
-            redirect_uri=redirect_uri,
-            scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
-        )
-        token_info = auth_manager.refresh_access_token(token_info['refresh_token'])
-        session['token_info'] = token_info
-    return token_info
+def create_spotify_client(token):
+    return spotipy.Spotify(auth=token)
 
 @app.route('/process_jobs', methods=['POST'])
 def process_jobs():
     print("process_jobs")
-    print(f'Current session data in process_jobs: {session}')  # Debug statement
-    
-    spotify = get_spotify_client_for_api()
-    if not spotify:
-        return jsonify({'status': 'error', 'message': 'Authentication required. Go to /spotify-login'}), 401
-    
+
+    if 'Authorization' not in request.headers:
+        return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
+
+    token = request.headers['Authorization'].replace('Bearer ', '')
+
     try:
+        spotify = create_spotify_client(token)
         user = spotify.current_user()
         print(user)
 
@@ -116,7 +46,6 @@ def process_jobs():
     except Exception as e:
         print(str(e))
         return jsonify({'status': 'Error processing jobs', 'error': str(e)}), 500
-
 
 
 if __name__ == '__main__':
