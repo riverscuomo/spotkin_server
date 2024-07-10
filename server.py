@@ -18,45 +18,65 @@ CORS(app)
 
 redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
 
+
+# Determine the redirect URI from environment variables
+redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
+
 @app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def home():
+    return 'Home - Go to /spotify-login to login with Spotify.'
 
 @app.route('/spotify-login')
 def spotify_login():
     auth_manager = SpotifyOAuth(
         client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-        client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
+        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
         redirect_uri=redirect_uri,
         scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
     )
     auth_url = auth_manager.get_authorize_url()
-    session['spotify_auth_manager'] = auth_manager
     return redirect(auth_url)
 
 @app.route('/callback')
 def callback():
-    auth_manager = session.get('spotify_auth_manager')
-    if not auth_manager:
-        return redirect(url_for('spotify_login'))
-
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    session['spotify_token'] = auth_manager.get_access_token()
-    return redirect(url_for('process_jobs'))
-
-def get_spotify_client(refresh_token: str = None, timeout: int = 20) -> spotipy.Spotify:
-    print("[get_spotify] Creating Spotify client")
     auth_manager = SpotifyOAuth(
         client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-        client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
+        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
         redirect_uri=redirect_uri,
-        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played",
-        cache_path=".cache-file"
+        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
     )
+    session.clear()
+    code = request.args.get('code')
+    token_info = auth_manager.get_access_token(code)
+    session['token_info'] = token_info
+    return redirect(url_for('process_jobs'))
 
-    client = spotipy.Spotify(auth_manager=auth_manager)
-    print(client.current_user())
-    return client
+@app.route('/process_jobs', methods=['POST', 'GET'])
+def process_jobs():
+    token_info = get_token()
+    if not token_info:
+        return redirect(url_for('spotify_login'))
+    
+    spotify = spotipy.Spotify(auth=token_info['access_token'])
+    print(spotify.current_user())
+    # Your job processing logic using the `spotify` client
+    return 'Jobs processed', 200
+
+def get_token():
+    token_info = session.get('token_info', None)
+    if not token_info:
+        return None
+    now = int(time.time())
+    is_expired = token_info['expires_at'] - now < 60
+    if is_expired:
+        auth_manager = SpotifyOAuth(
+            client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+            client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+            redirect_uri=redirect_uri,
+            scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
+        )
+        token_info = auth_manager.refresh_access_token(token_info['refresh_token'])
+    return token_info
 
 @app.route('/process_jobs', methods=['POST'])
 def process_jobs():
