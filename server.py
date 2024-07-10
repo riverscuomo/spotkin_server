@@ -17,29 +17,49 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')
 
-def create_spotify_client(token):
-    return spotipy.Spotify(auth=token)
+client_id = os.getenv('SPOTIFY_CLIENT_ID')
+client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
+
+def create_spotify_client(token_info):
+    return spotipy.Spotify(auth=token_info['access_token'])
+
+def refresh_token_if_needed(refresh_token):
+    auth_manager = SpotifyOAuth(
+        client_id=client_id,
+        client_secret=client_secret,
+        redirect_uri=redirect_uri
+    )
+    token_info = auth_manager.refresh_access_token(refresh_token)
+    return token_info['access_token'], token_info
 
 @app.route('/process_jobs', methods=['POST'])
 def process_jobs():
     print("process_jobs")
 
-    if 'Authorization' not in request.headers:
-        return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
+    if 'Authorization' not in request.headers or 'Refresh-Token' not in request.headers:
+        return jsonify({'status': 'error', 'message': 'Authorization or Refresh-Token header is missing.'}), 401
 
-    token = request.headers['Authorization'].replace('Bearer ', '')
+    access_token = request.headers['Authorization'].replace('Bearer ', '')
+    refresh_token = request.headers['Refresh-Token']
 
     try:
-        spotify = create_spotify_client(token)
-        user = spotify.current_user()
-        print(user)
+        spotify = create_spotify_client({'access_token': access_token})
+
+        # Ensure token is valid by making any Spotify API call like getting the current user profile.
+        try:
+            spotify.current_user()
+        except spotipy.exceptions.SpotifyException:
+            print('Access token expired. Refreshing...')
+            access_token, token_info = refresh_token_if_needed(refresh_token)
+            spotify = create_spotify_client(token_info)
 
         if request.is_json:
             jobs = request.get_json()
             for job in jobs:
                 process_job(spotify, job)
 
-            return jsonify({"message": "Jobs processed", "job_count": len(jobs)}), 200
+            return jsonify({"message": "Jobs processed", "job_count": len(jobs), "new_access_token": access_token}), 200
         else:
             return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
 
@@ -50,3 +70,4 @@ def process_jobs():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
