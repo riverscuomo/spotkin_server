@@ -1,3 +1,4 @@
+from datetime import time
 from flask import Flask, jsonify, redirect, request
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -50,17 +51,6 @@ def callback():
     token_info = auth_manager.get_access_token(code)
     session['token_info'] = token_info
     return redirect(url_for('process_jobs'))
-
-@app.route('/process_jobs', methods=['POST', 'GET'])
-def process_jobs():
-    token_info = get_token()
-    if not token_info:
-        return redirect(url_for('spotify_login'))
-    
-    spotify = spotipy.Spotify(auth=token_info['access_token'])
-    print(spotify.current_user())
-    # Your job processing logic using the `spotify` client
-    return 'Jobs processed', 200
 
 def get_token():
     token_info = session.get('token_info', None)
