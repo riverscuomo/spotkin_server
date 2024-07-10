@@ -31,12 +31,43 @@ def refresh_token_if_needed(refresh_token):
         redirect_uri=redirect_uri
     )
     token_info = auth_manager.refresh_access_token(refresh_token)
-    return token_info['access_token'], token_info
+    return token_info
+
+@app.route('/')
+def home():
+    return 'Home - Go to /spotify-login to login with Spotify.'
+
+@app.route('/spotify-login')
+def spotify_login():
+    auth_manager = SpotifyOAuth(
+        client_id=client_id,
+        client_secret=client_secret,
+        redirect_uri=redirect_uri,
+        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
+    )
+    auth_url = auth_manager.get_authorize_url()
+    return jsonify({'auth_url': auth_url})
+
+@app.route('/callback')
+def callback():
+    auth_manager = SpotifyOAuth(
+        client_id=client_id,
+        client_secret=client_secret,
+        redirect_uri=redirect_uri,
+        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
+    )
+    code = request.args.get('code')
+    token_info = auth_manager.get_access_token(code)
+    session['token_info'] = token_info
+    session['refresh_token'] = token_info['refresh_token']
+    return jsonify({
+        'access_token': token_info['access_token'],
+        'refresh_token': token_info['refresh_token'],
+        'expires_in': token_info['expires_in']
+    })
 
 @app.route('/process_jobs', methods=['POST'])
 def process_jobs():
-    print("process_jobs")
-
     if 'Authorization' not in request.headers or 'Refresh-Token' not in request.headers:
         return jsonify({'status': 'error', 'message': 'Authorization or Refresh-Token header is missing.'}), 401
 
@@ -51,7 +82,8 @@ def process_jobs():
             spotify.current_user()
         except spotipy.exceptions.SpotifyException:
             print('Access token expired. Refreshing...')
-            access_token, token_info = refresh_token_if_needed(refresh_token)
+            token_info = refresh_token_if_needed(refresh_token)
+            access_token = token_info['access_token']
             spotify = create_spotify_client(token_info)
 
         if request.is_json:
