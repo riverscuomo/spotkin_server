@@ -19,10 +19,6 @@ CORS(app)
 
 redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
 
-
-# Determine the redirect URI from environment variables
-redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
-
 @app.route('/')
 def home():
     return 'Home - Go to /spotify-login to login with Spotify.'
@@ -36,7 +32,7 @@ def spotify_login():
         scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
     )
     auth_url = auth_manager.get_authorize_url()
-    return redirect(auth_url)
+    return jsonify({'auth_url': auth_url})
 
 @app.route('/callback')
 def callback():
@@ -81,7 +77,8 @@ def process_jobs():
     spotify = get_spotify_client_for_api()
 
     if not spotify:
-        return redirect(url_for('spotify_login'))
+        # Sending JSON response suitable for API clients when authentication is required
+        return jsonify({'status': 'error', 'message': 'Authentication required. Go to /spotify-login'}), 401
     
     try:
         user = spotify.current_user()
@@ -89,22 +86,16 @@ def process_jobs():
 
         if request.is_json:
             jobs = request.get_json()
-
-            spotify = get_spotify_client_for_api()
-
             for job in jobs:
                 process_job(spotify, job)
-
 
             return jsonify({"message": "Jobs processed", "job_count": len(jobs)}), 200
         else:
             return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
 
-
     except Exception as e:
         print(str(e))
         return jsonify({'status': 'Error processing jobs', 'error': str(e)}), 500
-
 
 
 
