@@ -17,6 +17,8 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+
+app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')
 redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
 
 @app.route('/')
