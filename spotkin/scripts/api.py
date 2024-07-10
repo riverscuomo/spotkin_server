@@ -7,21 +7,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-SPOTIFY_REDIRECT_URL = "http://localhost:8080"
-scope = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played,user-top-read"
-SPOTIPY_USER = os.getenv("SPOTIPY_USER")
+# SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+# SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+# SPOTIFY_REDIRECT_URL = "http://localhost:8080"
+# scope = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played,user-top-read"
+# SPOTIPY_USER = os.getenv("SPOTIPY_USER")
 
 def get_spotify_client(refresh_token: str = None, timeout: int = 20) -> Spotify:
     log("[get_spotify] Creating Spotify client")
+    CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+    CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+    SPOTIFY_REDIRECT_URL = os.getenv("SPOTIFY_REDIRECT_URL")
+    SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
+
     print(SPOTIFY_REDIRECT_URL)
     auth_manager = SpotifyOAuth(
-        client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
-        redirect_uri="http://localhost:8080",
-        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played",
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=SPOTIFY_REDIRECT_URL,
+        scope=SPOTIFY_SCOPE,
         cache_path=".cache-file"  # Optional: where to store the token info
     )
 
