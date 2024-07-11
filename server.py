@@ -65,14 +65,12 @@ def callback():
         'refresh_token': token_info['refresh_token'],
         'expires_in': token_info['expires_in']
     })
-
 @app.route('/process_jobs', methods=['POST'])
 def process_jobs():
-    if 'Authorization' not in request.headers or 'Refresh-Token' not in request.headers:
-        return jsonify({'status': 'error', 'message': 'Authorization or Refresh-Token header is missing.'}), 401
+    if 'Authorization' not in request.headers:
+        return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
 
     access_token = request.headers['Authorization'].replace('Bearer ', '')
-    refresh_token = request.headers['Refresh-Token']
 
     try:
         spotify = create_spotify_client({'access_token': access_token})
@@ -80,24 +78,22 @@ def process_jobs():
         # Ensure token is valid by making any Spotify API call like getting the current user profile.
         try:
             spotify.current_user()
-        except spotipy.exceptions.SpotifyException:
-            print('Access token expired. Refreshing...')
-            token_info = refresh_token_if_needed(refresh_token)
-            access_token = token_info['access_token']
-            spotify = create_spotify_client(token_info)
+        except spotipy.exceptions.SpotifyException as e:
+            print(f'Spotify API error: {str(e)}')
+            return jsonify({'status': 'error', 'message': 'Invalid or expired access token'}), 401
 
         if request.is_json:
-            jobs = request.get_json()
-            for job in jobs:
-                process_job(spotify, job)
+            job_data = request.get_json()
+            # Assuming job_data is a single job object, not an array
+            process_job(spotify, job_data)
 
-            return jsonify({"message": "Jobs processed", "job_count": len(jobs), "new_access_token": access_token}), 200
+            return jsonify({"message": "Job processed successfully"}), 200
         else:
             return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
 
     except Exception as e:
-        print(str(e))
-        return jsonify({'status': 'Error processing jobs', 'error': str(e)}), 500
+        print(f'Error processing job: {str(e)}')
+        return jsonify({'status': 'Error processing job', 'error': str(e)}), 500
 
 
 if __name__ == '__main__':
