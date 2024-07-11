@@ -15,6 +15,8 @@ from spotipy.oauth2 import SpotifyOAuth
 load_dotenv()
 
 app = Flask(__name__)
+# cors
+CORS(app)
 app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')
 
 client_id = os.getenv('SPOTIFY_CLIENT_ID')
