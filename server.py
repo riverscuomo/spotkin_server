@@ -4,7 +4,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 # from spotkin.scripts.api import get_spotify_client_for_api
-from spotkin.scripts.process_job import process_job
+from spotkin.scripts.process_job import process_job as process_single_job
 import os
 from flask import Flask, redirect, url_for, session
 import spotipy
@@ -65,8 +65,9 @@ def callback():
         'refresh_token': token_info['refresh_token'],
         'expires_in': token_info['expires_in']
     })
-@app.route('/process_jobs', methods=['POST'])
-def process_jobs():
+
+@app.route('/process_job', methods=['POST'])
+def process_job():
     if 'Authorization' not in request.headers:
         return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
 
@@ -75,7 +76,7 @@ def process_jobs():
     try:
         spotify = create_spotify_client({'access_token': access_token})
 
-        # Ensure token is valid by making any Spotify API call like getting the current user profile.
+        # Ensure token is valid
         try:
             spotify.current_user()
         except spotipy.exceptions.SpotifyException as e:
@@ -83,17 +84,15 @@ def process_jobs():
             return jsonify({'status': 'error', 'message': 'Invalid or expired access token'}), 401
 
         if request.is_json:
-            job_data = request.get_json()
-            # Assuming job_data is a single job object, not an array
-            process_job(spotify, job_data)
-
-            return jsonify({"message": "Job processed successfully"}), 200
+            job = request.get_json()
+            result = process_single_job(spotify, job)
+            return jsonify({"message": "Job processed successfully", "result": result}), 200
         else:
             return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
 
     except Exception as e:
         print(f'Error processing job: {str(e)}')
-        return jsonify({'status': 'Error processing job', 'error': str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 if __name__ == '__main__':
