@@ -11,23 +11,23 @@ import random
 
 def process_job(spotify, job):
     log(f"spotkin playlist '{job['name']}'")
-        # log(f"spotkin playlist 'Rivers Radio'")
+    # log(f"spotkin playlist 'Rivers Radio'")
 
     tracks = get_all_tracks(job, spotify)
 
     updated_tracks = []
 
-        # make list of just the track objects while also eliminating duplicates and empty tracks
-    tracks = list({v["track"]["id"]: v["track"] for v in tracks }.values())
+    # make list of just the track objects while also eliminating duplicates and empty tracks
+    tracks = list({v["track"]["id"]: v["track"] for v in tracks}.values())
 
     track_ids = [x["id"] for x in tracks]
-        # log(track_ids)
+    # log(track_ids)
 
     audio_features = get_audio_features(spotify, track_ids)
     artists_genres = build_artist_genres(spotify, tracks)
     playlist_filter = PlaylistFilter(job, audio_features)
 
-        # Cull banned items from your list
+    # Cull banned items from your list
     for track in tracks:
         track_id = track["id"]
         track_name = track["name"]
@@ -37,8 +37,8 @@ def process_job(spotify, job):
             log("found mozzy")
 
         artist_genre = next(
-                (x for x in artists_genres if x["artist_id"] == artist_id), None
-            )
+            (x for x in artists_genres if x["artist_id"] == artist_id), None
+        )
 
         if playlist_filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
             continue
@@ -47,26 +47,24 @@ def process_job(spotify, job):
 
     random.shuffle(updated_tracks)
 
-        # if you've specify a track or tracks to always add at the end (for easy access, for example,
-        # nature sounds or white noise)
+    # if you've specify a track or tracks to always add at the end (for easy access, for example,
+    # nature sounds or white noise)
     updated_tracks.extend(job["last_track_ids"])
 
-
-
     log("updating spotify playlist")
-        # empty playlist
+    # empty playlist
     result = spotify.user_playlist_replace_tracks(
-            spotify.me()["id"], job["playlist_id"], []
-        )
+        spotify.me()["id"], job["playlist_id"], []
+    )
 
     limit = 100
 
-        # log(updated_tracks)
+    # log(updated_tracks)
 
     for chunk in (updated_tracks[i:i+limit] for i in range(0, len(updated_tracks), limit)):
         result = spotify.user_playlist_add_tracks(
-                spotify.me()["id"], job["playlist_id"], chunk
-            )
+            spotify.me()["id"], job["playlist_id"], chunk
+        )
 
         # change the playlist description to a random fact
     post_description(spotify, job)

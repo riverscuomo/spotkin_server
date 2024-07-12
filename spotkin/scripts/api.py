@@ -13,6 +13,7 @@ load_dotenv()
 # scope = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played,user-top-read"
 # SPOTIPY_USER = os.getenv("SPOTIPY_USER")
 
+
 def get_spotify_client(refresh_token: str = None, timeout: int = 20) -> Spotify:
     log("[get_spotify] Creating Spotify client")
     CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
@@ -60,7 +61,8 @@ def sample_playlist_tracks(spotify: spotipy.Spotify, playlist_id, limit, name):
     )
     all_tracks = get_playlist_tracks(spotify, playlist_id)
     # remove tracks with None type ids
-    all_tracks = [track for track in all_tracks if track["track"] is not None and track["track"]["id"] is not None]
+    all_tracks = [track for track in all_tracks if track["track"]
+                  is not None and track["track"]["id"] is not None]
     return random.sample(all_tracks, min(limit, len(all_tracks)))
 
 

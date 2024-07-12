@@ -1,25 +1,27 @@
 from spotkin.scripts.utils import *
 
+
 class PlaylistFilter:
     """Determines whether songs belong in the playlist or not based on a job."""
 
     def __init__(self, job, audio_features) -> None:
         self.job = job
         self.audio_features = audio_features
-    
+
     def is_banned(self, artist_genre, artist_name, track_name, track_id, track):
-        return  self._is_banned_by_genre(artist_genre, artist_name, track_name) or \
-                self._is_banned_by_track_id(track_id, artist_name, track_name) or \
-                self._is_banned_by_artist_name(artist_name, track_name) or \
-                self._is_banned_by_song_title(artist_name, track_name) or \
-                self._is_banned_by_low_energy(track_name, artist_name, track)
+        return self._is_banned_by_genre(artist_genre, artist_name, track_name) or \
+            self._is_banned_by_track_id(track_id, artist_name, track_name) or \
+            self._is_banned_by_artist_name(artist_name, track_name) or \
+            self._is_banned_by_song_title(artist_name, track_name) or \
+            self._is_banned_by_low_energy(track_name, artist_name, track)
 
     def _is_banned_by_artist_name(self, artist_name, track_name):
 
         if "banned_artist_names" not in self.job:
             return False
 
-        banned_artist_names_lowercase = [str(x.lower()) for x in self.job["banned_artist_names"]]
+        banned_artist_names_lowercase = [
+            str(x.lower()) for x in self.job["banned_artist_names"]]
 
         if artist_name.lower() in banned_artist_names_lowercase:
             log(
@@ -28,17 +30,17 @@ class PlaylistFilter:
             return True
         return False
 
-
     def _is_banned_by_genre(self, artist_genre, artist_name, track_name):
 
         if "banned_genres" not in self.job or artist_genre is None:
             return False
 
-        # want to try being more aggressive here. 
+        # want to try being more aggressive here.
         # Now a banned genre 'rap' will reject 'Cali rap', 'trap' and 'rap metal' etc.
         elif (
             # if any of the banned genres are in the artist's genre
-            any(banned_genre in artist_genre for banned_genre in self.job["banned_genres"])
+            any(
+                banned_genre in artist_genre for banned_genre in self.job["banned_genres"])
             and artist_name not in self.job["exceptions_to_banned_genres"]
         ):
             log(
@@ -46,7 +48,6 @@ class PlaylistFilter:
             )
             return True
         return False
-
 
     def _is_banned_by_low_energy(self, track_name, artist_name, track):
         """Useful for workout playlists"""
@@ -87,13 +88,13 @@ class PlaylistFilter:
         else:
             return False
 
-
     def _is_banned_by_song_title(self, artist_name, track_name):
 
         if "banned_song_titles" not in self.job:
             return False
 
-        banned_song_titles_lowercase = [str(x.lower()) for x in self.job["banned_song_titles"]]
+        banned_song_titles_lowercase = [
+            str(x.lower()) for x in self.job["banned_song_titles"]]
 
         if str(track_name).lower() in banned_song_titles_lowercase:
             log(
@@ -101,7 +102,6 @@ class PlaylistFilter:
             )
             return True
         return False
-
 
     def _is_banned_by_track_id(self, track_id, artist_name, track_name):
 

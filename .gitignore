@@ -5,6 +5,7 @@ launch.json
 
 # Rivers's venv
 .9
+.G
 
 .cache-*
 # Byte-compiled / optimized / DLL files

@@ -23,8 +23,10 @@ client_id = os.getenv('SPOTIFY_CLIENT_ID')
 client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
 redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
 
+
 def create_spotify_client(token_info):
     return spotipy.Spotify(auth=token_info['access_token'])
+
 
 def refresh_token_if_needed(refresh_token):
     auth_manager = SpotifyOAuth(
@@ -35,9 +37,11 @@ def refresh_token_if_needed(refresh_token):
     token_info = auth_manager.refresh_access_token(refresh_token)
     return token_info
 
+
 @app.route('/')
 def home():
     return 'Home - Go to /spotify-login to login with Spotify.'
+
 
 @app.route('/spotify-login')
 def spotify_login():
@@ -49,6 +53,7 @@ def spotify_login():
     )
     auth_url = auth_manager.get_authorize_url()
     return jsonify({'auth_url': auth_url})
+
 
 @app.route('/callback')
 def callback():
@@ -67,6 +72,7 @@ def callback():
         'refresh_token': token_info['refresh_token'],
         'expires_in': token_info['expires_in']
     })
+
 
 @app.route('/process_job', methods=['POST'])
 def process_job():
@@ -99,4 +105,3 @@ def process_job():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
