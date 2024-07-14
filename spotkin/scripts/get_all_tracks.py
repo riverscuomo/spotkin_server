@@ -1,5 +1,9 @@
-from spotkin.scripts.api import sample_playlist_tracks
-from spotkin.scripts.utils import log
+try:
+    from scripts.api import sample_playlist_tracks
+    from scripts.utils import log
+except:
+    from spotkin.scripts.api import sample_playlist_tracks
+    from spotkin.scripts.utils import log
 
 
 def get_all_tracks(job, spotify):

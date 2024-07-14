@@ -1,4 +1,7 @@
-from spotkin.scripts.api import get_artists_genres
+try:
+    from scripts.api import get_artists_genres
+except:
+    from spotkin.scripts.api import get_artists_genres
 
 
 def build_artist_genres(spotify, tracks):

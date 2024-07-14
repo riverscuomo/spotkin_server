@@ -1,4 +1,7 @@
-from spotkin.scripts.utils import *
+try:
+    from scripts.utils import *
+except:
+    from spotkin.scripts.utils import *
 
 
 class PlaylistFilter:

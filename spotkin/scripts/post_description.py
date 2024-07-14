@@ -1,7 +1,10 @@
 import random
 import re
 import os
-from spotkin.scripts.utils import *
+try:
+    from scripts.utils import *
+except:
+    from spotkin.scripts.utils import *
 
 
 def getFact():

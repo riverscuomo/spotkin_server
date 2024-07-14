@@ -1,11 +1,19 @@
 from datetime import datetime
 from re import X
 from time import sleep
-from spotkin.scripts.process_job import process_job
-from spotkin.scripts.bans import *
-from spotkin.scripts.post_description import *
-from spotkin.scripts.api import *
-from spotkin.scripts.utils import *
+
+try:
+    from scripts.process_job import process_job
+    from scripts.bans import *
+    from scripts.post_description import *
+    from scripts.api import *
+    from scripts.utils import *
+except:
+    from spotkin.scripts.process_job import process_job
+    from spotkin.scripts.bans import *
+    from spotkin.scripts.post_description import *
+    from spotkin.scripts.api import *
+    from spotkin.scripts.utils import *
 from dotenv import load_dotenv
 import gspreader
 import gspread

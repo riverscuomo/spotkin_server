@@ -1,9 +1,20 @@
-from spotkin.build_artist_genres import build_artist_genres
-from spotkin.scripts.api import get_audio_features, log, random
-from spotkin.scripts.bans import PlaylistFilter, log
-from spotkin.scripts.get_all_tracks import get_all_tracks
-from spotkin.scripts.post_description import log, post_description, random
-from spotkin.scripts.utils import log
+
+try:
+    from build_artist_genres import build_artist_genres
+    from scripts.api import get_audio_features, log, random
+    from scripts.bans import PlaylistFilter, log
+    from scripts.get_all_tracks import get_all_tracks
+    from scripts.post_description import log, post_description, random
+    from scripts.utils import log
+except:
+    from spotkin.build_artist_genres import build_artist_genres
+    from spotkin.scripts.api import get_audio_features, log, random
+    from spotkin.scripts.bans import PlaylistFilter, log
+    from spotkin.scripts.get_all_tracks import get_all_tracks
+    from spotkin.scripts.post_description import log, post_description, random
+    from spotkin.scripts.utils import log
+
+import random
 
 
 import random

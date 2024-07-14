@@ -1,14 +1,11 @@
-from datetime import time
-from flask import Flask, jsonify, redirect, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-# from spotkin.scripts.api import get_spotify_client_for_api
-from spotkin.scripts.process_job import process_job as process_single_job
-import os
-from flask import Flask, redirect, url_for, session
+from flask import Flask, session
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from spotkin.scripts import process_job as process_single_job
 
 
 # Load environment variables
@@ -43,37 +40,6 @@ def home():
     return 'Home - Go to /spotify-login to login with Spotify.'
 
 
-@app.route('/spotify-login')
-def spotify_login():
-    auth_manager = SpotifyOAuth(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirect_uri=redirect_uri,
-        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
-    )
-    auth_url = auth_manager.get_authorize_url()
-    return jsonify({'auth_url': auth_url})
-
-
-@app.route('/callback')
-def callback():
-    auth_manager = SpotifyOAuth(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirect_uri=redirect_uri,
-        scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
-    )
-    code = request.args.get('code')
-    token_info = auth_manager.get_access_token(code)
-    session['token_info'] = token_info
-    session['refresh_token'] = token_info['refresh_token']
-    return jsonify({
-        'access_token': token_info['access_token'],
-        'refresh_token': token_info['refresh_token'],
-        'expires_in': token_info['expires_in']
-    })
-
-
 @app.route('/process_job', methods=['POST'])
 def process_job():
     if 'Authorization' not in request.headers:
@@ -105,3 +71,34 @@ def process_job():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+# @app.route('/spotify-login')
+# def spotify_login():
+#     auth_manager = SpotifyOAuth(
+#         client_id=client_id,
+#         client_secret=client_secret,
+#         redirect_uri=redirect_uri,
+#         scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
+#     )
+#     auth_url = auth_manager.get_authorize_url()
+#     return jsonify({'auth_url': auth_url})
+
+
+# @app.route('/callback')
+# def callback():
+#     auth_manager = SpotifyOAuth(
+#         client_id=client_id,
+#         client_secret=client_secret,
+#         redirect_uri=redirect_uri,
+#         scope="playlist-modify-private playlist-modify-public user-library-read playlist-read-private user-library-modify user-read-recently-played"
+#     )
+#     code = request.args.get('code')
+#     token_info = auth_manager.get_access_token(code)
+#     session['token_info'] = token_info
+#     session['refresh_token'] = token_info['refresh_token']
+#     return jsonify({
+#         'access_token': token_info['access_token'],
+#         'refresh_token': token_info['refresh_token'],
+#         'expires_in': token_info['expires_in']
+#     })

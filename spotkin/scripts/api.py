@@ -2,7 +2,10 @@ import os
 import random
 import spotipy
 from spotipy import SpotifyOAuth, Spotify
-from spotkin.scripts.utils import *
+try:
+    from scripts.utils import *
+except:
+    from spotkin.scripts.utils import *
 from dotenv import load_dotenv
 
 load_dotenv()
