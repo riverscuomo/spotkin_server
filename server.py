@@ -5,7 +5,7 @@ import os
 from flask import Flask, session
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from spotkin.scripts import process_job as process_single_job
+from spotkin.scripts.process_job import process_job
 
 
 # Load environment variables
@@ -41,7 +41,7 @@ def home():
 
 
 @app.route('/process_job', methods=['POST'])
-def process_job():
+def process_job_api():
     if 'Authorization' not in request.headers:
         return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
 
@@ -59,7 +59,7 @@ def process_job():
 
         if request.is_json:
             job = request.get_json()
-            result = process_single_job(spotify, job)
+            result = process_job(spotify, job)
             return jsonify({"message": "Job processed successfully", "result": result}), 200
         else:
             return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415

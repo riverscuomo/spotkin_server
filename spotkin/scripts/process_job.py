@@ -17,9 +17,6 @@ except:
 import random
 
 
-import random
-
-
 def process_job(spotify, job):
     log(f"spotkin playlist '{job['name']}'")
     # log(f"spotkin playlist 'Rivers Radio'")
