@@ -1,10 +1,11 @@
 # Spotkin [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+
 Note: I renamed the project from "Spotnik".
 
-A python package that updates one or more of your Spotify playlists every day with a random selection of tracks from any public playlists. 
+A python package that updates one or more of your Spotify playlists every day with a random selection of tracks from any public playlists.
 
 For example, I have a playlist called ["Rivers Radio"](https://open.spotify.com/playlist/1HaQfSGjNzIsiC5qOsCUcW?si=861bc59c458b4b0a) that is updated by spotkin every day.
-    
+
 I developed this script because I didn't like fiddling with the Spotify app all the time. I just wanted a great selection of music in one playlist every day. I've been using it every day for a few years. It's run automatically at 2am by a Windows Task Scheduler job. It works best when you draw from many playlists, especially:
 
 - dynamic playlists like "New Music Friday" or "Today's Top Hits" because they frequently change
@@ -16,6 +17,11 @@ You can also ban artists, tracks, or genres. That's great for avoiding music you
 On tour, I realized I needed a second playlist, for warming up before a show, so I added the ability to update as many playlists as you want--and to set minimun values for 'energy', etc. I recommend sticking with one or two playlists, though, otherwise you're just fiddling with the Spotify app all over again.
 
 I find that I tweak my recipe about once a week.
+
+## This package can be used in two ways
+
+1. As a standalone script that runs on your machine
+2. As a server that can process jobs on behalf of clients. (Currently in development at spotkin_flutter). Hit the endpoint with a POST request containing the jobs and a spotify token. The server will update the playlists and return the results. The server is built with Flask and is hosted on Heroku.
 
 ## Installation
 
@@ -47,15 +53,18 @@ FLASK_ENV=development
 ```
 
 ### Setup your settings in Google Sheets
-### Import with our script:
+
+### Import with our script
+
 Tiny script to copy the template sheet to a user-specified gmail.
 The function can be imported:
 
-python3 copy_sheet.py "/path/to/credentials.json" "myemail@gmail.com"
+python3 copy_sheet.py "/path/to/credentials.json" "<myemail@gmail.com>"
 TLDR: fetches the template sheet, duplicates it and shares the duplicated sheet to a gmail.
 
-### Manually make a copy:
-https://docs.google.com/spreadsheets/d/1z5MejG6EKg8rf8vYKeFhw9XT_3PxkDFOrPSEKT_jYqI/edit#gid=1936655481
+### Manually make a copy
+
+<https://docs.google.com/spreadsheets/d/1z5MejG6EKg8rf8vYKeFhw9XT_3PxkDFOrPSEKT_jYqI/edit#gid=1936655481>
 
 The spreadsheet should be called "Spotify Controller" and have a sheet named "recipes" and a sheet "settings"
 
@@ -69,6 +78,7 @@ GSPREADER_GOOGLE_CLIENT_EMAIL=client_email_from_your_creds.json
 GSPREADER_GOOGLE_CREDS_PATH=path_to_your_creds.json
 
 ### To add more target playlists
+
 Simply add columns in the "recipes" sheet and in the "settings" sheet. I like keeping it to one or two.
 
 ## Running
@@ -76,8 +86,8 @@ Simply add columns in the "recipes" sheet and in the "settings" sheet. I like ke
 Once you have completed all the installation steps, run spotkin script by running `py -m spotkin`.
 Run the server with 'flask run"
 
-
 ## Contributing
+
 Feel free to make pull requests for any changes you'd like to see.  
 
 see [discussions](https://github.com/riverscuomo/spotkin/discussions/11) for some ideas.
