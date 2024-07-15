@@ -20,8 +20,8 @@ load_dotenv()
 def get_spotify_client(refresh_token: str = None, timeout: int = 20) -> Spotify:
     log("[get_spotify] Creating Spotify client")
     CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-    CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-    SPOTIPY_REDIRECT_URL = os.getenv("SPOTIPY_REDIRECT_URL")
+    CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+    SPOTIPY_REDIRECT_URL = os.getenv("SPOTIFY_REDIRECT_URL")
     SPOTIFY_SCOPE = "playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
 
     print(SPOTIPY_REDIRECT_URL)

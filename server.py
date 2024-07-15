@@ -17,7 +17,7 @@ CORS(app)
 app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')
 
 client_id = os.getenv('SPOTIFY_CLIENT_ID')
-client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
 redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI')
 
 
