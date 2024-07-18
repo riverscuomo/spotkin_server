@@ -35,6 +35,8 @@ def post_description(spotify, job):
 
     description = f"{fact}..." + job["description"]
 
+    log(f"Updating playlist description: {description}")
+
     spotify.user_playlist_change_details(
         spotify.me()["id"], job["playlist_id"], description=description
     )

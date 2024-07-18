@@ -18,7 +18,7 @@ import random
 
 
 def process_job(spotify, job):
-    log(f"spotkin playlist '{job['name']}'")
+    log(f"spotkin playlist {job}")
     # log(f"spotkin playlist 'Rivers Radio'")
 
     tracks = get_all_tracks(job, spotify)
@@ -29,7 +29,7 @@ def process_job(spotify, job):
     tracks = list({v["track"]["id"]: v["track"] for v in tracks}.values())
 
     track_ids = [x["id"] for x in tracks]
-    # log(track_ids)
+    log(track_ids)
 
     audio_features = get_audio_features(spotify, track_ids)
     artists_genres = build_artist_genres(spotify, tracks)
@@ -41,9 +41,6 @@ def process_job(spotify, job):
         track_name = track["name"]
         artist_id = track["artists"][0]["id"]
         artist_name = track["artists"][0]["name"]
-        if "mozzy" in artist_name.lower():
-            log("found mozzy")
-
         artist_genre = next(
             (x for x in artists_genres if x["artist_id"] == artist_id), None
         )
@@ -59,15 +56,21 @@ def process_job(spotify, job):
     # nature sounds or white noise)
     updated_tracks.extend(job["last_track_ids"])
 
-    log("updating spotify playlist")
+    log("spotify.user_playlist_replace_tracks with an empty list")
+
+    log(spotify.me()["id"])
+    log(len(updated_tracks))
     # empty playlist
     result = spotify.user_playlist_replace_tracks(
         spotify.me()["id"], job["playlist_id"], []
     )
+    log(result)
 
     limit = 100
 
     # log(updated_tracks)
+
+    log("spotify.user_playlist_add_tracks")
 
     for chunk in (updated_tracks[i:i+limit] for i in range(0, len(updated_tracks), limit)):
         result = spotify.user_playlist_add_tracks(
