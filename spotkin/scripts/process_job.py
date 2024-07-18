@@ -22,6 +22,7 @@ def process_job(spotify, job):
     # log(f"spotkin playlist 'Rivers Radio'")
 
     tracks = get_all_tracks(job, spotify)
+    log(f"tracks: {len(tracks)}")
 
     updated_tracks = []
 

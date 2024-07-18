@@ -29,6 +29,7 @@ def getFact():
 
 def post_description(spotify, job):
     """post a new playlist description"""
+    log("Posting new playlist description...")
     fact = ""
     while not fact:
         fact = getFact()
