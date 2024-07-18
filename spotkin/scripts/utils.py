@@ -7,7 +7,9 @@ def divide_chunks(l, n):
         yield l[i: i + n]
 
 
-def log(message):
+def log(message: str):
+    if not isinstance(message, str):
+        message = str(message)
     with open("log.txt", "a") as file:
         file.write("=============================================\n")
         file.write(message + "\n")
