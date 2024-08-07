@@ -1,4 +1,3 @@
-import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -65,6 +64,8 @@ def get_all_data():
 
 def store_data(data):
     os.environ['SPOTKIN_DATA'] = json.dumps(data)
+    # Print first 100 chars for debugging
+    print(f"Stored data: {json.dumps(data)[:100]}...")
 
 
 def store_job_and_token(user_id, job_data, token_info):
@@ -79,6 +80,7 @@ def store_job_and_token(user_id, job_data, token_info):
         oldest_user = min(all_data, key=lambda k: all_data[k]['last_updated'])
         del all_data[oldest_user]
     store_data(all_data)
+    print(f"Stored job and token for user {user_id}")
 
 
 def get_job_and_token(user_id):
