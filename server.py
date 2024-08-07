@@ -75,7 +75,7 @@ def store_data(data):
     app_name = os.environ.get('HEROKU_APP_NAME')
 
     if heroku_api_key and app_name:
-        url = "https://api.heroku.com/apps/spotkin/config-vars"
+        url = f"https://api.heroku.com/apps/{app_name}/config-vars"
         headers = {
             "Accept": "application/vnd.heroku+json; version=3",
             "Authorization": f"Bearer {heroku_api_key}",
