@@ -4,6 +4,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 from flask import Flask, session
+import requests
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotkin.scripts.process_job import process_job
@@ -64,9 +65,33 @@ def get_all_data():
 
 
 def store_data(data):
-    os.environ['SPOTKIN_DATA'] = json.dumps(data)
+    data_str = json.dumps(data)
+    os.environ['SPOTKIN_DATA'] = data_str
     # Print first 100 chars for debugging
-    print(f"Stored data: {json.dumps(data)[:100]}...")
+    print(f"Stored data in memory: {data_str[:100]}...")
+
+    # Update Heroku config var
+    heroku_api_key = os.environ.get('HEROKU_API_KEY')
+    app_name = os.environ.get('HEROKU_APP_NAME')
+
+    if heroku_api_key and app_name:
+        url = f"https://api.heroku.com/apps/{app_name}/config-vars"
+        headers = {
+            "Accept": "application/vnd.heroku+json; version=3",
+            "Authorization": f"Bearer {heroku_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {"SPOTKIN_DATA": data_str}
+
+        response = requests.patch(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            print("Successfully updated Heroku config var")
+        else:
+            print(
+                f"Failed to update Heroku config var. Status code: {response.status_code}")
+    else:
+        print(
+            "HEROKU_API_KEY or HEROKU_APP_NAME not set. Unable to update Heroku config var.")
 
 
 def store_job_and_token(user_id, job_data, token_info):
