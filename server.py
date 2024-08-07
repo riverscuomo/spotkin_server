@@ -150,9 +150,14 @@ def process_job_api():
             job = request.get_json()
             print(f"Job data received: {job}")
 
-            # Get the full token info from Spotify
-            sp_oauth = create_spotify_oauth()
-            token_info = sp_oauth.get_access_token(access_token)
+            # Create a token info dictionary
+            token_info = {
+                'access_token': access_token,
+                # Assume 1 hour validity
+                'expires_at': int(time.time()) + 3600,
+                'scope': 'user-library-read playlist-modify-public playlist-modify-private',
+                'token_type': 'Bearer'
+            }
 
             print("Processing job")
             result = process_job(spotify, job)
