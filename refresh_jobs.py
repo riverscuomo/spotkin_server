@@ -1,10 +1,13 @@
 import requests
 import os
+from rich import print
 
 
 def refresh_all_jobs():
+    print("Running refresh_jobs.py")
     print("Refreshing jobs...")
-    app_url = os.environ.get('APP_URL', 'https://spotkin.herokuapp.com')
+    app_url = os.environ.get(
+        'APP_URL', 'https://spotkin-1b998975756a.herokuapp.com')
     response = requests.post(f'{app_url}/refresh_jobs')
 
     if response.status_code == 200:
@@ -16,5 +19,4 @@ def refresh_all_jobs():
 
 
 if __name__ == "__main__":
-    print("Running refresh_jobs.py")
     refresh_all_jobs()
