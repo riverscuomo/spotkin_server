@@ -169,37 +169,25 @@ def process_job_api():
         return jsonify({'status': 'error', 'message': 'Refresh token is missing.'}), 401
 
     try:
-        sp_oauth = create_spotify_oauth()
-
-        # Check if the access token is expired
-        token_info = {
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-            # Assume it expires in 1 hour if we don't know
-            'expires_at': int(time.time()) + 3600,
-        }
-
-        if sp_oauth.is_token_expired(token_info):
-            token_info = sp_oauth.refresh_access_token(refresh_token)
-            access_token = token_info['access_token']
-
         spotify = spotipy.Spotify(auth=access_token)
-
-        # Validate the token
         user = spotify.current_user()
         user_id = user['id']
 
-        if request.is_json:
-            job = request.get_json()
-            result = process_job(spotify, job)
+        job = request.json
+        result = process_job(spotify, job)
 
-            return jsonify({
-                "message": "Spotkin processed successfully",
-                "result": result,
-                "new_access_token": access_token if token_info['access_token'] != access_token else None,
-            }), 200
-        else:
-            return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
+        # Store the job and token info
+        token_info = {
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'expires_at': int(time.time()) + 3600,  # Assume 1 hour validity
+        }
+        store_job_and_token(user_id, job, token_info)
+
+        return jsonify({
+            "message": "Job processed successfully",
+            "result": result,
+        }), 200
 
     except spotipy.exceptions.SpotifyException as e:
         return jsonify({'status': 'error', 'message': str(e)}), 401
