@@ -35,7 +35,7 @@ def store_job(user_id, job_data):
         oldest_user = min(
             all_jobs, key=lambda k: all_jobs[k].get('last_updated', 0))
         del all_jobs[oldest_user]
-    os.environ['SPOTKIN_JOBS'] = json.dumps(all_jobs)
+    os.environ['SPOTKIN_DATA'] = json.dumps(all_jobs)
 
 
 def get_job(user_id):
@@ -44,7 +44,7 @@ def get_job(user_id):
 
 
 def get_all_jobs():
-    jobs_str = os.environ.get('SPOTKIN_JOBS', '{}')
+    jobs_str = os.environ.get('SPOTKIN_DATA', '{}')
     return json.loads(jobs_str)
 
 
@@ -52,7 +52,7 @@ def delete_job(user_id):
     all_jobs = get_all_jobs()
     if user_id in all_jobs:
         del all_jobs[user_id]
-        os.environ['SPOTKIN_JOBS'] = json.dumps(all_jobs)
+        os.environ['SPOTKIN_DATA'] = json.dumps(all_jobs)
 
 
 def create_spotify_client(token_info):
