@@ -127,16 +127,8 @@ def create_spotify_oauth():
 
 def refresh_token_if_expired(token_info):
     sp_oauth = create_spotify_oauth()
-    if 'refresh_token' not in token_info:
-        print(f"Refresh token missing for user. Token info: {token_info}")
-        return None
     if sp_oauth.is_token_expired(token_info):
-        try:
-            token_info = sp_oauth.refresh_access_token(
-                token_info['refresh_token'])
-        except Exception as e:
-            print(f"Error refreshing token: {str(e)}")
-            return None
+        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
     return token_info
 
 
@@ -150,11 +142,6 @@ def refresh_jobs():
         print(f"Refreshing job for user: {user_id}")
         try:
             token_info = refresh_token_if_expired(user_data['token'])
-            if token_info is None:
-                print(f"Failed to refresh token for user {user_id}")
-                refresh_results[user_id] = "Failed to refresh token"
-                continue
-
             spotify = spotipy.Spotify(auth=token_info['access_token'])
             result = process_job(spotify, user_data['job'])
             refresh_results[user_id] = "Success"
@@ -182,13 +169,7 @@ def process_job_api():
     print(f"Access token received: {access_token[:10]}...")
 
     try:
-        sp_oauth = create_spotify_oauth()
-        token_info = sp_oauth.get_access_token(access_token, check_cache=False)
-
-        if not token_info:
-            return jsonify({'status': 'error', 'message': 'Invalid access token'}), 401
-
-        spotify = spotipy.Spotify(auth=token_info['access_token'])
+        spotify = spotipy.Spotify(auth=access_token)
 
         print("Validating token by fetching current user")
         user = spotify.current_user()
@@ -199,6 +180,15 @@ def process_job_api():
             print("Received JSON request")
             job = request.get_json()
             print(f"Job data received: {job}")
+
+            # Create a token info dictionary
+            token_info = {
+                'access_token': access_token,
+                # Assume 1 hour validity
+                'expires_at': int(time.time()) + 3600,
+                'scope': 'user-library-read playlist-modify-public playlist-modify-private',
+                'token_type': 'Bearer'
+            }
 
             print("Processing job")
             result = process_job(spotify, job)
