@@ -4,6 +4,7 @@ from rich import print
 
 
 def refresh_all_jobs():
+    """ To be run as a scheduled job by Heroku scheduler to refresh all jobs """
     print("Running refresh_jobs.py")
     print("Refreshing jobs...")
     app_url = os.environ.get(
