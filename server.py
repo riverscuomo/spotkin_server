@@ -60,7 +60,9 @@ def create_spotify_client(token_info):
 
 
 def get_all_data():
+    print('Getting all data')
     data_str = os.environ.get('SPOTKIN_DATA', '{}')
+    print(f"Data string: {data_str[:100]}...")
     return json.loads(data_str)
 
 

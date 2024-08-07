@@ -3,6 +3,7 @@ import os
 
 
 def refresh_all_jobs():
+    print("Refreshing jobs...")
     app_url = os.environ.get('APP_URL', 'https://spotkin.herokuapp.com')
     response = requests.post(f'{app_url}/refresh_jobs')
 
@@ -15,4 +16,5 @@ def refresh_all_jobs():
 
 
 if __name__ == "__main__":
+    print("Running refresh_jobs.py")
     refresh_all_jobs()
