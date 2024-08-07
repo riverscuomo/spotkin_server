@@ -64,11 +64,25 @@ def home():
 
 @app.route('/refresh_jobs', methods=['POST'])
 def refresh_jobs():
+    print("Starting job refresh process")
     all_jobs = get_all_jobs()
+    refresh_results = {}
+
     for user_id, job_data in all_jobs.items():
-        # Your job refresh logic here
-        pass
-    return jsonify({"status": "success"})
+        print(f"Refreshing job for user: {user_id}")
+        try:
+            # Note: You'll need to handle access token refresh here
+            # This is a placeholder and won't work as is
+            spotify = create_spotify_client(
+                {'access_token': 'placeholder_token'})
+            result = process_job(spotify, json.loads(job_data))
+            refresh_results[user_id] = "Success"
+        except Exception as e:
+            print(f"Error refreshing job for user {user_id}: {str(e)}")
+            refresh_results[user_id] = f"Error: {str(e)}"
+
+    print("Job refresh process completed")
+    return jsonify({"status": "complete", "results": refresh_results})
 
 
 @app.route('/process_job', methods=['POST'])
