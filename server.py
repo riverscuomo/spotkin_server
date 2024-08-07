@@ -97,6 +97,7 @@ def store_data(data):
 
 
 def store_job_and_token(user_id, job_data, token_info):
+    print('Storing job and token')
     all_data = get_all_data()
     all_data[user_id] = {
         'job': job_data,
