@@ -69,34 +69,35 @@ def get_all_data():
     return json.loads(data_str)
 
 
-def store_data(data):
-    data_str = json.dumps(data)
-    os.environ['SPOTKIN_DATA'] = data_str
-    # Print first 100 chars for debugging
-    print(f"Stored data in memory: {data_str[:100]}...")
+# def store_data(data):
+#     print('Storing data')
+#     data_str = json.dumps(data)
+#     os.environ['SPOTKIN_DATA'] = data_str
+#     # Print first 100 chars for debugging
+#     print(f"Stored data in memory: {data_str[:100]}...")
 
-    # Update Heroku config var
-    heroku_api_key = os.environ.get('HEROKU_API_KEY')
-    app_name = os.environ.get('HEROKU_APP_NAME')
+#     # Update Heroku config var
+#     heroku_api_key = os.environ.get('HEROKU_API_KEY')
+#     app_name = os.environ.get('HEROKU_APP_NAME')
 
-    if heroku_api_key and app_name:
-        url = f"https://api.heroku.com/apps/{app_name}/config-vars"
-        headers = {
-            "Accept": "application/vnd.heroku+json; version=3",
-            "Authorization": f"Bearer {heroku_api_key}",
-            "Content-Type": "application/json"
-        }
-        payload = {"SPOTKIN_DATA": data_str}
+#     if heroku_api_key and app_name:
+#         url = f"https://api.heroku.com/apps/{app_name}/config-vars"
+#         headers = {
+#             "Accept": "application/vnd.heroku+json; version=3",
+#             "Authorization": f"Bearer {heroku_api_key}",
+#             "Content-Type": "application/json"
+#         }
+#         payload = {"SPOTKIN_DATA": data_str}
 
-        response = requests.patch(url, headers=headers, json=payload)
-        if response.status_code == 200:
-            print("Successfully updated Heroku config var")
-        else:
-            print(
-                f"Failed to update Heroku config var. Status code: {response.status_code}")
-    else:
-        print(
-            "HEROKU_API_KEY or HEROKU_APP_NAME not set. Unable to update Heroku config var.")
+#         response = requests.patch(url, headers=headers, json=payload)
+#         if response.status_code == 200:
+#             print("Successfully updated Heroku config var")
+#         else:
+#             print(
+#                 f"Failed to update Heroku config var. Status code: {response.status_code}")
+#     else:
+#         print(
+#             "HEROKU_API_KEY or HEROKU_APP_NAME not set. Unable to update Heroku config var.")
 
 
 # def store_job_and_token(user_id, job_data, token_info):
@@ -176,8 +177,46 @@ def store_job_and_token(user_id, job, token_info):
         'last_updated': int(time.time())
     }
     compressed = compress_json(all_data)
-    # Store the compressed data in Heroku config var
+
+    # Store the compressed data in local environment variable
     os.environ['SPOTKIN_DATA'] = compressed
+
+    # Print first 100 chars for debugging
+    print(f"Stored compressed data in memory: {compressed[:100]}...")
+
+    # Update Heroku config var
+    heroku_api_key = os.environ.get('HEROKU_API_KEY')
+    app_name = os.environ.get('HEROKU_APP_NAME')
+
+    if heroku_api_key and app_name:
+        url = f"https://api.heroku.com/apps/{app_name}/config-vars"
+        headers = {
+            "Accept": "application/vnd.heroku+json; version=3",
+            "Authorization": f"Bearer {heroku_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {"SPOTKIN_DATA": compressed}
+
+        response = requests.patch(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            print("Successfully updated Heroku config var")
+        else:
+            print(
+                f"Failed to update Heroku config var. Status code: {response.status_code}")
+    else:
+        print(
+            "HEROKU_API_KEY or HEROKU_APP_NAME not set. Unable to update Heroku config var.")
+# def store_job_and_token(user_id, job, token_info):
+#     print('Storing job and token')
+#     all_data = get_all_data()
+#     all_data[user_id] = {
+#         'job': job,
+#         'token': token_info,
+#         'last_updated': int(time.time())
+#     }
+#     compressed = compress_json(all_data)
+#     # Store the compressed data in Heroku config var
+#     os.environ['SPOTKIN_DATA'] = compressed
 
 
 def process_scheduled_jobs():
