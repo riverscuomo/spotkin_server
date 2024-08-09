@@ -1,3 +1,4 @@
+import datetime
 import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -174,29 +175,74 @@ def store_job_and_token(user_id, job, token_info):
     os.environ['SPOTKIN_DATA'] = compressed
 
 
+def process_scheduled_jobs():
+    all_jobs = get_all_data()
+    now = datetime.datetime.now()
+    current_slot = f"{now.hour:02d}:{now.minute:02d}"
+
+    for user_id, job in all_jobs.items():
+        if job['scheduled_time'] == current_slot:
+            print(
+                f"Processing job for user: {user_id} because scheduled time {job['scheduled_time']} matches {current_slot}")
+            try:
+                print(f"Processing job for user: {user_id}")
+                token_info = refresh_token_if_expired(job['token'])
+                spotify = spotipy.Spotify(auth=token_info['access_token'])
+                result = process_job(spotify, job)
+
+                # Update the stored token info and last processed time
+                job['token'] = token_info
+                job['last_processed'] = now.isoformat()
+                store_job_and_token(user_id, job, token_info)
+
+                print(f"Job processed successfully for user: {user_id}")
+            except Exception as e:
+                print(f"Error processing job for user {user_id}: {str(e)}")
+        else:
+            print(
+                f"Skipping job for user {user_id} because scheduled time {job['scheduled_time']} doesn't match {current_slot}")
+
+
 @app.route('/refresh_jobs', methods=['POST'])
 def refresh_jobs():
-    print("Starting job refresh process")
-    all_data = get_all_data()
-    refresh_results = {}
+    """
+    This endpoint now manually triggers the job processing
+    """
+    process_scheduled_jobs()
+    return jsonify({"status": "processing complete"})
 
-    for user_id, user_data in all_data.items():
-        print(f"Refreshing job for user: {user_id}")
-        try:
-            token_info = refresh_token_if_expired(user_data['token'])
-            spotify = spotipy.Spotify(auth=token_info['access_token'])
-            result = process_job(spotify, user_data['job'])
-            refresh_results[user_id] = "Success"
 
-            # Update the stored token info
-            user_data['token'] = token_info
-            store_job_and_token(user_id, user_data['job'], token_info)
-        except Exception as e:
-            print(f"Error refreshing job for user {user_id}: {str(e)}")
-            refresh_results[user_id] = f"Error: {str(e)}"
+@app.route('/get_schedule', methods=['GET'])
+def get_schedule():
+    """
+    This endpoint returns the current schedule
+    """
+    all_jobs = get_all_data()
 
-    print("Job refresh process completed")
-    return jsonify({"status": "complete", "results": refresh_results})
+    schedule_info = {
+        user_id: {
+            'scheduled_time': job['scheduled_time'],
+            'last_processed': job.get('last_processed', 'Never')
+        } for user_id, job in all_jobs.items()
+    }
+
+    return jsonify({"status": "success", "schedule": schedule_info})
+
+
+@app.route('/update_job_schedule', methods=['POST'])
+def update_job_schedule():
+    data = request.json
+    user_id = data['user_id']
+    new_time = data['new_time']
+
+    all_jobs = get_all_data()
+    if user_id in all_jobs:
+        all_jobs[user_id]['scheduled_time'] = new_time
+        store_job_and_token(
+            user_id, all_jobs[user_id], all_jobs[user_id]['token'])
+        return jsonify({"status": "updated", "new_time": new_time})
+    else:
+        return jsonify({"status": "error", "message": "User not found"}), 404
 
 # @app.route('/refresh_jobs', methods=['POST'])
 # def refresh_jobs():
