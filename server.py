@@ -99,20 +99,20 @@ def store_data(data):
             "HEROKU_API_KEY or HEROKU_APP_NAME not set. Unable to update Heroku config var.")
 
 
-def store_job_and_token(user_id, job_data, token_info):
-    print('Storing job and token')
-    all_data = get_all_data()
-    all_data[user_id] = {
-        'job': job_data,
-        'token': token_info,
-        'last_updated': int(time.time())
-    }
-    data_str = json.dumps(all_data)
-    if len(data_str) > 32000:  # Leave some buffer
-        oldest_user = min(all_data, key=lambda k: all_data[k]['last_updated'])
-        del all_data[oldest_user]
-    store_data(all_data)
-    print(f"Stored job and token for user {user_id}")
+# def store_job_and_token(user_id, job_data, token_info):
+#     print('Storing job and token')
+#     all_data = get_all_data()
+#     all_data[user_id] = {
+#         'job': job_data,
+#         'token': token_info,
+#         'last_updated': int(time.time())
+#     }
+#     data_str = json.dumps(all_data)
+#     if len(data_str) > 32000:  # Leave some buffer
+#         oldest_user = min(all_data, key=lambda k: all_data[k]['last_updated'])
+#         del all_data[oldest_user]
+#     store_data(all_data)
+#     print(f"Stored job and token for user {user_id}")
 
 
 def get_job_and_token(user_id):
