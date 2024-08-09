@@ -178,21 +178,21 @@ def store_job_and_token(user_id, job, token_info):
 def process_scheduled_jobs():
     all_jobs = get_all_data()
     now = datetime.datetime.now()
-    current_slot = f"{now.hour:02d}:{now.minute:02d}"
+    current_hour = now.hour
 
-    for user_id, job in all_jobs.items():
-        if job['scheduled_time'] == current_slot:
+    for user_id, user_data in all_jobs.items():
+        job = user_data.get('job', {})
+        if job.get('scheduled_hour') == current_hour:
             print(
-                f"Processing job for user: {user_id} because scheduled time {job['scheduled_time']} matches {current_slot}")
+                f"Processing job for user: {user_id} because scheduled hour {job['scheduled_hour']} matches current hour {current_hour}")
             try:
-                print(f"Processing job for user: {user_id}")
-                token_info = refresh_token_if_expired(job['token'])
+                token_info = refresh_token_if_expired(user_data['token'])
                 spotify = spotipy.Spotify(auth=token_info['access_token'])
                 result = process_job(spotify, job)
 
                 # Update the stored token info and last processed time
-                job['token'] = token_info
-                job['last_processed'] = now.isoformat()
+                user_data['token'] = token_info
+                user_data['last_processed'] = now.isoformat()
                 store_job_and_token(user_id, job, token_info)
 
                 print(f"Job processed successfully for user: {user_id}")
@@ -200,7 +200,7 @@ def process_scheduled_jobs():
                 print(f"Error processing job for user {user_id}: {str(e)}")
         else:
             print(
-                f"Skipping job for user {user_id} because scheduled time {job['scheduled_time']} doesn't match {current_slot}")
+                f"Skipping job for user {user_id} because scheduled hour {job.get('scheduled_hour')} doesn't match current hour {current_hour}")
 
 
 @app.route('/refresh_jobs', methods=['POST'])
