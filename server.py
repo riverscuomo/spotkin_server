@@ -137,17 +137,20 @@ def refresh_token_if_expired(token_info):
 
 
 def compress_json(data):
+    print('Compressing JSON')
     json_str = json.dumps(data)
     compressed = gzip.compress(json_str.encode('utf-8'))
     return base64.b64encode(compressed).decode('utf-8')
 
 
 def decompress_json(compressed_str):
+    print('Decompressing JSON')
     try:
         decoded = base64.b64decode(compressed_str)
         decompressed = gzip.decompress(decoded)
         return json.loads(decompressed.decode('utf-8'))
-    except Exception:
+    except Exception as e:
+        print(f"Error decompressing JSON: {str(e)} so returning as is")
         # If decompression fails, assume it's not compressed
         return json.loads(compressed_str)
 
@@ -159,11 +162,13 @@ def get_all_data():
         # First, try to parse it as regular JSON
         return json.loads(data_str)
     except json.JSONDecodeError:
+        print('Failed to parse JSON data from config var so trying to decompress')
         # If that fails, try to decompress it
         return decompress_json(data_str)
 
 
 def store_job_and_token(user_id, job, token_info):
+    print('Storing job and token')
     all_data = get_all_data()
     all_data[user_id] = {
         'job': job,
