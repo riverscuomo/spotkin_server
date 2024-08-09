@@ -182,9 +182,9 @@ def process_scheduled_jobs():
 
     for user_id, user_data in all_jobs.items():
         job = user_data.get('job', {})
-        if job.get('scheduled_hour') == current_hour:
+        if job.get('scheduled_time') == current_hour:
             print(
-                f"Processing job for user: {user_id} because scheduled hour {job['scheduled_hour']} matches current hour {current_hour}")
+                f"Processing job for user: {user_id} because scheduled hour {job['scheduled_time']} matches current hour {current_hour}")
             try:
                 token_info = refresh_token_if_expired(user_data['token'])
                 spotify = spotipy.Spotify(auth=token_info['access_token'])
@@ -200,7 +200,7 @@ def process_scheduled_jobs():
                 print(f"Error processing job for user {user_id}: {str(e)}")
         else:
             print(
-                f"Skipping job for user {user_id} because scheduled hour {job.get('scheduled_hour')} doesn't match current hour {current_hour}")
+                f"Skipping job for user {user_id} because scheduled hour {job.get('scheduled_time')} doesn't match current hour {current_hour}")
 
 
 @app.route('/refresh_jobs', methods=['POST'])
