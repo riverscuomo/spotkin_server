@@ -10,7 +10,9 @@ from spotipy.oauth2 import SpotifyOAuth
 from spotkin.scripts.process_job import process_job
 import os
 import json
-
+import gzip
+import base64
+from flask import jsonify
 # Load environment variables
 load_dotenv()
 
@@ -133,6 +135,45 @@ def refresh_token_if_expired(token_info):
     return token_info
 
 
+def compress_json(data):
+    json_str = json.dumps(data)
+    compressed = gzip.compress(json_str.encode('utf-8'))
+    return base64.b64encode(compressed).decode('utf-8')
+
+
+def decompress_json(compressed_str):
+    try:
+        decoded = base64.b64decode(compressed_str)
+        decompressed = gzip.decompress(decoded)
+        return json.loads(decompressed.decode('utf-8'))
+    except Exception:
+        # If decompression fails, assume it's not compressed
+        return json.loads(compressed_str)
+
+
+def get_all_data():
+    # Retrieve data from Heroku config var
+    data_str = os.environ.get('SPOTKIN_DATA', '{}')
+    try:
+        # First, try to parse it as regular JSON
+        return json.loads(data_str)
+    except json.JSONDecodeError:
+        # If that fails, try to decompress it
+        return decompress_json(data_str)
+
+
+def store_job_and_token(user_id, job, token_info):
+    all_data = get_all_data()
+    all_data[user_id] = {
+        'job': job,
+        'token': token_info,
+        'last_updated': int(time.time())
+    }
+    compressed = compress_json(all_data)
+    # Store the compressed data in Heroku config var
+    os.environ['SPOTKIN_DATA'] = compressed
+
+
 @app.route('/refresh_jobs', methods=['POST'])
 def refresh_jobs():
     print("Starting job refresh process")
@@ -156,6 +197,30 @@ def refresh_jobs():
 
     print("Job refresh process completed")
     return jsonify({"status": "complete", "results": refresh_results})
+
+# @app.route('/refresh_jobs', methods=['POST'])
+# def refresh_jobs():
+#     print("Starting job refresh process")
+#     all_data = get_all_data()
+#     refresh_results = {}
+
+#     for user_id, user_data in all_data.items():
+#         print(f"Refreshing job for user: {user_id}")
+#         try:
+#             token_info = refresh_token_if_expired(user_data['token'])
+#             spotify = spotipy.Spotify(auth=token_info['access_token'])
+#             result = process_job(spotify, user_data['job'])
+#             refresh_results[user_id] = "Success"
+
+#             # Update the stored token info
+#             user_data['token'] = token_info
+#             store_job_and_token(user_id, user_data['job'], token_info)
+#         except Exception as e:
+#             print(f"Error refreshing job for user {user_id}: {str(e)}")
+#             refresh_results[user_id] = f"Error: {str(e)}"
+
+#     print("Job refresh process completed")
+#     return jsonify({"status": "complete", "results": refresh_results})
 
 
 @app.route('/process_job', methods=['POST'])
