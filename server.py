@@ -229,6 +229,41 @@ def process_job_api():
         user_id = user['id']
 
         job = request.json
+
+        # Set default values for missing properties
+        default_job = {
+            'name': '',
+            'playlist_id': '',
+            'scheduled_time': 0,
+            'description': '',
+            'ban_skits': False,
+            'last_track_ids': [],
+            'banned_artists': [],
+            'banned_tracks': [],
+            'banned_genres': [],
+            'exceptions_to_banned_genres': [],
+            'recipe': [],
+            'min_popularity': None,
+            'max_popularity': None,
+            'min_duration': None,
+            'max_duration': None,
+            'min_danceability': None,
+            'max_danceability': None,
+            'min_energy': None,
+            'max_energy': None,
+            'min_acousticness': None,
+            'max_acousticness': None,
+        }
+
+        # Update default_job with received values
+        default_job.update(job)
+        job = default_job
+
+        # Convert integer values to doubles for Spotify API
+        for key in ['min_danceability', 'max_danceability', 'min_energy', 'max_energy', 'min_acousticness', 'max_acousticness']:
+            if job[key] is not None:
+                job[key] = job[key] / 100.0
+
         result = process_job(spotify, job)
 
         # Store the job and token info
