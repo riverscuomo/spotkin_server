@@ -43,7 +43,7 @@ def process_job(spotify, job):
         artist_id = track["artists"][0]["id"]
         artist_name = track["artists"][0]["name"]
         artist_genre = next(
-            (x for x in artists_genres if x["artist_id"] == artist_id), None
+            (x['genres'] for x in artists_genres if x["artist_id"] == artist_id and "genres" in x), None
         )
 
         if playlist_filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
