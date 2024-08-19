@@ -84,36 +84,34 @@ class JobService:
             return jsonify({'status': 'error', 'message': str(e)}), 500
 
     def process_scheduled_jobs(self):
-        print('Processing scheduled jobs...')
         all_jobs = self.data_service.get_all_data()
         now = datetime.datetime.now()
         current_hour = now.hour
 
-        for user_id, user_data in all_jobs.items():
+        jobs_to_process = [
+            (user_id, user_data)
+            for user_id, user_data in all_jobs.items()
+            if user_data.get('job', {}).get('scheduled_time') == current_hour
+        ]
 
-            job = user_data.get('job', {})
-            if job.get('scheduled_time') == current_hour:
-                print(
-                    f"Processing job for user: {user_id} because scheduled time {job.get('scheduled_time')} matches current hour {current_hour}")
+        self.logger.info(
+            f"Found {len(jobs_to_process)} jobs to process for hour {current_hour}")
+
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            future_to_job = {
+                executor.submit(self.process_single_job, user_id, user_data): user_id
+                for user_id, user_data in jobs_to_process
+            }
+
+            for future in as_completed(future_to_job):
+                user_id = future_to_job[future]
                 try:
-                    token_info = self.spotify_service.refresh_token_if_expired(
-                        user_data['token'])
-                    spotify = self.spotify_service.create_spotify_client(
-                        token_info)
-                    result = process_job(spotify, job)
-
-                    # Update the stored token info and last processed time
-                    user_data['token'] = token_info
-                    user_data['last_processed'] = now.isoformat()
-                    self.data_service.store_job_and_token(
-                        user_id, job, token_info)
-
-                    print(f"Job processed successfully for user: {user_id}")
+                    result = future.result()
+                    self.logger.info(
+                        f"Job processed successfully for user: {user_id}")
                 except Exception as e:
-                    print(f"Error processing job for user {user_id}: {str(e)}")
-            else:
-                print(
-                    f"Skipping job for user: {user_id} because scheduled time does not match current hour")
+                    self.logger.error(
+                        f"Error processing job for user {user_id}: {str(e)}")
 
     def get_schedule(self):
         all_jobs = self.data_service.get_all_data()
