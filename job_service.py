@@ -84,13 +84,17 @@ class JobService:
             return jsonify({'status': 'error', 'message': str(e)}), 500
 
     def process_scheduled_jobs(self):
+        print('Processing scheduled jobs...')
         all_jobs = self.data_service.get_all_data()
         now = datetime.datetime.now()
         current_hour = now.hour
 
         for user_id, user_data in all_jobs.items():
+
             job = user_data.get('job', {})
             if job.get('scheduled_time') == current_hour:
+                print(
+                    f"Processing job for user: {user_id} because scheduled time {job.get('scheduled_time')} matches current hour {current_hour}")
                 try:
                     token_info = self.spotify_service.refresh_token_if_expired(
                         user_data['token'])
@@ -107,6 +111,9 @@ class JobService:
                     print(f"Job processed successfully for user: {user_id}")
                 except Exception as e:
                     print(f"Error processing job for user {user_id}: {str(e)}")
+            else:
+                print(
+                    f"Skipping job for user: {user_id} because scheduled time does not match current hour")
 
     def get_schedule(self):
         all_jobs = self.data_service.get_all_data()
