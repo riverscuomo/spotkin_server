@@ -18,6 +18,7 @@ class DataService:
     def store_job_and_token(self, user_id, job, token_info):
         print('Storing job and token')
         all_data = self.get_all_data()
+        print('/nAll data:')
         print(all_data)
         all_data[user_id] = {
             'job': job,
