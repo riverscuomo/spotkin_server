@@ -19,6 +19,7 @@ class DataService:
         print('Storing job and token')
         all_data = self.get_all_data()
         print('/nAll data:')
+        i = 1
         for user_id, value in all_data.items():
             job = value.get('job', {})
             scheduled_time = job.get('scheduled_time')
@@ -26,7 +27,7 @@ class DataService:
             name = job.get('name')
             index = job.get('index')
             print(
-                f"User ID: {user_id}, Scheduled Time: {scheduled_time}, Playlist ID: {playlist_id}, Name: {name}, Index: {index}")
+                f'{i}. Name: {name}, Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}, User ID: {user_id}')
 
         all_data[user_id] = {
             'job': job,
