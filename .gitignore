@@ -3,6 +3,9 @@ poetry.lock
 log.txt
 launch.json
 
+test.py
+test.json
+
 # Rivers's venv
 .9
 .G
