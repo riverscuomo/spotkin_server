@@ -27,7 +27,8 @@ class DataService:
             name = job.get('name')
             index = job.get('index')
             print(
-                f'{i}. Name: {name}, Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}, User ID: {user_id}')
+                f'{i}. {user_id} "{name}", Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}')
+            i += 1
 
         all_data[user_id] = {
             'job': job,
