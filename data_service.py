@@ -18,46 +18,45 @@ class DataService:
         except json.JSONDecodeError:
             return self._decompress_json(data_str)
 
+    def store_job_and_token(self, user_id, job, token_info):
+        print('Storing job and token')
+        all_data = self.get_all_data()
+        print('\nAll data:')
+        i = 1
+        for user, value in all_data.items():
+            jobs = value.get('jobs', [])
+            for job_entry in jobs:
+                scheduled_time = job_entry.get('scheduled_time')
+                playlist_id = job_entry.get('playlist_id')
+                name = job_entry.get('name')
+                index = job_entry.get('index')
+                print(
+                    f'{i}. {user} "{name}", Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}')
+                i += 1
 
-def store_job_and_token(self, user_id, job, token_info):
-    print('Storing job and token')
-    all_data = self.get_all_data()
-    print('\nAll data:')
-    i = 1
-    for user, value in all_data.items():
-        jobs = value.get('jobs', [])
-        for job_entry in jobs:
-            scheduled_time = job_entry.get('scheduled_time')
-            playlist_id = job_entry.get('playlist_id')
-            name = job_entry.get('name')
-            index = job_entry.get('index')
-            print(
-                f'{i}. {user} "{name}", Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}')
-            i += 1
+        if user_id not in all_data:
+            all_data[user_id] = {'jobs': [], 'token': token_info,
+                                 'last_updated': int(time.time())}
 
-    if user_id not in all_data:
-        all_data[user_id] = {'jobs': [], 'token': token_info,
-                             'last_updated': int(time.time())}
+        # Check if the job already exists based on playlist_id
+        job_exists = False
+        for existing_job in all_data[user_id]['jobs']:
+            if existing_job['playlist_id'] == job['playlist_id']:
+                # Update existing job
+                existing_job.update(job)
+                job_exists = True
+                break
 
-    # Check if the job already exists based on playlist_id
-    job_exists = False
-    for existing_job in all_data[user_id]['jobs']:
-        if existing_job['playlist_id'] == job['playlist_id']:
-            # Update existing job
-            existing_job.update(job)
-            job_exists = True
-            break
+        if not job_exists:
+            # Add new job if it doesn't exist
+            all_data[user_id]['jobs'].append(job)
 
-    if not job_exists:
-        # Add new job if it doesn't exist
-        all_data[user_id]['jobs'].append(job)
+        all_data[user_id]['last_updated'] = int(time.time())
+        all_data[user_id]['token'] = token_info
 
-    all_data[user_id]['last_updated'] = int(time.time())
-    all_data[user_id]['token'] = token_info
-
-    compressed = self._compress_json(all_data)
-    os.environ['SPOTKIN_DATA'] = compressed
-    self._update_heroku_config(compressed)
+        compressed = self._compress_json(all_data)
+        os.environ['SPOTKIN_DATA'] = compressed
+        self._update_heroku_config(compressed)
 
     def delete_job(self, user_id, job_index=None):
         all_data = self.get_all_data()
