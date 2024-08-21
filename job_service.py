@@ -1,4 +1,3 @@
-
 import datetime
 from spotkin.scripts.process_job import process_job
 import time
@@ -90,50 +89,58 @@ class JobService:
         current_hour = now.hour
 
         for user_id, user_data in all_jobs.items():
+            jobs = user_data.get('jobs', [])
+            for job in jobs:
+                if job.get('scheduled_time') == current_hour:
+                    print(
+                        f"Processing job for user: {user_id} because scheduled time {job.get('scheduled_time')} matches current hour {current_hour}")
+                    try:
+                        token_info = self.spotify_service.refresh_token_if_expired(
+                            user_data['token'])
+                        spotify = self.spotify_service.create_spotify_client(
+                            token_info)
+                        result = process_job(spotify, job)
 
-            job = user_data.get('job', {})
-            if job.get('scheduled_time') == current_hour:
-                print(
-                    f"Processing job for user: {user_id} because scheduled time {job.get('scheduled_time')} matches current hour {current_hour}")
-                try:
-                    token_info = self.spotify_service.refresh_token_if_expired(
-                        user_data['token'])
-                    spotify = self.spotify_service.create_spotify_client(
-                        token_info)
-                    result = process_job(spotify, job)
+                        # Update the stored token info and last processed time
+                        user_data['token'] = token_info
+                        job['last_processed'] = now.isoformat()
+                        self.data_service.store_job_and_token(
+                            user_id, job, token_info)
 
-                    # Update the stored token info and last processed time
-                    user_data['token'] = token_info
-                    user_data['last_processed'] = now.isoformat()
-                    self.data_service.store_job_and_token(
-                        user_id, job, token_info)
-
-                    print(f"Job processed successfully for user: {user_id}")
-                except Exception as e:
-                    print(f"Error processing job for user {user_id}: {str(e)}")
-            else:
-                print(
-                    f"Skipping job for user: {user_id} because scheduled time does not match current hour")
+                        print(
+                            f"Job processed successfully for user: {user_id}")
+                    except Exception as e:
+                        print(
+                            f"Error processing job for user {user_id}: {str(e)}")
+                else:
+                    print(
+                        f"Skipping job for user: {user_id} because scheduled time does not match current hour")
 
     def get_schedule(self):
         all_jobs = self.data_service.get_all_data()
         schedule_info = {
             user_id: {
-                'scheduled_time': job['scheduled_time'],
-                'last_processed': job.get('last_processed', 'Never'),
-            } for user_id, job in all_jobs.items()
+                'jobs': [{
+                    'name': job.get('name', 'Unnamed job'),
+                    'scheduled_time': job['scheduled_time'],
+                    'last_processed': job.get('last_processed', 'Never'),
+                } for job in user_data.get('jobs', [])]
+            } for user_id, user_data in all_jobs.items()
         }
         return jsonify({"status": "success", "schedule": schedule_info})
 
     def update_job_schedule(self, data):
         user_id = data['user_id']
         new_time = data['new_time']
+        job_name = data.get('job_name', None)
 
         all_jobs = self.data_service.get_all_data()
         if user_id in all_jobs:
-            all_jobs[user_id]['scheduled_time'] = new_time
+            for job in all_jobs[user_id]['jobs']:
+                if job_name is None or job['name'] == job_name:
+                    job['scheduled_time'] = new_time
             self.data_service.store_job_and_token(
-                user_id, all_jobs[user_id], all_jobs[user_id]['token'])
+                user_id, all_jobs[user_id]['jobs'], all_jobs[user_id]['token'])
             return jsonify({"status": "updated", "new_time": new_time})
         else:
             return jsonify({"status": "error", "message": "User not found"}), 404

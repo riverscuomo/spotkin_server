@@ -1,4 +1,3 @@
-
 import os
 import json
 import gzip
@@ -18,32 +17,41 @@ class DataService:
     def store_job_and_token(self, user_id, job, token_info):
         print('Storing job and token')
         all_data = self.get_all_data()
-        print('/nAll data:')
+        print('\nAll data:')
         i = 1
-        for user_id, value in all_data.items():
-            job = value.get('job', {})
-            scheduled_time = job.get('scheduled_time')
-            playlist_id = job.get('playlist_id')
-            name = job.get('name')
-            index = job.get('index')
-            print(
-                f'{i}. {user_id} "{name}", Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}')
-            i += 1
+        for user, value in all_data.items():
+            jobs = value.get('jobs', [])
+            for job in jobs:
+                scheduled_time = job.get('scheduled_time')
+                playlist_id = job.get('playlist_id')
+                name = job.get('name')
+                index = job.get('index')
+                print(
+                    f'{i}. {user} "{name}", Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}')
+                i += 1
 
-        all_data[user_id] = {
-            'job': job,
-            'token': token_info,
-            'last_updated': int(time.time()),
-        }
+        if user_id not in all_data:
+            all_data[user_id] = {
+                'jobs': [], 'token': token_info, 'last_updated': int(time.time())}
+
+        all_data[user_id]['jobs'].append(job)
+        all_data[user_id]['last_updated'] = int(time.time())
+
         compressed = self._compress_json(all_data)
         os.environ['SPOTKIN_DATA'] = compressed
         self._update_heroku_config(compressed)
 
-    def delete_job(self, user_id):
-        all_jobs = self.get_all_data()
-        if user_id in all_jobs:
-            del all_jobs[user_id]
-            os.environ['SPOTKIN_DATA'] = json.dumps(all_jobs)
+    def delete_job(self, user_id, job_index=None):
+        all_data = self.get_all_data()
+        if user_id in all_data:
+            if job_index is not None:
+                jobs = all_data[user_id].get('jobs', [])
+                if 0 <= job_index < len(jobs):
+                    del jobs[job_index]
+                    all_data[user_id]['jobs'] = jobs
+            else:
+                del all_data[user_id]
+            os.environ['SPOTKIN_DATA'] = self._compress_json(all_data)
 
     def _compress_json(self, data):
         json_str = json.dumps(data)
