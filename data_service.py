@@ -8,7 +8,11 @@ import requests
 
 class DataService:
     def get_all_data(self):
+
         data_str = os.environ.get('SPOTKIN_DATA', '{}')
+        if not data_str or data_str == '{}':
+            print("No data found in SPOTKIN_DATA, returning empty dictionary.")
+            return {}
         try:
             return json.loads(data_str)
         except json.JSONDecodeError:
