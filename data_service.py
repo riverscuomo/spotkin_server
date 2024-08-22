@@ -21,18 +21,7 @@ class DataService:
     def store_job_and_token(self, user_id, job, token_info):
         print('Storing job and token')
         all_data = self.get_all_data()
-        print('\nAll data:')
-        i = 1
-        for user, value in all_data.items():
-            jobs = value.get('jobs', [])
-            for job_entry in jobs:
-                scheduled_time = job_entry.get('scheduled_time')
-                playlist_id = job_entry.get('playlist_id')
-                name = job_entry.get('name')
-                index = job_entry.get('index')
-                print(
-                    f'{i}. {user} "{name}", Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}')
-                i += 1
+        self.print_all_jobs(all_data)
 
         if user_id not in all_data:
             all_data[user_id] = {'jobs': [], 'token': token_info,
@@ -57,6 +46,20 @@ class DataService:
         compressed = self._compress_json(all_data)
         os.environ['SPOTKIN_DATA'] = compressed
         self._update_heroku_config(compressed)
+
+    def print_all_jobs(self, all_data):
+        print('\nAll data:')
+        i = 1
+        for user, value in all_data.items():
+            jobs = value.get('jobs', [])
+            for job_entry in jobs:
+                scheduled_time = job_entry.get('scheduled_time')
+                playlist_id = job_entry.get('playlist_id')
+                name = job_entry.get('name')
+                index = job_entry.get('index')
+                print(
+                    f'{i}. {user} "{name}", Scheduled Time: {scheduled_time}, Index: {index}, Playlist ID: {playlist_id}')
+                i += 1
 
     def delete_job(self, user_id, job_index=None):
         all_data = self.get_all_data()
