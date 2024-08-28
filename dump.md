@@ -133,6 +133,111 @@ class DataService:
 
 ```
 
+## .\dump.py
+
+```py
+from rivertils import dump
+
+dump.dump(['.gitignore', 'dump.md', '.\spotkin\data',
+           'CHANGELOG.md',  'LICENSE', '.git',])
+
+
+# import os
+# import fnmatch
+
+
+# def load_gitignore_patterns(gitignore_path):
+#     """Load .gitignore patterns into a list."""
+#     patterns = []
+#     if os.path.exists(gitignore_path):
+#         with open(gitignore_path, 'r', encoding='utf-8') as f:
+#             for line in f:
+#                 # Remove comments and empty lines
+#                 stripped_line = line.strip()
+#                 if stripped_line and not stripped_line.startswith('#'):
+#                     patterns.append(stripped_line)
+#     return patterns
+
+
+# def should_ignore(file_path, ignore_patterns):
+#     """Check if a file should be ignored based on .gitignore patterns."""
+#     for pattern in ignore_patterns:
+#         if fnmatch.fnmatch(file_path, pattern) or fnmatch.fnmatch(os.path.basename(file_path), pattern):
+#             return True
+#     return False
+
+
+# def is_binary_file(file_path):
+#     """Check if a file is binary by reading a portion of it."""
+#     try:
+#         with open(file_path, 'rb') as file:
+#             chunk = file.read(1024)
+#             if b'\0' in chunk:  # NULL byte indicates binary file
+#                 return True
+#     except:
+#         pass
+#     return False
+
+
+# def traverse_project(directory, ignore_patterns):
+#     """Traverse the project directory and collect file paths."""
+#     files_to_include = []
+#     for root, dirs, files in os.walk(directory):
+#         # Check if any directories should be skipped
+#         dirs[:] = [d for d in dirs if not should_ignore(
+#             os.path.join(root, d), ignore_patterns)]
+#         for file in files:
+#             file_path = os.path.join(root, file)
+#             if not should_ignore(file_path, ignore_patterns) and not is_binary_file(file_path):
+#                 print(file_path)
+#                 files_to_include.append(file_path)
+#     return files_to_include
+
+
+# def write_to_markdown(files, output_file):
+#     """Write the content of files to a Markdown file."""
+#     with open(output_file, 'w', encoding='utf-8') as md_file:
+#         for file_path in files:
+#             try:
+#                 with open(file_path, 'r', encoding='utf-8') as file:
+#                     md_file.write(f"## {file_path}\n\n")
+#                     md_file.write(
+#                         "```" + os.path.splitext(file_path)[1].lstrip('.') + "\n")
+#                     md_file.write(file.read())
+#                     md_file.write("\n```\n\n")
+#             except UnicodeDecodeError:
+#                 print(f"Skipping {file_path} due to encoding issues.")
+#             except Exception as e:
+#                 print(f"An error occurred while processing {file_path}: {e}")
+
+
+# def dump(additional_ignore_patterns: list[str]):
+#     project_directory = '.'  # Current directory, change if needed
+#     gitignore_path = os.path.join(
+#         project_directory, '.gitignore', )
+#     output_file = 'dump.md'
+
+#     ignore_patterns = load_gitignore_patterns(gitignore_path)
+#     ignore_patterns.append(output_file)
+#     ignore_patterns.extend(additional_ignore_patterns
+#                            )
+#     files_to_include = traverse_project(project_directory, ignore_patterns)
+
+#     write_to_markdown(files_to_include, output_file)
+#     print(
+#         f"Markdown file '{output_file}' has been created with the project content.")
+
+
+# def main():
+#     dump(['.gitignore', 'dump.md', '.\spotkin\data', 'CHANGELOG.md',  'LICENSE', '.git',
+#          'spotkin.egg-info', '.\code-based.md', '.\dump.py', '.\.vscode', '.\spotkin\copy_sheet.py'])
+
+
+# if __name__ == "__main__":
+#     main()
+
+```
+
 ## .\job_service.py
 
 ```py
@@ -434,21 +539,18 @@ if __name__ == "__main__":
 ## .\requirements.txt
 
 ```txt
-spotipy>=2.21.0
-python-decouple>=3.6
-python-dateutil>=2.8.2
-python-dotenv>=0.21.0
-rich>=12.6.0
-gspreader>=0.1.20
-gspread>=5.7.2
-Flask>=3.0.3
-Flask-Cors>=4.0.1
-gunicorn>=22.0.0
-requests>=2.26.0
-
-
-Flask-SQLAlchemy==3.1.1
-psycopg2==2.9.9
+   spotipy>=2.21.0
+   python-decouple>=3.6
+   python-dateutil>=2.8.2
+   python-dotenv>=0.21.0
+   rich>=12.6.0
+   gspreader>=0.1.20
+   gspread>=5.7.2
+   Flask>=3.0.3
+   Flask-Cors>=4.0.1
+   gunicorn>=22.0.0
+   requests>=2.26.0
+   rivertils>=0.1.11
 ```
 
 ## .\routes.py
@@ -456,8 +558,6 @@ psycopg2==2.9.9
 ```py
 
 from flask import jsonify, request
-from database import db
-from sqlalchemy import text
 
 
 def register_routes(app, job_service):
@@ -478,14 +578,6 @@ def register_routes(app, job_service):
     def update_job_schedule():
         return job_service.update_job_schedule(request.json)
 
-    @app.route('/test_db')
-    def test_db():
-        try:
-            result = db.session.execute(text("SELECT 1 as test")).fetchone()
-            return f'Database connection successful! Test value: {result.test}'
-        except Exception as e:
-            return f'Database connection failed: {str(e)}'
-
     @app.route('/')
     def home():
         return 'Home - Go to /spotify-login to login with Spotify.'
@@ -504,8 +596,6 @@ from spotify_service import SpotifyService
 from job_service import JobService
 from data_service import DataService
 import os
-from database import init_db
-
 
 load_dotenv()
 
@@ -532,13 +622,6 @@ def create_app():
 
 # Create the app instance at the module level
 app = create_app()
-
-# Use the DATABASE_URL environment variable for the connection string
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-
-
-# Initialize the database
-db_session = init_db(app)
 
 if __name__ == '__main__':
     app = create_app()
@@ -580,6 +663,41 @@ class SpotifyService:
 
 ```
 
+## .\test.txt
+
+```txt
+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
+```
+
+## .\.vscode\settings.json
+
+```json
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#268a00",
+        "activityBar.background": "#268a00",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#0035bf",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#268a00",
+        "statusBar.background": "#185700",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#268a00",
+        "statusBarItem.remoteBackground": "#185700",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#185700",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#18570099",
+        "titleBar.inactiveForeground": "#e7e7e799",
+        "tab.activeBorder": "#268a00"
+    },
+    "peacock.color": "#185700",
+    "dotenv.enableAutocloaking": false
+}
+```
+
 ## .\spotkin\build_artist_genres.py
 
 ```py
@@ -595,6 +713,43 @@ def build_artist_genres(spotify, tracks):
     artist_ids = [artist["id"] for artist in artists]
     artist_ids = list(set(artist_ids))
     return get_artists_genres(spotify, artist_ids)
+
+```
+
+## .\spotkin\copy_sheet.py
+
+```py
+import argparse
+import pygsheets  # pip3 install pygsheets
+
+
+TEMPLATE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1z5MejG6EKg8rf8vYKeFhw9XT_3PxkDFOrPSEKT_jYqI/edit#gid=1936655481"
+SHEET_TITLE = "Spotify Controller"
+
+
+def copy_sheet(service_file, gmail):
+	gc = pygsheets.authorize(service_file=service_file)
+
+	template_sh = gc.open_by_url(TEMPLATE_SHEET_URL)
+	copied_sh = gc.create(title=SHEET_TITLE, template=template_sh)
+
+	# optionally remove "validation" worksheet
+	val_wks = [wks for wks in copied_sh.worksheets() if wks.title == "validation"]
+	if (val_wks):
+	    copied_sh.del_worksheet(val_wks[0])
+
+	copied_sh.share(gmail, role="writer")
+	print('shared sheet "%s" to %s' % (SHEET_TITLE, gmail))
+	return
+
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(description='copy sheet')
+	parser.add_argument('service_file', type=str, help='path to auth service file')
+	parser.add_argument('gmail', type=str, help='gmail to share to')
+	args = parser.parse_args()
+
+	copy_sheet(args.service_file, args.gmail)
 
 ```
 
@@ -1348,6 +1503,54 @@ def log(message: str):
         print(message)
 
         # file.write("=============================================\n")
+
+```
+
+## .\spotkin.egg-info\dependency_links.txt
+
+```txt
+
+
+```
+
+## .\spotkin.egg-info\PKG-INFO
+
+```
+Metadata-Version: 2.1
+Name: spotkin
+Version: 0.1.0
+Summary: Your package description
+License-File: LICENSE
+
+```
+
+## .\spotkin.egg-info\SOURCES.txt
+
+```txt
+LICENSE
+README.md
+pyproject.toml
+spotkin/__init__.py
+spotkin/__main__.py
+spotkin/build_artist_genres.py
+spotkin/copy_sheet.py
+spotkin.egg-info/PKG-INFO
+spotkin.egg-info/SOURCES.txt
+spotkin.egg-info/dependency_links.txt
+spotkin.egg-info/top_level.txt
+spotkin/data/_example_jobs.py
+spotkin/scripts/api.py
+spotkin/scripts/bans.py
+spotkin/scripts/get_all_tracks.py
+spotkin/scripts/post_description.py
+spotkin/scripts/process_job.py
+spotkin/scripts/utils.py
+```
+
+## .\spotkin.egg-info\top_level.txt
+
+```txt
+spotkin
 
 ```
 
