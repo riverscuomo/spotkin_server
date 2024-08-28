@@ -1,3 +1,4 @@
+rivertils>=0.1.13
 spotipy>=2.21.0
 python-decouple>=3.6
 python-dateutil>=2.8.2
@@ -11,5 +12,3 @@ gunicorn>=22.0.0
 requests>=2.26.0
 Flask-SQLAlchemy==3.1.1
 psycopg2==2.9.9
-rivertils>=0.1.11
-
