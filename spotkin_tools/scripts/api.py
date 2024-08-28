@@ -5,7 +5,7 @@ from spotipy import SpotifyOAuth, Spotify
 try:
     from scripts.utils import *
 except:
-    from spotkin.scripts.utils import *
+    from spotkin_tools.scripts.utils import *
 from dotenv import load_dotenv
 
 load_dotenv()

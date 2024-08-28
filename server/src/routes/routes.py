@@ -1,6 +1,6 @@
 
 from flask import jsonify, request
-from database import db
+from server.database.database import db
 from sqlalchemy import text
 
 

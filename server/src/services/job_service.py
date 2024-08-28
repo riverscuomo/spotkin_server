@@ -1,5 +1,5 @@
 import datetime
-from spotkin.scripts.process_job import process_job
+from spotkin_tools.scripts.process_job import process_job
 import time
 import spotipy
 from flask import jsonify

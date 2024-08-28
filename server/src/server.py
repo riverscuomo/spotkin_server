@@ -2,12 +2,12 @@
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
-from routes import register_routes
-from spotify_service import SpotifyService
-from job_service import JobService
-from data_service import DataService
+from server.src.routes.routes import register_routes
+from server.src.services.spotify_service import SpotifyService
+from server.src.services.job_service import JobService
+from server.src.services.data_service import DataService
 import os
-from database import init_db
+from server.database.database import init_db
 
 
 load_dotenv()

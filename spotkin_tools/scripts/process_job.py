@@ -7,12 +7,12 @@ try:
     from scripts.post_description import log, post_description, random
     from scripts.utils import log
 except:
-    from spotkin.build_artist_genres import build_artist_genres
-    from spotkin.scripts.api import get_audio_features, log, random
-    from spotkin.scripts.bans import PlaylistFilter, log
-    from spotkin.scripts.get_all_tracks import get_all_tracks
-    from spotkin.scripts.post_description import log, post_description, random
-    from spotkin.scripts.utils import log
+    from spotkin_tools.build_artist_genres import build_artist_genres
+    from spotkin_tools.scripts.api import get_audio_features, log, random
+    from spotkin_tools.scripts.bans import PlaylistFilter, log
+    from spotkin_tools.scripts.get_all_tracks import get_all_tracks
+    from spotkin_tools.scripts.post_description import log, post_description, random
+    from spotkin_tools.scripts.utils import log
 
 import random
 
@@ -43,7 +43,8 @@ def process_job(spotify, job):
         artist_id = track["artists"][0]["id"]
         artist_name = track["artists"][0]["name"]
         artist_genre = next(
-            (x['genres'] for x in artists_genres if x["artist_id"] == artist_id and "genres" in x), None
+            (x['genres'] for x in artists_genres if x["artist_id"]
+             == artist_id and "genres" in x), None
         )
 
         if playlist_filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
