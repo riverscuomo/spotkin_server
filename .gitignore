@@ -3,6 +3,7 @@ poetry.lock
 log.txt
 launch.json
 
+dump.md
 test.py
 test.json
 codebase_dump.py
