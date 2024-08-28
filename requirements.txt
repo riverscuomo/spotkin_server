@@ -9,4 +9,4 @@
    Flask-Cors>=4.0.1
    gunicorn>=22.0.0
    requests>=2.26.0
-   rivertils>=0.1.11
+   rivertils>=0.1.13
