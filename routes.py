@@ -1,5 +1,7 @@
 
 from flask import jsonify, request
+from database import db
+from sqlalchemy import text
 
 
 def register_routes(app, job_service):
@@ -19,6 +21,14 @@ def register_routes(app, job_service):
     @app.route('/update_job_schedule', methods=['POST'])
     def update_job_schedule():
         return job_service.update_job_schedule(request.json)
+
+    @app.route('/test_db')
+    def test_db():
+        try:
+            result = db.session.execute(text("SELECT 1 as test")).fetchone()
+            return f'Database connection successful! Test value: {result.test}'
+        except Exception as e:
+            return f'Database connection failed: {str(e)}'
 
     @app.route('/')
     def home():
