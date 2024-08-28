@@ -2,12 +2,12 @@
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
-from routes import register_routes
-from spotify_service import SpotifyService
-from job_service import JobService
-from data_service import DataService
+from server.src.routes.routes import register_routes
+from server.src.services.spotify_service import SpotifyService
+from server.src.services.job_service import JobService
+from server.src.services.data_service import DataService
 import os
-from database import init_db
+from server.database.database import init_db
 
 
 load_dotenv()
@@ -36,8 +36,15 @@ def create_app():
 # Create the app instance at the module level
 app = create_app()
 
-# Use the DATABASE_URL environment variable for the connection string
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+# Fetch the database URL from environment variables
+db_url = os.getenv('DATABASE_URL')
+
+# Replace postgres:// with postgresql:// if necessary
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# Set the SQLAlchemy Database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
 
 # Initialize the database

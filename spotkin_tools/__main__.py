@@ -9,11 +9,11 @@ try:
     from scripts.api import *
     from scripts.utils import *
 except:
-    from spotkin.scripts.process_job import process_job
-    from spotkin.scripts.bans import *
-    from spotkin.scripts.post_description import *
-    from spotkin.scripts.api import *
-    from spotkin.scripts.utils import *
+    from spotkin_tools.scripts.process_job import process_job
+    from spotkin_tools.scripts.bans import *
+    from spotkin_tools.scripts.post_description import *
+    from spotkin_tools.scripts.api import *
+    from spotkin_tools.scripts.utils import *
 from dotenv import load_dotenv
 import gspreader
 import gspread

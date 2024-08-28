@@ -4,7 +4,7 @@ import os
 try:
     from scripts.utils import *
 except:
-    from spotkin.scripts.utils import *
+    from spotkin_tools.scripts.utils import *
 
 
 def getFact():

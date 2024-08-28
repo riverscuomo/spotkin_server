@@ -2,8 +2,8 @@ try:
     from scripts.api import sample_playlist_tracks
     from scripts.utils import log
 except:
-    from spotkin.scripts.api import sample_playlist_tracks
-    from spotkin.scripts.utils import log
+    from spotkin_tools.scripts.api import sample_playlist_tracks
+    from spotkin_tools.scripts.utils import log
 
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
