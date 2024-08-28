@@ -7,6 +7,8 @@ from spotify_service import SpotifyService
 from job_service import JobService
 from data_service import DataService
 import os
+from database import init_db
+
 
 load_dotenv()
 
@@ -33,6 +35,13 @@ def create_app():
 
 # Create the app instance at the module level
 app = create_app()
+
+# Use the DATABASE_URL environment variable for the connection string
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+
+
+# Initialize the database
+db_session = init_db(app)
 
 if __name__ == '__main__':
     app = create_app()

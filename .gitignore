@@ -5,6 +5,8 @@ launch.json
 
 test.py
 test.json
+codebase_dump.py
+codebase_dump.md
 
 # Rivers's venv
 .9
