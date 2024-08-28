@@ -36,8 +36,15 @@ def create_app():
 # Create the app instance at the module level
 app = create_app()
 
-# Use the DATABASE_URL environment variable for the connection string
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+# Fetch the database URL from environment variables
+db_url = os.getenv('DATABASE_URL')
+
+# Replace postgres:// with postgresql:// if necessary
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# Set the SQLAlchemy Database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
 
 # Initialize the database
