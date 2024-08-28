@@ -1,4 +1,3 @@
-
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -9,7 +8,7 @@ from server.src.services.data_service import DataService
 import os
 from server.database.database import init_db
 
-
+# Load environment variables from .env file
 load_dotenv()
 
 
@@ -46,10 +45,8 @@ if db_url and db_url.startswith("postgres://"):
 # Set the SQLAlchemy Database URI
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
-
 # Initialize the database
 db_session = init_db(app)
 
 if __name__ == '__main__':
-    app = create_app()
     app.run(debug=True)
