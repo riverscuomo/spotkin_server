@@ -10,6 +10,18 @@ class JobService:
         self.data_service = data_service
         self.spotify_service = spotify_service
 
+    def get_jobs(self, user_id):
+        all_data = self.data_service.get_all_data()
+        if user_id in all_data:
+            return all_data[user_id].get('jobs', [])
+        return []
+
+    def add_job(self, user_id, job, token_info):
+        self.data_service.store_job_and_token(user_id, job, token_info)
+
+    def delete_job(self, user_id, job_index):
+        self.data_service.delete_job(user_id, job_index)
+
     def process_job(self, request):
         if 'Authorization' not in request.headers:
             return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
