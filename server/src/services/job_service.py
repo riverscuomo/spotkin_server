@@ -26,7 +26,7 @@ class JobService:
         if 'Authorization' not in request.headers:
             return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
 
-        access_token = request.headers['Authorization'].replace('Bearer ', '')
+        access_token = request.headers['Authorization']
         refresh_token = request.headers.get('Refresh-Token')
 
         if not refresh_token:
