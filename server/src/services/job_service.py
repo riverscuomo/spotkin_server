@@ -33,8 +33,19 @@ class JobService:
             return jsonify({'status': 'error', 'message': 'Refresh token is missing.'}), 401
 
         try:
+            # First 20 characters
+            print(f"Access token prefix: {access_token[:20]}...")
             spotify = spotipy.Spotify(auth=access_token)
-            user = spotify.current_user()
+            print(
+                f"Spotify client created with token prefix: {spotify._auth[:20]}...")
+
+            try:
+                user = spotify.me()
+                print(f"Successfully retrieved user: {user['id']}")
+            except spotipy.SpotifyException as e:
+                print(f"Spotify API error: {str(e)}")
+                user = spotify.current_user()
+
             user_id = user['id']
 
             job = request.json

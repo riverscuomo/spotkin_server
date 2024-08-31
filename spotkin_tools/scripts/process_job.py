@@ -18,8 +18,7 @@ import random
 
 
 def process_job(spotify, job):
-    log(f"spotkin playlist {job}")
-    # log(f"spotkin playlist 'Rivers Radio'")
+    log(f"process_job: {job['name']}")
 
     tracks = get_all_tracks(job, spotify)
     log(f"tracks: {len(tracks)}")

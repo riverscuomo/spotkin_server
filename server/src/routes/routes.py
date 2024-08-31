@@ -6,6 +6,7 @@ from sqlalchemy import text
 
 def register_routes(app, job_service):
 
+    # needs security?
     @app.route('/jobs/<user_id>', methods=['GET'])
     def get_jobs(user_id):
         jobs = job_service.get_jobs(user_id)
@@ -29,11 +30,13 @@ def register_routes(app, job_service):
     def process_job_api():
         return job_service.process_job(request)
 
+    # needs security?
     @app.route('/refresh_jobs', methods=['POST'])
     def refresh_jobs():
         job_service.process_scheduled_jobs()
         return jsonify({"status": "processing complete"})
 
+    # needs security?
     @app.route('/get_schedule', methods=['GET'])
     def get_schedule():
         return job_service.get_schedule()
