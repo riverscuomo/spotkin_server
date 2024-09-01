@@ -5,18 +5,11 @@ from server.src.routes.routes import register_routes
 from server.src.services.spotify_service import SpotifyService
 from server.src.services.job_service import JobService
 from server.src.services.data_service import DataService
-from server.src.models import db
+from server.database.database import db, init_db
 import os
-from server.database.database import init_db
 
 # Load environment variables from .env file
 load_dotenv()
-# Test if environment variables are loaded correctly
-print(f"FLASK_APP: {os.getenv('FLASK_APP')}")
-print(f"FLASK_ENV: {os.getenv('FLASK_ENV')}")
-
-
-from server.database.database import db, init_db
 
 def create_app():
     app = Flask(__name__)
@@ -31,12 +24,10 @@ def create_app():
         db_url = db_url.replace("postgres://", "postgresql://", 1)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize the database
-    db = init_db(app)
-
-    with app.app_context():
-        db.create_all()
+    init_db(app)
 
     # Initialize services
     data_service = DataService()
@@ -52,8 +43,6 @@ def create_app():
 
     return app
 
-
-# Create the app instance at the module level
 app = create_app()
 
 if __name__ == '__main__':
