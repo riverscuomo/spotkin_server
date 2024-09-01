@@ -4,6 +4,7 @@ from spotkin_tools.scripts.process_job import process_job as tools_process_job
 import time
 import spotipy
 from flask import jsonify
+from server.src.models.models import db
 
 
 class JobService:
