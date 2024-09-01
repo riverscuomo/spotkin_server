@@ -16,6 +16,8 @@ print(f"FLASK_APP: {os.getenv('FLASK_APP')}")
 print(f"FLASK_ENV: {os.getenv('FLASK_ENV')}")
 
 
+from server.database.database import db, init_db
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -31,7 +33,10 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
     # Initialize the database
-    init_db(app)
+    db = init_db(app)
+
+    with app.app_context():
+        db.create_all()
 
     # Initialize services
     data_service = DataService()
