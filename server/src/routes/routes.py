@@ -26,9 +26,9 @@ def register_routes(app, job_service):
         job_service.delete_job(user_id, job_index)
         return jsonify({"status": "success"}), 204
 
-    @app.route('/process_job', methods=['POST'])
-    def process_job_api():
-        return job_service.process_job(request)
+    @app.route('/process_job/<int:job_id>', methods=['POST'])
+    def process_job(job_id):
+        return job_service.process_job(job_id, request)
 
     # needs security?
     @app.route('/refresh_jobs', methods=['POST'])
