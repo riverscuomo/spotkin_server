@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
+from flask_migrate import Migrate
 from server.src.routes.routes import register_routes
 from server.src.services.spotify_service import SpotifyService
 from server.src.services.job_service import JobService
@@ -26,8 +27,12 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    print(db_url)
+
     # Initialize the database
     init_db(app)
+
+    migrate = Migrate(app, db)
 
     # Initialize services
     data_service = DataService()

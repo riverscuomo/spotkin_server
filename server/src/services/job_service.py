@@ -59,6 +59,9 @@ class JobService:
     def get_jobs(self, user_id):
         jobs = Job.query.filter_by(user_id=user_id).all()
         return [job.to_dict() for job in jobs]
+    
+    
+    
     def delete_job(self, user_id, job_index):
         self.data_service.delete_job(user_id, job_index)
 

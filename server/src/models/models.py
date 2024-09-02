@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import time
+from server.database.database import db
 
-db = SQLAlchemy()
 
 class Ingredient(db.Model):
     __tablename__ = 'ingredients'
@@ -29,7 +29,6 @@ class User(db.Model):
     token = db.relationship('Token', uselist=False,
                             backref='user', cascade="all, delete-orphan")
 
-
 class Job(db.Model):
     __tablename__ = 'jobs'
     id = db.Column(db.Integer, primary_key=True)
@@ -41,15 +40,14 @@ class Job(db.Model):
     description = db.Column(db.String, nullable=True)
     ban_skits = db.Column(db.Boolean, default=False)
     
-    # Existing relationships
+    # Store these as JSON or comma-separated strings
+    last_track_ids = db.Column(db.String, nullable=True)  # or db.JSON
+    banned_artist_ids = db.Column(db.String, nullable=True)  # or db.JSON
+    banned_track_ids = db.Column(db.String, nullable=True)  # or db.JSON
+    banned_genres = db.Column(db.String, nullable=True)  # or db.JSON
+    exceptions_to_banned_genres = db.Column(db.String, nullable=True)  # or db.JSON
+
     recipe = db.relationship('Ingredient', backref='job', lazy=True, cascade="all, delete-orphan")
-    
-    # New relationships for other job components
-    last_tracks = db.relationship('Track', secondary='job_last_tracks', backref='jobs_as_last')
-    banned_artists = db.relationship('Artist', secondary='job_banned_artists', backref='jobs_banning')
-    banned_tracks = db.relationship('Track', secondary='job_banned_tracks', backref='jobs_banning')
-    banned_genres = db.relationship('Genre', secondary='job_banned_genres', backref='jobs_banning')
-    exceptions_to_banned_genres = db.relationship('Artist', secondary='job_genre_exceptions', backref='jobs_excepting')
 
     def to_dict(self):
         return {
@@ -62,14 +60,12 @@ class Job(db.Model):
             'description': self.description,
             'ban_skits': self.ban_skits,
             'recipe': [ingredient.to_dict() for ingredient in self.recipe],
-            'last_tracks': [track.to_dict() for track in self.last_tracks],
-            'banned_artists': [artist.to_dict() for artist in self.banned_artists],
-            'banned_tracks': [track.to_dict() for track in self.banned_tracks],
-            'banned_genres': [genre.name for genre in self.banned_genres],
-            'exceptions_to_banned_genres': [artist.to_dict() for artist in self.exceptions_to_banned_genres],
+            'last_track_ids': self.last_track_ids.split(',') if self.last_track_ids else [],
+            'banned_artist_ids': self.banned_artist_ids.split(',') if self.banned_artist_ids else [],
+            'banned_track_ids': self.banned_track_ids.split(',') if self.banned_track_ids else [],
+            'banned_genres': self.banned_genres.split(',') if self.banned_genres else [],
+            'exceptions_to_banned_genres': self.exceptions_to_banned_genres.split(',') if self.exceptions_to_banned_genres else [],
         }
-
-
 class Token(db.Model):
     __tablename__ = 'tokens'
     user_id = db.Column(db.String, db.ForeignKey('users.id'), primary_key=True)

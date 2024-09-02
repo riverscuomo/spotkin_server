@@ -8,7 +8,9 @@ gspreader>=0.1.20
 gspread>=5.7.2
 Flask>=3.0.3
 Flask-Cors>=4.0.1
+Flask-Migrate>=4.0.7
+Flask-SQLAlchemy==3.1.1
 gunicorn>=22.0.0
 requests>=2.26.0
-Flask-SQLAlchemy==3.1.1
+
 psycopg2==2.9.9
