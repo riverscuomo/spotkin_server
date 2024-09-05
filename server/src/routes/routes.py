@@ -51,12 +51,6 @@ def register_routes(app, job_service):
         # Redirect to the frontend with just the access token
         return redirect(f"{os.environ.get('FRONTEND_URL')}/?access_token={access_token}&user_id={user_id}")
 
-    @app.route('/refresh_token', methods=['POST'])
-    def refresh_token():
-        refresh_token = request.json.get('refresh_token')
-        new_token_info = spotify_service.refresh_access_token(refresh_token)
-        return jsonify(new_token_info)
-
 
     def get_user_token_info(user_id):
         token = Token.query.get(user_id)
@@ -130,10 +124,6 @@ def register_routes(app, job_service):
     def delete_job(user_id, job_index):
         job_service.delete_job(user_id, job_index)
         return jsonify({"status": "success"}), 204
-
-    @app.route('/process_job/<int:job_id>', methods=['POST'])
-    def process_job(job_id):
-        return job_service.process_job(job_id, request)
 
     @app.route('/refresh_jobs', methods=['POST'])
     def refresh_jobs():
