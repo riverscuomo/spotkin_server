@@ -7,10 +7,12 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from server.database.database import db
 
+
 class Ingredient(db.Model):
     __tablename__ = 'ingredients'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    job_id = db.Column(UUID(as_uuid=True), db.ForeignKey('jobs.id'), nullable=False)
+    job_id = db.Column(UUID(as_uuid=True),
+                       db.ForeignKey('jobs.id'), nullable=False)
     playlist_id = db.Column(db.String, nullable=False)
     playlist_name = db.Column(db.String, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
@@ -28,9 +30,11 @@ class Ingredient(db.Model):
     def from_dict(cls, data):
         # Remove 'id' from data if it exists, as it will be auto-generated
         data.pop('id', None)
-        
+
         # Create and return the Ingredient instance
         return cls(**data)
+
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.String, primary_key=True)
@@ -42,12 +46,13 @@ class User(db.Model):
                             backref='user', cascade="all, delete-orphan")
 
 
-
 class Job(db.Model):
     __tablename__ = 'jobs'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
-    playlist_id = db.Column(db.String, nullable=False)
+    # playlist_id = db.Column(db.String, nullable=False)
+    # Store full playlist as JSON
+    target_playlist = db.Column(db.JSON, nullable=False)
     # playlist_name = db.Column(db.String, nullable=False)
     name = db.Column(db.String, nullable=False)
     scheduled_time = db.Column(db.Integer, nullable=True)
@@ -58,7 +63,8 @@ class Job(db.Model):
     banned_track_ids = db.Column(db.String, nullable=True)
     banned_genres = db.Column(db.String, nullable=True)
     exceptions_to_banned_genres = db.Column(db.String, nullable=True)
-    recipe = db.relationship('Ingredient', backref='job', lazy=True, cascade="all, delete-orphan")
+    recipe = db.relationship('Ingredient', backref='job',
+                             lazy=True, cascade="all, delete-orphan")
     min_popularity = db.Column(db.Integer, nullable=True)
     max_popularity = db.Column(db.Integer, nullable=True)
     min_duration = db.Column(db.Integer, nullable=True)
@@ -74,7 +80,8 @@ class Job(db.Model):
         return {
             'id': str(self.id),  # Convert UUID to string
             'user_id': self.user_id,
-            'playlist_id': self.playlist_id,
+            # 'playlist_id': self.playlist_id,
+            'target_playlist': self.target_playlist,
             # 'playlist_name': self.playlist_name,
             'name': self.name,
             'scheduled_time': self.scheduled_time,
@@ -104,21 +111,21 @@ class Job(db.Model):
         for field in ['last_track_ids', 'banned_artist_ids', 'banned_track_ids', 'banned_genres', 'exceptions_to_banned_genres']:
             if field in data and isinstance(data[field], list):
                 data[field] = ','.join(data[field])
-        
+
         # Remove 'id' from data if it exists, as it will be auto-generated
         data.pop('id', None)
-        
+
         # Remove 'recipe' from data as it's a relationship and should be handled separately
         recipe_data = data.pop('recipe', [])
-        
+
         # Create the Job instance
         job = cls(**data)
-        
+
         # Handle the recipe relationship
         for ingredient_data in recipe_data:
             ingredient = Ingredient.from_dict(ingredient_data)
             job.recipe.append(ingredient)
-        
+
         return job
 
 
@@ -126,6 +133,7 @@ class Token(db.Model):
     __tablename__ = 'tokens'
     user_id = db.Column(db.String, db.ForeignKey('users.id'), primary_key=True)
     token_info = db.Column(db.JSON, nullable=False)
+
 
 def ingredient_to_client_format(ingredient):
     return {
@@ -135,6 +143,7 @@ def ingredient_to_client_format(ingredient):
         },
         'quantity': ingredient.quantity,
     }
+
 
 def ingredient_from_client_format(data):
     return {

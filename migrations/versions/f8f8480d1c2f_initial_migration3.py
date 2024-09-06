@@ -1,8 +1,8 @@
-"""oauth2
+"""Initial migration3
 
-Revision ID: 6c2364441efe
+Revision ID: f8f8480d1c2f
 Revises: 
-Create Date: 2024-09-05 08:25:56.590990
+Create Date: 2024-09-06 17:32:26.352881
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6c2364441efe'
+revision = 'f8f8480d1c2f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,8 +26,7 @@ def upgrade():
     op.create_table('jobs',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.String(), nullable=False),
-    sa.Column('playlist_id', sa.String(), nullable=False),
-    sa.Column('playlist_name', sa.String(), nullable=False),
+    sa.Column('target_playlist', sa.JSON(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('scheduled_time', sa.Integer(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),

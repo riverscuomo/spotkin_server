@@ -52,21 +52,25 @@ class JobService:
         if job:
             # Update existing job fields
             job.name = updated_job_data.get('name', job.name)
-            job.scheduled_time = updated_job_data.get('scheduled_time', job.scheduled_time)
-            job.description = updated_job_data.get('description', job.description)
+            job.scheduled_time = updated_job_data.get(
+                'scheduled_time', job.scheduled_time)
+            job.description = updated_job_data.get(
+                'description', job.description)
             job.ban_skits = updated_job_data.get('ban_skits', job.ban_skits)
-            job.playlist_id = updated_job_data.get('playlist_id', job.playlist_id)  # Ensure playlist_id is updated
+            # job.playlist_id = updated_job_data.get('playlist_id', job.playlist_id)  # Ensure playlist_id is updated
             # job.playlist_name = updated_job_data.get('playlist_name', job.playlist_name)  # Ensure playlist_name is updated
 
             # Handle the recipe relationship (clear and re-add ingredients)
             job.recipe.clear()
             for ingredient_data in updated_job_data.get('recipe', []):
-                ingredient = Ingredient.from_dict(ingredient_data)  # Assuming you have an Ingredient.from_dict method
+                # Assuming you have an Ingredient.from_dict method
+                ingredient = Ingredient.from_dict(ingredient_data)
                 job.recipe.append(ingredient)
 
         else:
             # If job doesn't exist, create a new one
-            job = Job.from_dict(updated_job_data)  # Using the from_dict method to handle relationships
+            # Using the from_dict method to handle relationships
+            job = Job.from_dict(updated_job_data)
             job.id = job_id  # Set the job_id
             job.user_id = user_id  # Ensure user_id is set
 
@@ -75,14 +79,10 @@ class JobService:
         db.session.commit()  # Commit the changes to the database
         return job.to_dict()  # Return the updated job as a dictionary
 
-
-
     def get_jobs(self, user_id):
         jobs = Job.query.filter_by(user_id=user_id).all()
         return [job.to_dict() for job in jobs]
-    
-    
-    
+
     def delete_job(self, user_id, job_index):
         self.data_service.delete_job(user_id, job_index)
 
