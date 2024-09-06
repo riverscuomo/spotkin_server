@@ -48,7 +48,7 @@ class Job(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
     playlist_id = db.Column(db.String, nullable=False)
-    playlist_name = db.Column(db.String, nullable=False)
+    # playlist_name = db.Column(db.String, nullable=False)
     name = db.Column(db.String, nullable=False)
     scheduled_time = db.Column(db.Integer, nullable=True)
     description = db.Column(db.String, nullable=True)
@@ -75,7 +75,7 @@ class Job(db.Model):
             'id': str(self.id),  # Convert UUID to string
             'user_id': self.user_id,
             'playlist_id': self.playlist_id,
-            'playlist_name': self.playlist_name,
+            # 'playlist_name': self.playlist_name,
             'name': self.name,
             'scheduled_time': self.scheduled_time,
             'description': self.description,

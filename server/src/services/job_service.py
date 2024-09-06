@@ -34,27 +34,48 @@ class JobService:
         db.session.commit()
         return new_job.to_dict()
 
-    def update_job(self, user_id, job_id, updated_job_data):
-        job = Job.query.filter_by(user_id=user_id, id=job_id).first()
+    # Ensure the user exists before creating/updating a job
+    def ensure_user_exists(self, user_id):
+        user = User.query.filter_by(id=user_id).first()
+        if not user:
+            # Create user if they don't exist (adjust as necessary for your user fields)
+            new_user = User(id=user_id)  # Example
+            db.session.add(new_user)
+            db.session.commit()
+
+    def update_job(self, job_id, updated_job_data, user_id):
+        # Ensure the user exists before proceeding with job update/creation
+        self.ensure_user_exists(user_id)
+        # Try to find the existing job by job_id and user_id
+        job = Job.query.filter_by(id=job_id, user_id=user_id).first()
+
         if job:
+            # Update existing job fields
             job.name = updated_job_data.get('name', job.name)
             job.scheduled_time = updated_job_data.get('scheduled_time', job.scheduled_time)
             job.description = updated_job_data.get('description', job.description)
             job.ban_skits = updated_job_data.get('ban_skits', job.ban_skits)
+            job.playlist_id = updated_job_data.get('playlist_id', job.playlist_id)  # Ensure playlist_id is updated
+            # job.playlist_name = updated_job_data.get('playlist_name', job.playlist_name)  # Ensure playlist_name is updated
 
-            # Clear existing ingredients and add updated ones
-            job.ingredients = []
+            # Handle the recipe relationship (clear and re-add ingredients)
+            job.recipe.clear()
             for ingredient_data in updated_job_data.get('recipe', []):
-                ingredient = Ingredient(
-                    playlist_id=ingredient_data['source_playlist_id'],
-                    playlist_name=ingredient_data['source_playlist_name'],
-                    quantity=ingredient_data['quantity']
-                )
-                job.ingredients.append(ingredient)
+                ingredient = Ingredient.from_dict(ingredient_data)  # Assuming you have an Ingredient.from_dict method
+                job.recipe.append(ingredient)
 
-            db.session.commit()
-            return job.to_dict()
-        return None
+        else:
+            # If job doesn't exist, create a new one
+            job = Job.from_dict(updated_job_data)  # Using the from_dict method to handle relationships
+            job.id = job_id  # Set the job_id
+            job.user_id = user_id  # Ensure user_id is set
+
+            db.session.add(job)
+
+        db.session.commit()  # Commit the changes to the database
+        return job.to_dict()  # Return the updated job as a dictionary
+
+
 
     def get_jobs(self, user_id):
         jobs = Job.query.filter_by(user_id=user_id).all()
