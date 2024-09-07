@@ -12,6 +12,7 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -28,6 +29,8 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     print(db_url)
+
+    print(os.getenv('SPOTIFY_REDIRECT_URI'))
 
     # Initialize the database
     init_db(app)
@@ -47,6 +50,7 @@ def create_app():
     register_routes(app, job_service)
 
     return app
+
 
 app = create_app()
 
