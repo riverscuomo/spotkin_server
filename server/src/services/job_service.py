@@ -44,43 +44,28 @@ class JobService:
             db.session.commit()
 
     def update_job(self, job_id, updated_job_data, user_id):
-        # Ensure the user exists before proceeding with job update/creation
-        self.ensure_user_exists(user_id)
         # Try to find the existing job by job_id and user_id
         job = Job.query.filter_by(id=job_id, user_id=user_id).first()
 
         if job:
-            # Update existing job fields
-            job.name = updated_job_data.get('name', job.name)
-            job.scheduled_time = updated_job_data.get(
-                'scheduled_time', job.scheduled_time)
-            job.description = updated_job_data.get(
-                'description', job.description)
-            job.ban_skits = updated_job_data.get('ban_skits', job.ban_skits)
-            # job.playlist_id = updated_job_data.get('playlist_id', job.playlist_id)  # Ensure playlist_id is updated
-            # job.playlist_name = updated_job_data.get('playlist_name', job.playlist_name)  # Ensure playlist_name is updated
-
-            # Handle the recipe relationship (clear and re-add ingredients)
-            job.recipe.clear()
-            for ingredient_data in updated_job_data.get('recipe', []):
-                # Assuming you have an Ingredient.from_dict method
-                ingredient = Ingredient.from_dict(ingredient_data)
-                job.recipe.append(ingredient)
-
+            # Update only attributes that are part of the Job model
+            for key, value in updated_job_data.items():
+                print(key, value)
+                if hasattr(job, key):
+                    setattr(job, key, value)
         else:
-            # If job doesn't exist, create a new one
-            # Using the from_dict method to handle relationships
+            # Create a new job if it doesn't exist
             job = Job.from_dict(updated_job_data)
-            job.id = job_id  # Set the job_id
-            job.user_id = user_id  # Ensure user_id is set
-
+            job.id = job_id  # Assign the provided job_id
+            job.user_id = user_id  # Ensure the job is linked to the correct user
             db.session.add(job)
 
         db.session.commit()  # Commit the changes to the database
-        return job.to_dict()  # Return the updated job as a dictionary
+        return job.to_dict()  # Return the job as a dictionary
 
     def get_jobs(self, user_id):
         jobs = Job.query.filter_by(user_id=user_id).all()
+        print([job.name for job in jobs])
         return [job.to_dict() for job in jobs]
 
     def delete_job(self, user_id, job_index):
