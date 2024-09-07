@@ -44,6 +44,8 @@ class JobService:
             db.session.commit()
 
     def update_job(self, job_id, updated_job_data, user_id):
+        # ensure the user is in the db
+        self.ensure_user_exists(user_id)
         # Try to find the existing job by job_id and user_id
         job = Job.query.filter_by(id=job_id, user_id=user_id).first()
 
