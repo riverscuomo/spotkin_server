@@ -8,30 +8,29 @@ from sqlalchemy.dialects.postgresql import UUID
 from server.database.database import db
 
 
+from sqlalchemy.dialects.postgresql import JSON
+
+
 class Ingredient(db.Model):
     __tablename__ = 'ingredients'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     job_id = db.Column(UUID(as_uuid=True),
                        db.ForeignKey('jobs.id'), nullable=False)
-    playlist_id = db.Column(db.String, nullable=False)
-    playlist_name = db.Column(db.String, nullable=False)
+    # Store the entire playlist as JSON
+    playlist = db.Column(JSON, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
     def to_dict(self):
         return {
             'id': str(self.id),
             'job_id': str(self.job_id),
-            'playlist_id': self.playlist_id,
-            'playlist_name': self.playlist_name,
+            'playlist': self.playlist,  # Return the entire playlist object
             'quantity': self.quantity
         }
 
     @classmethod
     def from_dict(cls, data):
-        # Remove 'id' from data if it exists, as it will be auto-generated
         data.pop('id', None)
-
-        # Create and return the Ingredient instance
         return cls(**data)
 
 

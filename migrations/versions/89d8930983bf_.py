@@ -1,16 +1,16 @@
-"""Initial migration3
+"""empty message
 
-Revision ID: f8f8480d1c2f
+Revision ID: 89d8930983bf
 Revises: 
-Create Date: 2024-09-06 17:32:26.352881
+Create Date: 2024-09-07 18:06:14.893464
 
 """
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'f8f8480d1c2f'
+revision = '89d8930983bf'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -58,8 +58,7 @@ def upgrade():
     op.create_table('ingredients',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('job_id', sa.UUID(), nullable=False),
-    sa.Column('playlist_id', sa.String(), nullable=False),
-    sa.Column('playlist_name', sa.String(), nullable=False),
+    sa.Column('playlist', postgresql.JSON(astext_type=sa.Text()), nullable=False),
     sa.Column('quantity', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['job_id'], ['jobs.id'], ),
     sa.PrimaryKeyConstraint('id')

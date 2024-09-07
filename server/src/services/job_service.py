@@ -48,11 +48,18 @@ class JobService:
         job = Job.query.filter_by(id=job_id, user_id=user_id).first()
 
         if job:
-            # Update only attributes that are part of the Job model
+            # Update the existing job with new data
             for key, value in updated_job_data.items():
-                print(key, value)
                 if hasattr(job, key):
-                    setattr(job, key, value)
+                    if key == 'recipe':
+                        # Handle the 'recipe' separately since it's a relationship
+                        job.recipe = []  # Clear existing ingredients
+                        for ingredient_data in value:
+                            ingredient = Ingredient.from_dict(ingredient_data)
+                            job.recipe.append(ingredient)
+                    else:
+                        # Update scalar attributes
+                        setattr(job, key, value)
         else:
             # Create a new job if it doesn't exist
             job = Job.from_dict(updated_job_data)
