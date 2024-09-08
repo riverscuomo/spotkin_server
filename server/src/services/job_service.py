@@ -73,6 +73,7 @@ class JobService:
         return job.to_dict()  # Return the job as a dictionary
 
     def get_jobs(self, user_id):
+        print(f"Getting jobs for user: {user_id}")
         jobs = Job.query.filter_by(user_id=user_id).all()
         print([job.name for job in jobs])
         return [job.to_dict() for job in jobs]
@@ -83,13 +84,7 @@ class JobService:
     def process_job(self, job_id, request):
         if 'Authorization' not in request.headers:
             return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
-
-        access_token = request.headers['Authorization']
-        refresh_token = request.headers.get('Refresh-Token')
-
-        if not refresh_token:
-            return jsonify({'status': 'error', 'message': 'Refresh token is missing.'}), 401
-
+        access_token = request.headers['Authorization'].split(' ')[1]
         try:
             spotify = spotipy.Spotify(auth=access_token)
             user = spotify.current_user()
@@ -100,11 +95,19 @@ class JobService:
             if not job:
                 return jsonify({'status': 'error', 'message': 'Job not found.'}), 404
 
-            result = self._process_job_logic(spotify, job)
+            job_dict = job.to_dict()
+
+            job_dict['playlist_id'] = job_dict['target_playlist']['id']
+
+            for ingredient in job_dict['recipe']:
+                ingredient['source_playlist_id'] = ingredient['playlist']['id']
+                ingredient['source_playlist_name'] = ingredient['playlist']['name']
+
+            tools_process_job(spotify, job_dict)
 
             return jsonify({
-                "message": "Job processed successfully",
-                "result": result,
+                "message": "Processed successfully",
+                "status": "success"
             }), 200
 
         except spotipy.exceptions.SpotifyException as e:
@@ -134,7 +137,7 @@ class JobService:
                             user_data['token'])
                         spotify = self.spotify_service.create_spotify_client(
                             token_info)
-                        result = process_job(spotify, job)
+                        result = self.process_job(spotify, job)
 
                         # Update the stored token info and last processed time
                         user_data['token'] = token_info

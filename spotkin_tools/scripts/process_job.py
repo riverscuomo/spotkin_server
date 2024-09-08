@@ -61,9 +61,12 @@ def process_job(spotify, job):
 
     log(spotify.me()["id"])
     log(len(updated_tracks))
+
+    user = spotify.me()
+    user_id = user["id"]
     # empty playlist
     result = spotify.user_playlist_replace_tracks(
-        spotify.me()["id"], job["playlist_id"], []
+        user_id, job["playlist_id"], []
     )
     log(result)
 
@@ -78,5 +81,5 @@ def process_job(spotify, job):
             spotify.me()["id"], job["playlist_id"], chunk
         )
 
-        # change the playlist description to a random fact
+    # change the playlist description to a random fact
     post_description(spotify, job)

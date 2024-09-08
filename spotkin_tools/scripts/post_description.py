@@ -34,7 +34,9 @@ def post_description(spotify, job):
     while not fact:
         fact = getFact()
 
-    description = job["description"] + f"...{fact}..."
+    description = job["description"] or ""
+
+    description += f"...{fact}"
 
     log(f"Updating playlist description: {description}")
 

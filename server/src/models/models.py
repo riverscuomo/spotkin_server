@@ -2,12 +2,6 @@ import time
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from server.database.database import db
-
-import uuid
-from sqlalchemy.dialects.postgresql import UUID
-from server.database.database import db
-
-
 from sqlalchemy.dialects.postgresql import JSON
 
 
@@ -21,6 +15,8 @@ class Ingredient(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
 
     def to_dict(self):
+        print('to_dict')
+        print(self.playlist)
         return {
             'id': str(self.id),
             'job_id': str(self.job_id),
@@ -30,7 +26,26 @@ class Ingredient(db.Model):
 
     @classmethod
     def from_dict(cls, data):
+        """
+        Create an instance of the class from a dictionary.
+
+        This class method takes a dictionary, removes the 'id' key if it exists,
+        and uses the remaining key-value pairs to instantiate the class.
+
+        Args:
+            data (dict): A dictionary containing the attributes for the class instance.
+
+        Returns:
+            An instance of the class populated with the provided data.
+
+        Examples:
+            instance = MyClass.from_dict({'name': 'example', 'value': 42})
+        """
+        print('Ingredient.from_dict')
+        print(data)
+
         data.pop('id', None)
+        data.pop('playlist_name', None)  # Ignore 'playlist_name'
         return cls(**data)
 
 
@@ -132,21 +147,3 @@ class Token(db.Model):
     __tablename__ = 'tokens'
     user_id = db.Column(db.String, db.ForeignKey('users.id'), primary_key=True)
     token_info = db.Column(db.JSON, nullable=False)
-
-
-def ingredient_to_client_format(ingredient):
-    return {
-        'playlist': {
-            'id': ingredient.playlist_id,
-            'name': ingredient.playlist_name,
-        },
-        'quantity': ingredient.quantity,
-    }
-
-
-def ingredient_from_client_format(data):
-    return {
-        'playlist_id': data['playlist']['id'],
-        'playlist_name': data['playlist']['name'],
-        'quantity': data['quantity'],
-    }
