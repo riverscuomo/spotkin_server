@@ -125,6 +125,9 @@ class Job(db.Model):
         recipe_data = data.pop('recipe', [])
         job = cls(**data)
 
+        name = data.get('target_playlist', {}).get('name') or 'New Spotkin'
+        job.name = name
+
         for ingredient_data in recipe_data:
             ingredient = Ingredient.from_dict(ingredient_data)
             job.recipe.append(ingredient)

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c279366b46bb
+Revision ID: 7cf34caf4ac7
 Revises: 
-Create Date: 2024-09-09 10:21:53.459980
+Create Date: 2024-09-09 14:22:19.046979
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'c279366b46bb'
+revision = '7cf34caf4ac7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,12 +30,12 @@ def upgrade():
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('scheduled_time', sa.Integer(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
-    sa.Column('ban_skits', sa.Boolean(), nullable=True),
-    sa.Column('last_tracks', postgresql.JSON(astext_type=sa.Text()), nullable=True),
     sa.Column('banned_artists', postgresql.JSON(astext_type=sa.Text()), nullable=True),
     sa.Column('banned_tracks', postgresql.JSON(astext_type=sa.Text()), nullable=True),
     sa.Column('banned_genres', sa.String(), nullable=True),
-    sa.Column('exceptions_to_banned_genres', sa.String(), nullable=True),
+    sa.Column('ban_skits', sa.Boolean(), nullable=True),
+    sa.Column('exceptions_to_banned_genres', postgresql.JSON(astext_type=sa.Text()), nullable=True),
+    sa.Column('last_tracks', postgresql.JSON(astext_type=sa.Text()), nullable=True),
     sa.Column('min_popularity', sa.Integer(), nullable=True),
     sa.Column('max_popularity', sa.Integer(), nullable=True),
     sa.Column('min_duration', sa.Integer(), nullable=True),
