@@ -7,17 +7,17 @@ except:
 class FilterTool:
     """Determines whether songs belong in the playlist or not based on a job."""
 
-    def __init__(self, job, audio_features) -> None:
+    def __init__(self, job) -> None:
         self.job = job
-        self.audio_features = audio_features
 
-    def is_banned(self, artist_genre, artist_name, track_name, track_id, track, artist_id=None):
-        return self._is_banned_by_genre(artist_genre, artist_name, track_name) or \
+    def is_banned(self, artist_genres, artist_name, track_name, track_id, track, artist_id=None, audio_features=None):
+        return self._is_banned_by_genre(artist_genres, artist_name, track_name) or \
             self._is_banned_by_track_id(track_id, artist_name, track_name) or \
             self._is_banned_by_artist_name(artist_name, track_name) or \
             self._is_banned_by_artist_id(artist_id, track_name) or \
             self._is_banned_by_song_title(artist_name, track_name) or \
-            self._is_banned_by_low_energy(track_name, artist_name, track)
+            self._is_banned_by_audio_features(
+                track_name, artist_name, track, audio_features)
 
     def _is_banned_by_artist_id(self, artist_id, track_name):
         # print("_is_banned_by_artist_id")
@@ -48,6 +48,64 @@ class FilterTool:
             return True
         return False
 
+    def _is_banned_by_audio_features(self, track_name, artist_name, track, audio_features):
+
+        energy = audio_features["energy"] * \
+            100 if audio_features["energy"] else 0
+        danceability = audio_features["danceability"] * \
+            100 if audio_features["danceability"] else 0
+        acousticness = audio_features["acousticness"] * \
+            100 if audio_features["acousticness"] else 0
+        duration_ms = audio_features["duration_ms"]
+        popularity = track["popularity"]
+        # Energy checks
+        if self.job.get("min_energy") is not None and energy < self.job["min_energy"]:
+            log(f"- {track_name} by {artist_name} banned for low energy: {energy}")
+            return True
+
+        if self.job.get("max_energy") is not None and energy > self.job["max_energy"]:
+            log(f"- {track_name} by {artist_name} banned for high energy: {energy}")
+            return True
+
+        # Danceability checks
+        if self.job.get("min_danceability") is not None and danceability < self.job["min_danceability"]:
+            log(f"- {track_name} by {artist_name} banned for low danceability: {danceability}")
+            return True
+
+        if self.job.get("max_danceability") is not None and danceability > self.job["max_danceability"]:
+            log(f"- {track_name} by {artist_name} banned for high danceability: {danceability}")
+            return True
+
+        # Acousticness checks
+        if self.job.get("min_acousticness") is not None and acousticness < self.job["min_acousticness"]:
+            log(f"- {track_name} by {artist_name} banned for low acousticness: {acousticness}")
+            return True
+
+        if self.job.get("max_acousticness") is not None and acousticness > self.job["max_acousticness"]:
+            log(f"- {track_name} by {artist_name} banned for high acousticness: {acousticness}")
+            return True
+
+        # Duration checks
+        if self.job.get("min_duration") is not None and duration_ms < self.job["min_duration"]:
+            log(f"- {track_name} by {artist_name} banned for short duration: {duration_ms}")
+            return True
+
+        if self.job.get("max_duration") is not None and duration_ms > self.job["max_duration"]:
+            log(f"- {track_name} by {artist_name} banned for long duration: {duration_ms}")
+            return True
+
+        # Popularity checks
+        if self.job.get("min_popularity") is not None and popularity < self.job["min_popularity"]:
+            log(f"- {track_name} by {artist_name} banned for low popularity: {popularity}")
+            return True
+
+        if self.job.get("max_popularity") is not None and popularity > self.job["max_popularity"]:
+            log(f"- {track_name} by {artist_name} banned for high popularity: {popularity}")
+            return True
+
+        # If no condition bans the track
+        return False
+
     def _is_banned_by_genre(self, artist_genres, artist_name, track_name):
         # print("_is_banned_by_genre")
 
@@ -68,46 +126,6 @@ class FilterTool:
             return True
         return False
 
-    def _is_banned_by_low_energy(self, track_name, artist_name, track):
-        """Useful for workout playlists"""
-        # print("_is_banned_by_low_energy")
-
-        if "remove_low_energy" not in self.job or self.job["remove_low_energy"] is False:
-            return False
-
-        try:
-            audio_feature = self.audio_features[track["id"]]
-        except KeyError:
-            return False
-
-        loudness = audio_feature["loudness"]
-        energy = audio_feature["energy"]
-        speechiness = audio_feature["speechiness"]
-        acousticness = audio_feature["acousticness"]
-
-        if loudness < -15:
-            log(f"- {track_name} by {artist_name} banned for low loudness: {loudness}")
-            return True
-
-        # danceability =  audio_feature["danceability"]
-
-        elif energy < 0.51:
-            log(f"- {track_name} by {artist_name} banned for low energy: {energy}")
-            return True
-
-        elif acousticness > 0.42:
-            log(
-                f"- {track_name} by {artist_name} banned for high acousticness: {acousticness}"
-            )
-            return True
-        # instrumentalness =  audio_feature["instrumentalness"]
-        # liveness =  audio_feature[{} banned for iveness"]
-        # tempo_spotify =  audio_feature["tempo"]
-        # log(audio_feature["id"],loudness,danceability,energy,speechiness,acousticness,instrumentalness,liveness,tempo_spotify)
-        # if energy > 0.5:
-        else:
-            return False
-
     def _is_banned_by_song_title(self, artist_name, track_name):
         # print("_is_banned_by_song_title")
 
@@ -125,12 +143,38 @@ class FilterTool:
         return False
 
     def _is_banned_by_track_id(self, track_id, artist_name, track_name):
-        print("_is_banned_by_track_id")
+        # print("_is_banned_by_track_id")
 
         if "banned_track_ids" not in self.job:
             return False
 
         elif track_id in self.job["banned_track_ids"]:
+            log(
+                f"Removed {track_name} by {artist_name} because {track_id} is in this playlist's banned track_ids"
+            )
+            return True
+        return False
+
+    def _is_banned_by_track_popularity(self, track_id, artist_name, track_name):
+        # print("_is_banned_by_track_id")
+
+        if "banned_track_popularity" not in self.job:
+            return False
+
+        elif track_id in self.job["banned_track_popularity"]:
+            log(
+                f"Removed {track_name} by {artist_name} because {track_id} is in this playlist's banned track_ids"
+            )
+            return True
+        return False
+
+    def _is_banned_by_track_duration(self, track_id, artist_name, track_name):
+        # print("_is_banned_by_track_id")
+
+        if "banned_track_duration" not in self.job:
+            return False
+
+        elif track_id in self.job["banned_track_duration"]:
             log(
                 f"Removed {track_name} by {artist_name} because {track_id} is in this playlist's banned track_ids"
             )

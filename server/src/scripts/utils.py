@@ -3,6 +3,33 @@ from server.database.database import db
 from server.src.server import create_app
 
 
+def normalize_values():
+    jobs = Job.query.all()  # Get all jobs in the database
+
+    for job in jobs:
+        # Normalize values if they are still in the 1-100 range
+        if job.min_energy and job.min_energy > 0:
+            job.min_energy = 1
+        if job.max_energy and job.max_energy > 0:
+            job.max_energy = 1
+
+        if job.min_danceability and job.min_danceability > 0:
+            job.min_danceability = 1
+        if job.max_danceability and job.max_danceability > 0:
+            job.max_danceability = 1
+
+        if job.min_acousticness and job.min_acousticness > 0:
+            job.min_acousticness = 1
+        if job.max_acousticness and job.max_acousticness > 0:
+            job.max_acousticness = 1
+
+        if job.min_popularity and job.min_popularity > 0:
+            job.min_popularity = 50
+
+        # Commit the changes to the database
+        db.session.commit()
+
+
 def remove_duplicate_ingredients():
     jobs = Job.query.all()  # Get all jobs in the database
 
@@ -33,7 +60,8 @@ def remove_duplicate_ingredients():
 def main():
     app = create_app()  # Create your Flask app
     with app.app_context():  # Push the app context
-        remove_duplicate_ingredients()
+        # remove_duplicate_ingredients()
+        normalize_values()
 
 
 if __name__ == "__main__":

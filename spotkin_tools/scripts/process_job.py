@@ -31,23 +31,38 @@ def process_job(spotify, job):
     track_ids = [x["id"] for x in tracks]
     log(track_ids)
 
-    audio_features = get_audio_features(spotify, track_ids)
+    # Get audio features and artist genres for all tracks
+    all_audio_features = get_audio_features(spotify, track_ids)
     all_artists_genres = build_artist_genres(spotify, tracks)
-    filter_tool = FilterTool(job, audio_features)
 
-    # Cull banned items from your list
+    # Initialize the FilterTool once for the job
+    filter_tool = FilterTool(job)
+
+    # Cull banned items from the track list
     for track in tracks:
         track_id = track["id"]
         track_name = track["name"]
         artist_id = track["artists"][0]["id"]
         artist_name = track["artists"][0]["name"]
+
+        # Get the specific genres and audio features for this track
         this_artist_genres = next(
             (x['genres'] for x in all_artists_genres if x["artist_id"]
              == artist_id and "genres" in x), None
         )
+        this_track_audio_features = all_audio_features.get(track_id, {})
 
-        if filter_tool.is_banned(this_artist_genres, artist_name, track_name, track_id, track, artist_id=artist_id):
-            continue
+        # Check if the track is banned by passing track-specific data to the filter tool
+        if filter_tool.is_banned(
+            artist_genres=this_artist_genres,
+            artist_name=artist_name,
+            track_name=track_name,
+            track_id=track_id,
+            track=track,
+            artist_id=artist_id,
+            audio_features=this_track_audio_features
+        ):
+            continue  # Skip banned tracks
 
         updated_tracks.append(track["id"])
 
