@@ -4,21 +4,36 @@ except:
     from spotkin_tools.scripts.utils import *
 
 
-class PlaylistFilter:
+class FilterTool:
     """Determines whether songs belong in the playlist or not based on a job."""
 
     def __init__(self, job, audio_features) -> None:
         self.job = job
         self.audio_features = audio_features
 
-    def is_banned(self, artist_genre, artist_name, track_name, track_id, track):
+    def is_banned(self, artist_genre, artist_name, track_name, track_id, track, artist_id=None):
         return self._is_banned_by_genre(artist_genre, artist_name, track_name) or \
             self._is_banned_by_track_id(track_id, artist_name, track_name) or \
             self._is_banned_by_artist_name(artist_name, track_name) or \
+            self._is_banned_by_artist_id(artist_id, track_name) or \
             self._is_banned_by_song_title(artist_name, track_name) or \
             self._is_banned_by_low_energy(track_name, artist_name, track)
 
+    def _is_banned_by_artist_id(self, artist_id, track_name):
+        # print("_is_banned_by_artist_id")
+
+        if "banned_artist_ids" not in self.job:
+            return False
+
+        elif artist_id and artist_id in self.job["banned_artist_ids"]:
+            log(
+                f"Removed {track_name} because {artist_id} is in this playlist's banned artist ids"
+            )
+            return True
+        return False
+
     def _is_banned_by_artist_name(self, artist_name, track_name):
+        # print("_is_banned_by_artist_name")
 
         if "banned_artist_names" not in self.job:
             return False
@@ -33,9 +48,10 @@ class PlaylistFilter:
             return True
         return False
 
-    def _is_banned_by_genre(self, artist_genre, artist_name, track_name):
+    def _is_banned_by_genre(self, artist_genres, artist_name, track_name):
+        # print("_is_banned_by_genre")
 
-        if "banned_genres" not in self.job or artist_genre is None:
+        if "banned_genres" not in self.job or self.job["banned_genres"] is None or artist_genres is None:
             return False
 
         # want to try being more aggressive here.
@@ -43,17 +59,18 @@ class PlaylistFilter:
         elif (
             # if any of the banned genres are in the artist's genre
             any(
-                banned_genre in artist_genre for banned_genre in self.job["banned_genres"])
+                banned_genre in artist_genres for banned_genre in self.job["banned_genres"])
             and artist_name not in self.job["exceptions_to_banned_genres"]
         ):
             log(
-                f"Removed {track_name} by {artist_name} because genre {artist_genre} is in this playlist's banned genres"
+                f"Removed {track_name} by {artist_name} because genre {artist_genres} is in this playlist's banned genres"
             )
             return True
         return False
 
     def _is_banned_by_low_energy(self, track_name, artist_name, track):
         """Useful for workout playlists"""
+        # print("_is_banned_by_low_energy")
 
         if "remove_low_energy" not in self.job or self.job["remove_low_energy"] is False:
             return False
@@ -92,6 +109,7 @@ class PlaylistFilter:
             return False
 
     def _is_banned_by_song_title(self, artist_name, track_name):
+        # print("_is_banned_by_song_title")
 
         if "banned_song_titles" not in self.job:
             return False
@@ -107,6 +125,7 @@ class PlaylistFilter:
         return False
 
     def _is_banned_by_track_id(self, track_id, artist_name, track_name):
+        print("_is_banned_by_track_id")
 
         if "banned_track_ids" not in self.job:
             return False
@@ -117,41 +136,3 @@ class PlaylistFilter:
             )
             return True
         return False
-
-
-# def get_fiat_sheet_bans(sheet):
-
-#     # headerRange = "A1:ZZ1"
-
-#     # banned_artist_names = getColValues(sheet, headerRange, "artist_name")
-#     # # log(banned_artist_names)
-#     # # sys.exit()
-#     # bannedSongs = getColValues(sheet, headerRange, "title")
-#     # bannedURIs = getColValues(sheet, headerRange, "uri")
-
-#     data = sheet.get_all_records()
-
-#     banned_artist_names = [str(row["artist_name"]).lower() for row in data]
-#     bannedSongs = [str(row["title"]) for row in data]
-#     bannedURIs = [row["uri"] for row in data]
-
-#     return banned_artist_names, bannedSongs, bannedURIs
-
-
-# def get_controller_sheet_bans(sheet):
-
-#     data = sheet.get_all_records()
-
-#     controller_sheet_banned_artist_names = [
-#         str(row["artist_name"]).lower() for row in data if row["ban_artist"]
-#     ]
-#     controller_sheet_banned_track_ids = [
-#         row["track_id"] for row in data if row["ban_track"]
-#     ]
-#     controller_sheet_liked_track_ids = [row["track_id"] for row in data if row["like"]]
-
-#     return (
-#         controller_sheet_banned_artist_names,
-#         controller_sheet_banned_track_ids,
-#         controller_sheet_liked_track_ids,
-#     )

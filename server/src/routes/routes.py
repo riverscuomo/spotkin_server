@@ -16,21 +16,9 @@ def register_routes(app, job_service):
         redirect_uri=os.environ.get('SPOTIFY_REDIRECT_URI')
     )
 
-    @app.route('/refresh_token', methods=['POST'])
-    def refresh_token():
-        access_token = request.json.get('access_token')
-        if not access_token:
-            return jsonify({"error": "Access token missing"}), 400
-
-        # Assuming you have a service method to refresh tokens
-        refreshed_token_info = spotify_service.refresh_token_if_expired(
-            {"access_token": access_token})
-
-        if not refreshed_token_info:
-            return jsonify({"error": "Token refresh failed"}), 500
-
-        # Only send the new access token to the client
-        return jsonify({"access_token": refreshed_token_info['access_token']})
+    @app.route('/')
+    def home():
+        return 'Spotkin API is running!'
 
     @app.route('/jobs/<user_id>', methods=['GET'])
     def get_jobs(user_id):
@@ -65,9 +53,34 @@ def register_routes(app, job_service):
         job_service.delete_job(user_id, job_index)
         return jsonify({"status": "success"}), 204
 
+    @app.route('/get_schedule', methods=['GET'])
+    def get_schedule():
+        return job_service.get_schedule()
+
     @app.route('/process_job/<job_id>', methods=['POST'])
     def process_job(job_id):
         return job_service.process_job(job_id, request)
+
+    @app.route('/refresh_jobs', methods=['POST'])
+    def refresh_jobs():
+        job_service.process_scheduled_jobs()
+        return jsonify({"status": "processing complete"})
+
+    @app.route('/refresh_token', methods=['POST'])
+    def refresh_token():
+        access_token = request.json.get('access_token')
+        if not access_token:
+            return jsonify({"error": "Access token missing"}), 400
+
+        # Assuming you have a service method to refresh tokens
+        refreshed_token_info = spotify_service.refresh_token_if_expired(
+            {"access_token": access_token})
+
+        if not refreshed_token_info:
+            return jsonify({"error": "Token refresh failed"}), 500
+
+        # Only send the new access token to the client
+        return jsonify({"access_token": refreshed_token_info['access_token']})
 
     @app.route('/jobs/<job_id>', methods=['PUT'])
     def update_job(job_id):
@@ -91,15 +104,6 @@ def register_routes(app, job_service):
         else:
             return jsonify({"error": "Job not found or not updated"}), 404
 
-    @app.route('/refresh_jobs', methods=['POST'])
-    def refresh_jobs():
-        job_service.process_scheduled_jobs()
-        return jsonify({"status": "processing complete"})
-
-    @app.route('/get_schedule', methods=['GET'])
-    def get_schedule():
-        return job_service.get_schedule()
-
     @app.route('/update_job_schedule', methods=['POST'])
     def update_job_schedule():
         return job_service.update_job_schedule(request.json)
@@ -111,10 +115,6 @@ def register_routes(app, job_service):
             return f'Database connection successful! Test value: {result.test}'
         except Exception as e:
             return f'Database connection failed: {str(e)}'
-
-    @app.route('/')
-    def home():
-        return 'Spotkin API is running!'
 
 
 def get_user_id_from_spotify(access_token):

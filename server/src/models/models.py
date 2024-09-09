@@ -15,8 +15,8 @@ class Ingredient(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
 
     def to_dict(self):
-        print('to_dict')
-        print(self.playlist)
+        # print('to_dict')
+        # print(self.playlist)
         return {
             'id': str(self.id),
             'job_id': str(self.job_id),
@@ -41,8 +41,8 @@ class Ingredient(db.Model):
         Examples:
             instance = MyClass.from_dict({'name': 'example', 'value': 42})
         """
-        print('Ingredient.from_dict')
-        print(data)
+        # print('Ingredient.from_dict')
+        # print(data)
 
         data.pop('id', None)
         data.pop('playlist_name', None)  # Ignore 'playlist_name'
@@ -64,21 +64,17 @@ class Job(db.Model):
     __tablename__ = 'jobs'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
-    # playlist_id = db.Column(db.String, nullable=False)
     # Store full playlist as JSON
-    target_playlist = db.Column(db.JSON, nullable=False)
-    # playlist_name = db.Column(db.String, nullable=False)
+    target_playlist = db.Column(JSON, nullable=False)
     name = db.Column(db.String, nullable=False)
     scheduled_time = db.Column(db.Integer, nullable=True)
     description = db.Column(db.String, nullable=True)
-    ban_skits = db.Column(db.Boolean, default=False)
-    last_track_ids = db.Column(db.String, nullable=True)
-    banned_artist_ids = db.Column(db.String, nullable=True)
-    banned_track_ids = db.Column(db.String, nullable=True)
+    banned_artists = db.Column(JSON, nullable=True)
+    banned_tracks = db.Column(JSON, nullable=True)
     banned_genres = db.Column(db.String, nullable=True)
-    exceptions_to_banned_genres = db.Column(db.String, nullable=True)
-    recipe = db.relationship('Ingredient', backref='job',
-                             lazy=True, cascade="all, delete-orphan")
+    ban_skits = db.Column(db.Boolean, default=False)
+    exceptions_to_banned_genres = db.Column(JSON, nullable=True)
+    last_tracks = db.Column(JSON, nullable=True)
     min_popularity = db.Column(db.Integer, nullable=True)
     max_popularity = db.Column(db.Integer, nullable=True)
     min_duration = db.Column(db.Integer, nullable=True)
@@ -90,22 +86,21 @@ class Job(db.Model):
     min_acousticness = db.Column(db.Integer, nullable=True)
     max_acousticness = db.Column(db.Integer, nullable=True)
 
+    recipe = db.relationship('Ingredient', backref='job',
+                             lazy=True, cascade="all, delete-orphan")
+
     def to_dict(self):
+        print('Job.to_dict')
         return {
             'id': str(self.id),  # Convert UUID to string
             'user_id': self.user_id,
-            # 'playlist_id': self.playlist_id,
             'target_playlist': self.target_playlist,
-            # 'playlist_name': self.playlist_name,
             'name': self.name,
             'scheduled_time': self.scheduled_time,
             'description': self.description,
             'ban_skits': self.ban_skits,
-            'last_track_ids': self.last_track_ids.split(',') if self.last_track_ids else [],
-            'banned_artist_ids': self.banned_artist_ids.split(',') if self.banned_artist_ids else [],
-            'banned_track_ids': self.banned_track_ids.split(',') if self.banned_track_ids else [],
-            'banned_genres': self.banned_genres.split(',') if self.banned_genres else [],
-            'exceptions_to_banned_genres': self.exceptions_to_banned_genres.split(',') if self.exceptions_to_banned_genres else [],
+            'last_tracks': self.last_tracks or [],
+            'exceptions_to_banned_genres': self.exceptions_to_banned_genres or [],
             'recipe': [ingredient.to_dict() for ingredient in self.recipe],
             'min_popularity': self.min_popularity,
             'max_popularity': self.max_popularity,
@@ -117,25 +112,19 @@ class Job(db.Model):
             'max_energy': self.max_energy,
             'min_acousticness': self.min_acousticness,
             'max_acousticness': self.max_acousticness,
+            'banned_artists': self.banned_artists or [],
+            'banned_tracks': self.banned_tracks or [],
+            'banned_genres': self.banned_genres or [],
         }
 
     @classmethod
     def from_dict(cls, data):
-        # Convert string lists back to comma-separated strings
-        for field in ['last_track_ids', 'banned_artist_ids', 'banned_track_ids', 'banned_genres', 'exceptions_to_banned_genres']:
-            if field in data and isinstance(data[field], list):
-                data[field] = ','.join(data[field])
+        print('Job.from_dict')
 
-        # Remove 'id' from data if it exists, as it will be auto-generated
-        data.pop('id', None)
-
-        # Remove 'recipe' from data as it's a relationship and should be handled separately
+        # No need to convert lists to strings, as these are JSON fields
         recipe_data = data.pop('recipe', [])
-
-        # Create the Job instance
         job = cls(**data)
 
-        # Handle the recipe relationship
         for ingredient_data in recipe_data:
             ingredient = Ingredient.from_dict(ingredient_data)
             job.recipe.append(ingredient)

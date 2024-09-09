@@ -5,6 +5,7 @@ import time
 import spotipy
 from flask import jsonify
 from server.src.models.models import db
+from rich import print
 
 
 class JobService:
@@ -42,35 +43,6 @@ class JobService:
             new_user = User(id=user_id)  # Example
             db.session.add(new_user)
             db.session.commit()
-
-    def update_job(self, job_id, updated_job_data, user_id):
-        # ensure the user is in the db
-        self.ensure_user_exists(user_id)
-        # Try to find the existing job by job_id and user_id
-        job = Job.query.filter_by(id=job_id, user_id=user_id).first()
-
-        if job:
-            # Update the existing job with new data
-            for key, value in updated_job_data.items():
-                if hasattr(job, key):
-                    if key == 'recipe':
-                        # Handle the 'recipe' separately since it's a relationship
-                        job.recipe = []  # Clear existing ingredients
-                        for ingredient_data in value:
-                            ingredient = Ingredient.from_dict(ingredient_data)
-                            job.recipe.append(ingredient)
-                    else:
-                        # Update scalar attributes
-                        setattr(job, key, value)
-        else:
-            # Create a new job if it doesn't exist
-            job = Job.from_dict(updated_job_data)
-            job.id = job_id  # Assign the provided job_id
-            job.user_id = user_id  # Ensure the job is linked to the correct user
-            db.session.add(job)
-
-        db.session.commit()  # Commit the changes to the database
-        return job.to_dict()  # Return the job as a dictionary
 
     def get_jobs(self, user_id):
         print(f"Getting jobs for user: {user_id}")
@@ -166,6 +138,50 @@ class JobService:
             } for user_id, user_data in all_jobs.items()
         }
         return jsonify({"status": "success", "schedule": schedule_info})
+
+    def update_job(self, job_id, updated_job_data, user_id):
+        print(f"Updating job {job_id} for user {user_id}")
+        # ensure the user is in the db
+        self.ensure_user_exists(user_id)
+        # Try to find the existing job by job_id and user_id
+        job = Job.query.filter_by(id=job_id, user_id=user_id).first()
+
+        if job:
+            # Update the existing job with new data
+            for key, value in updated_job_data.items():
+                if hasattr(job, key):
+                    if key == 'recipe':
+                        # Handle the 'recipe' separately since it's a relationship
+                        job.recipe = []  # Clear existing ingredients
+
+                        # Use a set to track playlist IDs for preventing duplicate ingredients
+                        added_playlists = set()
+
+                        for ingredient_data in value:
+                            ingredient = Ingredient.from_dict(ingredient_data)
+                            # Use the playlist id to determine uniqueness
+                            playlist_id = ingredient.playlist.get('id')
+
+                            if playlist_id not in added_playlists:
+                                job.recipe.append(ingredient)
+                                added_playlists.add(playlist_id)
+                            else:
+                                print(
+                                    f"Duplicate playlist detected: {playlist_id}, skipping.")
+                    else:
+                        # Update scalar attributes
+                        setattr(job, key, value)
+                else:
+                    print(f"Server Job model does not have attribute: {key}")
+        else:
+            # Create a new job if it doesn't exist
+            job = Job.from_dict(updated_job_data)
+            job.id = job_id  # Assign the provided job_id
+            job.user_id = user_id  # Ensure the job is linked to the correct user
+            db.session.add(job)
+
+        db.session.commit()  # Commit the changes to the database
+        return job.to_dict()  # Return the job as a dictionary
 
     def update_job_schedule(self, data):
         user_id = data['user_id']

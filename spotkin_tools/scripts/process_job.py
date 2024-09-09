@@ -2,14 +2,14 @@
 try:
     from build_artist_genres import build_artist_genres
     from scripts.api import get_audio_features, log, random
-    from scripts.bans import PlaylistFilter, log
+    from scripts.bans import FilterTool, log
     from scripts.get_all_tracks import get_all_tracks
     from scripts.post_description import log, post_description, random
     from scripts.utils import log
 except:
     from spotkin_tools.build_artist_genres import build_artist_genres
     from spotkin_tools.scripts.api import get_audio_features, log, random
-    from spotkin_tools.scripts.bans import PlaylistFilter, log
+    from spotkin_tools.scripts.bans import FilterTool, log
     from spotkin_tools.scripts.get_all_tracks import get_all_tracks
     from spotkin_tools.scripts.post_description import log, post_description, random
     from spotkin_tools.scripts.utils import log
@@ -32,8 +32,8 @@ def process_job(spotify, job):
     log(track_ids)
 
     audio_features = get_audio_features(spotify, track_ids)
-    artists_genres = build_artist_genres(spotify, tracks)
-    playlist_filter = PlaylistFilter(job, audio_features)
+    all_artists_genres = build_artist_genres(spotify, tracks)
+    filter_tool = FilterTool(job, audio_features)
 
     # Cull banned items from your list
     for track in tracks:
@@ -41,17 +41,20 @@ def process_job(spotify, job):
         track_name = track["name"]
         artist_id = track["artists"][0]["id"]
         artist_name = track["artists"][0]["name"]
-        artist_genre = next(
-            (x['genres'] for x in artists_genres if x["artist_id"]
+        this_artist_genres = next(
+            (x['genres'] for x in all_artists_genres if x["artist_id"]
              == artist_id and "genres" in x), None
         )
 
-        if playlist_filter.is_banned(artist_genre, artist_name, track_name, track_id, track):
+        if filter_tool.is_banned(this_artist_genres, artist_name, track_name, track_id, track, artist_id=artist_id):
             continue
 
         updated_tracks.append(track["id"])
 
     random.shuffle(updated_tracks)
+
+    if "last_track_ids" not in job and "last_tracks" in job:
+        job["last_track_ids"] = [x["id"] for x in job["last_tracks"]]
 
     # if you've specify a track or tracks to always add at the end (for easy access, for example,
     # nature sounds or white noise)
