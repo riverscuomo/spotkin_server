@@ -101,3 +101,5 @@ def process_job(spotify, job):
 
     # change the playlist description to a random fact
     post_description(spotify, job)
+
+    return True

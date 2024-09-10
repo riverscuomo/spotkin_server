@@ -77,7 +77,7 @@ def inspect_tokens():
     tokens = Token.query.all()  # Get all tokens in the database
 
     for token in tokens:
-        print(f"Token {token.id}: {token.user_id}")
+        print(token.token_info)
 
 
 def test_scheduled_jobs():
@@ -97,7 +97,7 @@ def main():
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
         # inspect_users()
-
+        # inspect_tokens()
         test_scheduled_jobs()
 
 
