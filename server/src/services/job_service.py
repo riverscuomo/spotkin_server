@@ -1,5 +1,6 @@
 import datetime
-from server.src.models.models import Ingredient, Job, User
+import os
+from server.src.models.models import Ingredient, Job, Token, User
 from spotkin_tools.scripts.process_job import process_job as tools_process_job
 import time
 import spotipy
@@ -35,7 +36,18 @@ class JobService:
         db.session.commit()
         return new_job.to_dict()
 
+    def convert_server_job_to_tools_job(self, job):
+        """ Convert a Job model instance to a dictionary that can be used by the original tools script. """
+        job_dict = job.to_dict()
+
+        job_dict['playlist_id'] = job_dict['target_playlist']['id']
+
+        for ingredient in job_dict['recipe']:
+            ingredient['source_playlist_id'] = ingredient['playlist']['id']
+            ingredient['source_playlist_name'] = ingredient['playlist']['name']
+        return job_dict
     # Ensure the user exists before creating/updating a job
+
     def ensure_user_exists(self, user_id):
         user = User.query.filter_by(id=user_id).first()
         if not user:
@@ -53,29 +65,47 @@ class JobService:
     def delete_job(self, user_id, job_index):
         self.data_service.delete_job(user_id, job_index)
 
-    def process_job(self, job_id, request):
-        if 'Authorization' not in request.headers:
-            return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
-        access_token = request.headers['Authorization'].split(' ')[1]
+    def process(self, spotify, job_id, user_id):
+
         try:
-            spotify = spotipy.Spotify(auth=access_token)
-            user = spotify.current_user()
-            user_id = user['id']
 
             job = Job.query.filter_by(id=job_id, user_id=user_id).first()
 
             if not job:
                 return jsonify({'status': 'error', 'message': 'Job not found.'}), 404
 
-            job_dict = job.to_dict()
-
-            job_dict['playlist_id'] = job_dict['target_playlist']['id']
-
-            for ingredient in job_dict['recipe']:
-                ingredient['source_playlist_id'] = ingredient['playlist']['id']
-                ingredient['source_playlist_name'] = ingredient['playlist']['name']
+            job_dict = self.convert_server_job_to_tools_job(job)
 
             tools_process_job(spotify, job_dict)
+
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    def process_job(self, job_id, request):
+        """ When the user clicks 'Update' in the UI, this function is called to process the job immediately. """
+
+        if 'Authorization' not in request.headers:
+            return jsonify({'status': 'error', 'message': 'Authorization header is missing.'}), 401
+
+        access_token = request.headers['Authorization'].split(' ')[1]
+
+        try:
+            spotify = spotipy.Spotify(auth=access_token)
+
+            user = spotify.current_user()
+            user_id = user['id']
+
+            if token := Token.query.filter_by(user_id=user_id).first():
+                token.token_info = {'access_token': access_token}
+
+            else:
+                token = Token(user_id=user_id, token_info={
+                    'access_token': access_token})
+                db.session.add(token)
+
+            db.session.commit()
+
+            result = self.process(spotify, job_id, user_id)
 
             return jsonify({
                 "message": "Processed successfully",
@@ -84,47 +114,47 @@ class JobService:
 
         except spotipy.exceptions.SpotifyException as e:
             return jsonify({'status': 'error', 'message': str(e)}), 401
-        except Exception as e:
-            return jsonify({'status': 'error', 'message': str(e)}), 500
-
-        except spotipy.exceptions.SpotifyException as e:
-            return jsonify({'status': 'error', 'message': str(e)}), 401
-        except Exception as e:
-            return jsonify({'status': 'error', 'message': str(e)}), 500
 
     def process_scheduled_jobs(self):
         print('process_scheduled_jobs...')
-        all_jobs = self.data_service.get_all_data()
-        now = datetime.datetime.now()
+        # all_jobs = self.data_service.get_all_data()
+
+        # Get the current UTC hour
+        now = datetime.datetime.now(datetime.timezone.utc)
         current_hour = now.hour
 
-        for user_id, user_data in all_jobs.items():
-            jobs = user_data.get('jobs', [])
-            for job in jobs:
-                if job.get('scheduled_time') == current_hour:
-                    print(
-                        f"Processing job for user: {user_id} because scheduled time {job.get('scheduled_time')} matches current hour {current_hour}")
-                    try:
-                        token_info = self.spotify_service.refresh_token_if_expired(
-                            user_data['token'])
-                        spotify = self.spotify_service.create_spotify_client(
-                            token_info)
-                        result = self.process_job(spotify, job)
+        # for user_id, user_data in all_jobs.items():
+        jobs = Job.query.all()
+        # jobs = user_data.get('jobs', [])
+        for job in jobs:
 
-                        # Update the stored token info and last processed time
-                        user_data['token'] = token_info
-                        job['last_processed'] = now.isoformat()
-                        self.data_service.store_job_and_token(
-                            user_id, job, token_info)
+            scheduled_time = job.scheduled_time
+            user_id = job.user_id
 
-                        print(
-                            f"Job processed successfully for user: {user_id}")
-                    except Exception as e:
-                        print(
-                            f"Error processing job for user {user_id}: {str(e)}")
-                else:
+            if scheduled_time == current_hour:
+                # user = User.query.filter_by(id=job.user_id).first()
+
+                print(
+                    f"Processing job for user: {user_id} because scheduled time {scheduled_time} matches current hour {current_hour}")
+                try:
+                    token = Token.query.filter_by(user_id=user_id).first()
+                    token_info = token.token_info if token else {}
+                    spotify = self.spotify_service.create_spotify_client(
+                        token_info)
+
+                    result = self.process(spotify, job, user_id)
+
+                    job.last_autorun = now.timestamp()
+                    db.session.commit()
                     print(
-                        f"Skipping job for user: {user_id} because scheduled time does not match current hour")
+                        f"Job processed successfully for user: {user_id}")
+
+                except Exception as e:
+                    print(
+                        f"Error processing job for user {user_id}: {str(e)}")
+            else:
+                print(
+                    f"Skipping job for user: {job.user_id} because scheduled time {scheduled_time} does not match current hour {current_hour}")
 
     def get_schedule(self):
         all_jobs = self.data_service.get_all_data()
@@ -165,6 +195,8 @@ class JobService:
                             if playlist_id not in added_playlists:
                                 job.recipe.append(ingredient)
                                 added_playlists.add(playlist_id)
+                                # Update the last_updated timestamp
+                                job.last_updated = int(time.time())
                             else:
                                 print(
                                     f"Duplicate playlist detected: {playlist_id}, skipping.")
@@ -178,6 +210,8 @@ class JobService:
             job = Job.from_dict(updated_job_data)
             job.id = job_id  # Assign the provided job_id
             job.user_id = user_id  # Ensure the job is linked to the correct user
+            # Update the last_updated timestamp
+            job.last_updated = int(time.time())
             db.session.add(job)
 
         db.session.commit()  # Commit the changes to the database

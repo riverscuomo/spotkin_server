@@ -10,27 +10,27 @@ from server.src.models.models import db, User, Job, Token
 
 
 class DataService:
-    def get_all_data(self):
-        print('Getting all data...')
-        users = User.query.all()
-        all_data = {}
+    # def get_all_data(self):
+    #     print('Getting all data...')
+    #     users = User.query.all()
+    #     all_data = {}
 
-        for user in users:
-            user_data = {
-                'jobs': [],
-                'token': user.token.token_info if user.token else {},
-                'last_updated': user.last_updated,
-            }
-            for job in user.jobs:
-                user_data['jobs'].append({
-                    'playlist_id': job.playlist_id,
-                    'name': job.name,
-                    'scheduled_time': job.scheduled_time,
-                    'index': job.index
-                })
-            all_data[user.id] = user_data
+    #     for user in users:
+    #         user_data = {
+    #             'jobs': [],
+    #             'token': user.token.token_info if user.token else {},
+    #             'last_updated': user.last_updated,
+    #         }
+    #         for job in user.jobs:
+    #             user_data['jobs'].append({
+    #                 'playlist_id': job.target_playlist.id,
+    #                 'name': job.name,
+    #                 'scheduled_time': job.scheduled_time,
+    #                 # 'index': job.index
+    #             })
+    #         all_data[user.id] = user_data
 
-        return all_data
+    #     return all_data
 
     def store_job_and_token(self, user_id, job, token_info):
         print('Storing job and token')
@@ -81,4 +81,3 @@ class DataService:
             db.session.delete(user)
 
         db.session.commit()
-

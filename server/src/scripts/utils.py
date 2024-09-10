@@ -1,6 +1,10 @@
-from server.src.models.models import Job, User
+import os
+from server.src.models.models import Job, Token, User
 from server.database.database import db
 from server.src.server import create_app
+from server.src.services.data_service import DataService
+from server.src.services.job_service import JobService
+from server.src.services.spotify_service import SpotifyService
 
 
 def normalize_values():
@@ -63,17 +67,38 @@ def inspect_users():
     for user in users:
         print(f"User {user.id}: {user.last_updated}")
         print(user.token)
-        for job in user.jobs:
-            print(f"  Job {job.id}: {job.name}")
+        # for job in user.jobs:
+        #     print(f"  Job {job.id}: {job.name}")
 
     print(len(users), "users found")
+
+
+def inspect_tokens():
+    tokens = Token.query.all()  # Get all tokens in the database
+
+    for token in tokens:
+        print(f"Token {token.id}: {token.user_id}")
+
+
+def test_scheduled_jobs():
+    data_service = DataService()
+    spotify_service = SpotifyService(
+        os.getenv('SPOTIFY_CLIENT_ID'),
+        os.getenv('SPOTIFY_CLIENT_SECRET'),
+        os.getenv('SPOTIFY_REDIRECT_URI')
+    )
+    job_service = JobService(data_service, spotify_service)
+
+    job_service.process_scheduled_jobs()
 
 
 def main():
     app = create_app()  # Create your Flask app
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
-        inspect_users()
+        # inspect_users()
+
+        test_scheduled_jobs()
 
 
 if __name__ == "__main__":
