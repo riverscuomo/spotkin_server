@@ -1,4 +1,4 @@
-from server.src.models.models import Job
+from server.src.models.models import Job, User
 from server.database.database import db
 from server.src.server import create_app
 
@@ -57,11 +57,23 @@ def remove_duplicate_ingredients():
     db.session.commit()  # Commit all deletions
 
 
+def inspect_users():
+    users = User.query.all()  # Get all users in the database
+
+    for user in users:
+        print(f"User {user.id}: {user.last_updated}")
+        print(user.token)
+        for job in user.jobs:
+            print(f"  Job {job.id}: {job.name}")
+
+    print(len(users), "users found")
+
+
 def main():
     app = create_app()  # Create your Flask app
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
-        normalize_values()
+        inspect_users()
 
 
 if __name__ == "__main__":
