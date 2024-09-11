@@ -60,6 +60,7 @@ class Job(db.Model):
     scheduled_time = db.Column(db.Integer, nullable=True)
     description = db.Column(db.String, nullable=True)
     banned_artists = db.Column(JSON, nullable=True)
+    banned_albums = db.Column(JSON, nullable=True)
     banned_tracks = db.Column(JSON, nullable=True)
     banned_genres = db.Column(db.String, nullable=True)
     ban_skits = db.Column(db.Boolean, default=False)
@@ -103,6 +104,7 @@ class Job(db.Model):
             'min_acousticness': self.min_acousticness,
             'max_acousticness': self.max_acousticness,
             'banned_artists': self.banned_artists or [],
+            'banned_albums': self.banned_albums or [],
             'banned_tracks': self.banned_tracks or [],
             'banned_genres': self.banned_genres or [],
         }
