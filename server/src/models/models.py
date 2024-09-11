@@ -62,7 +62,7 @@ class Job(db.Model):
     banned_artists = db.Column(JSON, nullable=True)
     banned_albums = db.Column(JSON, nullable=True)
     banned_tracks = db.Column(JSON, nullable=True)
-    banned_genres = db.Column(db.String, nullable=True)
+    banned_genres = db.Column(JSON, nullable=True)
     ban_skits = db.Column(db.Boolean, default=False)
     exceptions_to_banned_genres = db.Column(JSON, nullable=True)
     last_tracks = db.Column(JSON, nullable=True)
