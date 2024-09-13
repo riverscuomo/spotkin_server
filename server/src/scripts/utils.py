@@ -134,9 +134,9 @@ def main():
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
         # inspect_jobs()
-        # inspect_users()
+        inspect_users()
         # inspect_tokens()
-        test_scheduled_jobs()
+        # test_scheduled_jobs()
 
 
 if __name__ == "__main__":

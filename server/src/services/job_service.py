@@ -136,12 +136,16 @@ class JobService:
             db.session.commit()
 
             # Call process (or whatever your next steps are)
-            result = self.process(spotify, job_id, user_id)
+            data, code = self.process(spotify, job_id, user_id)
 
-            return jsonify({
-                "message": "Processed successfully",
-                "status": "success"
-            }), 200
+            if code != 200:
+                return jsonify({'status': 'error', 'message': data['message']}), code
+            else:
+
+                return jsonify({
+                    "message": "Processed successfully",
+                    "status": "success"
+                }), 200
 
         except spotipy.exceptions.SpotifyException as e:
             return jsonify({'status': 'error', 'message': str(e)}), 401
