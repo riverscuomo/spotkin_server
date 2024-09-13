@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import os
 from server.src.models.models import Job, Token, User
 from server.database.database import db
@@ -61,6 +62,42 @@ def remove_duplicate_ingredients():
     db.session.commit()  # Commit all deletions
 
 
+def inspect_jobs():
+    jobs = Job.query.all()  # Get all jobs in the database
+
+    # # get current time as int
+    # now = datetime.now()
+    # # set created_at to 3 days ago if None
+    # for job in jobs:
+    #     if job.created_at is None:
+    #         job.created_at = int((now - timedelta(days=3)).timestamp())
+    #         db.session.commit()
+
+    # sort the jobs by last_autorun
+    jobs.sort(key=lambda x: x.last_autorun if x.last_autorun is not None else 0)
+
+    for job in jobs:
+        # convert time values to human readable
+        scheduled_time = datetime.fromtimestamp(
+            job.scheduled_time).strftime('%Y-%m-%d %H:%M:%S') if job.scheduled_time is not None else None
+
+        created_at = datetime.fromtimestamp(job.created_at).strftime(
+            '%Y-%m-%d %H:%M:%S') if job.created_at is not None else None
+        last_autorun = datetime.fromtimestamp(
+            job.last_autorun).strftime('%Y-%m-%d %H:%M:%S') if job.last_autorun is not None else None
+        print(f"{job.user_id}: {job.name}")
+        print(f" - scheduled_time: {scheduled_time}")
+        print(f" - created_at: {created_at}")
+        print(f" - last_autorun: {last_autorun}")
+        print("\n")
+
+        # print(job.to_dict())
+        # for ingredient in job.recipe:
+        #     print(f"  Ingredient {ingredient.id}: {ingredient.playlist.get('name')}")
+
+    print(len(jobs), "jobs found")
+
+
 def inspect_users():
     users = User.query.all()  # Get all users in the database
 
@@ -96,9 +133,10 @@ def main():
     app = create_app()  # Create your Flask app
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
-        inspect_users()
+        # inspect_jobs()
+        # inspect_users()
         # inspect_tokens()
-        # test_scheduled_jobs()
+        test_scheduled_jobs()
 
 
 if __name__ == "__main__":
