@@ -65,8 +65,8 @@ def inspect_users():
     users = User.query.all()  # Get all users in the database
 
     for user in users:
-        print(f"User {user.id}: {user.last_updated}")
-        print(user.token)
+        print(f"User {user.id}: {user.last_updated} {user.token}")
+        # print(user.token)
         # for job in user.jobs:
         #     print(f"  Job {job.id}: {job.name}")
 
@@ -96,9 +96,9 @@ def main():
     app = create_app()  # Create your Flask app
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
-        # inspect_users()
+        inspect_users()
         # inspect_tokens()
-        test_scheduled_jobs()
+        # test_scheduled_jobs()
 
 
 if __name__ == "__main__":

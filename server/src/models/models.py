@@ -55,6 +55,7 @@ class Job(db.Model):
     user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
     last_updated = db.Column(db.Integer, default=int(time.time()))
     last_autorun = db.Column(db.Integer, default=int(time.time()))
+    created_at = db.Column(db.Integer, default=int(time.time()))
     target_playlist = db.Column(JSON, nullable=False)
     name = db.Column(db.String, nullable=False)
     scheduled_time = db.Column(db.Integer, nullable=True)
@@ -137,6 +138,7 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.String, primary_key=True)
     last_updated = db.Column(db.Integer, default=int(time.time()))
+    created_at = db.Column(db.Integer, default=int(time.time()))
 
     jobs = db.relationship('Job', backref='user',
                            lazy=True, cascade="all, delete-orphan")
