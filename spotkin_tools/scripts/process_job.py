@@ -60,7 +60,8 @@ def process_job(spotify, job):
             track_id=track_id,
             track=track,
             artist_id=artist_id,
-            audio_features=this_track_audio_features
+            audio_features=this_track_audio_features,
+            ban_skits=job.get("ban_skits", False)
         ):
             continue  # Skip banned tracks
 

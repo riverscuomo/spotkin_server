@@ -10,12 +10,13 @@ class FilterTool:
     def __init__(self, job) -> None:
         self.job = job
 
-    def is_banned(self, artist_genres, artist_name, track_name, track_id, track, artist_id=None, audio_features=None):
+    def is_banned(self, artist_genres, artist_name, track_name, track_id, track, artist_id=None, audio_features=None, ban_skits=False):
         return self._is_banned_by_genre(artist_genres, artist_name, track_name) or \
             self._is_banned_by_track_id(track_id, artist_name, track_name) or \
             self._is_banned_by_artist_name(artist_name, track_name) or \
             self._is_banned_by_artist_id(artist_id, track_name) or \
             self._is_banned_by_song_title(artist_name, track_name) or \
+            self._is_banned_by_skit(track_name, artist_name) or \
             self._is_banned_by_audio_features(
                 track_name, artist_name, track, audio_features)
 
@@ -125,6 +126,18 @@ class FilterTool:
             )
             return True
         return False
+
+    def _is_banned_by_skit(self, track_name, artist_name):
+        """ Check if the track is a skit """
+
+        if "ban_skits" not in self.job or not self.job["ban_skits"]:
+            return False
+
+        elif "skit" in track_name.lower():
+            log(
+                f"Removed {track_name} by {artist_name} because it is a skit"
+            )
+            return True
 
     def _is_banned_by_song_title(self, artist_name, track_name):
         # print("_is_banned_by_song_title")

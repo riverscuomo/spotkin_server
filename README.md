@@ -48,9 +48,14 @@ SPOTIFY_CLIENT_ID=xxx
 SPOTIFY_CLIENT_SECRET=xxx
 SPOTIFY_REDIRECT_URI=http://localhost:8080
 
-FLASK_APP=server.py
+FLASK_APP=server/src/migrations.py
 FLASK_ENV=development
 ```
+
+### Device-Specific Variables
+
+Add the root dir to the very end of your environment activate.bat file.
+set PYTHONPATH=c:/RC Dropbox/Rivers Cuomo/Apps/spotkin
 
 ### Setup your settings in Google Sheets
 
