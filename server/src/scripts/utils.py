@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 from server.src.models.models import Job, Token, User
 from server.database.database import db
@@ -6,6 +6,8 @@ from server.src.server import create_app
 from server.src.services.data_service import DataService
 from server.src.services.job_service import JobService
 from server.src.services.spotify_service import SpotifyService
+from spotipy import SpotifyOAuth
+import spotipy
 
 
 def normalize_values():
@@ -102,7 +104,8 @@ def inspect_users():
     users = User.query.all()  # Get all users in the database
 
     for user in users:
-        print(f"User {user.id}: {user.last_updated} {user.token}")
+        print(
+            f"User {user.id} | {user.jobs[0].id} | {user.last_updated} | {user.token}")
         # print(user.token)
         # for job in user.jobs:
         #     print(f"  Job {job.id}: {job.name}")
@@ -117,6 +120,28 @@ def inspect_tokens():
         print(token.token_info)
 
 
+def test_job():
+    data_service = DataService()
+
+    job_id = "4295483a-734b-4203-b3c2-0e2dbfece36a"
+    user_id = 'rcuomo'
+    # user = User.query.filter_by(id=user_id).first()
+    # token = user.token
+
+    # Initialize spotipy.Spotify directly
+    spotify = spotipy.Spotify(
+        auth_manager=SpotifyOAuth(
+            client_id=os.getenv('SPOTIFY_CLIENT_ID'),
+            client_secret=os.getenv('SPOTIFY_CLIENT_SECRET'),
+            redirect_uri=os.getenv('SPOTIFY_REDIRECT_URI'),
+            scope="playlist-modify-private, playlist-modify-public, user-library-read, playlist-read-private, user-library-modify, user-read-recently-played"
+        )
+    )
+    job_service = JobService(data_service, spotify)
+
+    job_service.process(spotify, job_id, user_id)
+
+
 def test_scheduled_jobs():
     data_service = DataService()
     spotify_service = SpotifyService(
@@ -124,6 +149,7 @@ def test_scheduled_jobs():
         os.getenv('SPOTIFY_CLIENT_SECRET'),
         os.getenv('SPOTIFY_REDIRECT_URI')
     )
+
     job_service = JobService(data_service, spotify_service)
 
     job_service.process_scheduled_jobs()
@@ -134,8 +160,9 @@ def main():
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
         # inspect_jobs()
-        inspect_users()
+        # inspect_users()
         # inspect_tokens()
+        test_job()
         # test_scheduled_jobs()
 
 

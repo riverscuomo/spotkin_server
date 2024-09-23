@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def get_playlist_tracks_wrapper(args):
     spotify, playlist_id, quantity, playlist_name = args
+    log(f"spotify object: {spotify.__class__.__name__}")
     return sample_playlist_tracks(spotify, playlist_id, quantity, name=playlist_name)
 
 

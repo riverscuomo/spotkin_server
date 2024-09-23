@@ -135,7 +135,6 @@ class JobService:
             # Commit the token information
             db.session.commit()
 
-            # Call process (or whatever your next steps are)
             data, code = self.process(spotify, job_id, user_id)
 
             if code != 200:
