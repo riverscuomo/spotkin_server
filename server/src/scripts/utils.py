@@ -9,6 +9,8 @@ from server.src.services.spotify_service import SpotifyService
 from spotipy import SpotifyOAuth
 import spotipy
 
+kyoko = "1233848143"
+
 
 def normalize_values():
     jobs = Job.query.all()  # Get all jobs in the database
@@ -35,6 +37,17 @@ def normalize_values():
 
         # Commit the changes to the database
         db.session.commit()
+
+
+def delete_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        print(f"User {user_id} deleted")
+    else:
+        print(f"User {user_id} not found")
 
 
 def remove_duplicate_ingredients():
@@ -160,10 +173,12 @@ def main():
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
         # inspect_jobs()
-        # inspect_users()
+        inspect_users()
         # inspect_tokens()
-        test_job()
+        # test_job()
         # test_scheduled_jobs()
+        #
+        # delete_user(k)
 
 
 if __name__ == "__main__":
