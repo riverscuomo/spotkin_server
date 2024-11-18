@@ -9,6 +9,12 @@ from server.src.services.spotify_service import SpotifyService
 from spotipy import SpotifyOAuth
 import spotipy
 
+katie_id = "fshkks"
+rivers = "rcuomo"
+
+katie_job_id = "5c108e63-a942-4bbe-8d73-fc822a151147"
+rivers_job_id = "4295483a-734b-4203-b3c2-0e2dbfece36a"
+
 
 def normalize_values():
     jobs = Job.query.all()  # Get all jobs in the database
@@ -100,12 +106,14 @@ def inspect_jobs():
     print(len(jobs), "jobs found")
 
 
-def inspect_users():
-    users = User.query.all()  # Get all users in the database
+def inspect_users(users=None):
+
+    if users is None:
+        users = User.query.all()  # Get all users in the database
 
     for user in users:
         print(
-            f"User {user.id} | {user.jobs[0].id} | {user.last_updated} | {user.token}")
+            f"User {user.id} | job.id {user.jobs[0].id} | last_updated {user.last_updated} | token {user.token}")
         # print(user.token)
         # for job in user.jobs:
         #     print(f"  Job {job.id}: {job.name}")
@@ -120,11 +128,9 @@ def inspect_tokens():
         print(token.token_info)
 
 
-def test_job():
+def test_job(job_id=rivers_job_id, user_id=rivers):
     data_service = DataService()
 
-    job_id = "4295483a-734b-4203-b3c2-0e2dbfece36a"
-    user_id = 'rcuomo'
     # user = User.query.filter_by(id=user_id).first()
     # token = user.token
 
@@ -160,8 +166,10 @@ def main():
     with app.app_context():  # Push the app context
         # remove_duplicate_ingredients()
         # inspect_jobs()
-        # inspect_users()
+        # users = users = [User.query.filter_by(id=katie_id).first()]
+        # inspect_users(users=users)
         # inspect_tokens()
+        # test_job(user_id=katie_id, job_id=katie_job_id)
         test_job()
         # test_scheduled_jobs()
 

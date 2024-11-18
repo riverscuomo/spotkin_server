@@ -44,6 +44,7 @@ def process_job(spotify, job):
         track_name = track["name"]
         artist_id = track["artists"][0]["id"]
         artist_name = track["artists"][0]["name"]
+        album_id = track["album"]["id"]
 
         # Get the specific genres and audio features for this track
         this_artist_genres = next(
@@ -54,12 +55,14 @@ def process_job(spotify, job):
 
         # Check if the track is banned by passing track-specific data to the filter tool
         if filter_tool.is_banned(
+            album_id=album_id,
+            artist_id=artist_id,
             artist_genres=this_artist_genres,
             artist_name=artist_name,
             track_name=track_name,
             track_id=track_id,
             track=track,
-            artist_id=artist_id,
+
             audio_features=this_track_audio_features,
             ban_skits=job.get("ban_skits", False)
         ):
