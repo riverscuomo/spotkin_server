@@ -107,6 +107,16 @@ def inspect_jobs():
 
 
 def inspect_users(users=None):
+    """
+    Inspects and prints details of users.
+    If no users are provided, it fetches all users from the database.
+    For each user, it prints the user's ID, the ID of the first job associated with the user,
+    the last updated timestamp, and the user's token.
+    Args:
+        users (list, optional): A list of user objects. Defaults to None.
+    Returns:
+        None
+    """
 
     if users is None:
         users = User.query.all()  # Get all users in the database
@@ -167,10 +177,10 @@ def main():
         # remove_duplicate_ingredients()
         # inspect_jobs()
         # users = users = [User.query.filter_by(id=katie_id).first()]
-        # inspect_users(users=users)
+        inspect_users()
         # inspect_tokens()
         # test_job(user_id=katie_id, job_id=katie_job_id)
-        test_job()
+        # test_job()
         # test_scheduled_jobs()
 
 
