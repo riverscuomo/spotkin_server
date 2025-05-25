@@ -1,7 +1,5 @@
 # Spotkin [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 
-Note: I renamed the project from "Spotnik".
-
 A python package that updates one or more of your Spotify playlists every day with a random selection of tracks from any public playlists.
 
 For example, I have a playlist called ["Rivers Radio"](https://open.spotify.com/playlist/1HaQfSGjNzIsiC5qOsCUcW?si=861bc59c458b4b0a) that is updated by spotkin every day.
