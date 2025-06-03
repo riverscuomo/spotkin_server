@@ -9,7 +9,7 @@ import os
 import jwt
 
 
-def register_routes(app, job_service):
+def register_routes(app, job_service, openai_service):
     spotify_service = SpotifyService(
         client_id=os.environ.get('SPOTIFY_CLIENT_ID'),
         client_secret=os.environ.get('SPOTIFY_CLIENT_SECRET'),
@@ -115,6 +115,44 @@ def register_routes(app, job_service):
             return f'Database connection successful! Test value: {result.test}'
         except Exception as e:
             return f'Database connection failed: {str(e)}'
+    
+    @app.route('/ai/track', methods=['POST'])
+    def track_info():
+        data = request.json
+        track_name = data.get('name', 'Unknown Track')
+        artists = data.get('artists', ['Unknown Artist'])
+        album = data.get('album', 'Unknown Album')
+        
+        try:
+            ai_response = openai_service.get_track_info(track_name, artists, album)
+            return jsonify({"response": ai_response})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route('/ai/artist', methods=['POST'])
+    def artist_info():
+        data = request.json
+        artist_name = data.get('name', 'Unknown Artist')
+        genres = data.get('genres', [])
+        
+        try:
+            ai_response = openai_service.get_artist_info(artist_name, genres)
+            return jsonify({"response": ai_response})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route('/ai/album', methods=['POST'])
+    def album_info():
+        data = request.json
+        album_name = data.get('name', 'Unknown Album')
+        artists = data.get('artists', ['Unknown Artist'])
+        release_date = data.get('release_date', '')
+        
+        try:
+            ai_response = openai_service.get_album_info(album_name, artists, release_date)
+            return jsonify({"response": ai_response})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
 
 def get_user_id_from_spotify(access_token):
@@ -144,6 +182,8 @@ def ensure_user_exists(user_id):
         new_user = User(id=user_id, username='Rivers Cuomo')
         db.session.add(new_user)
         db.session.commit()
+
+
 
     # @app.route('/spotify-login')
     # def spotify_login():

@@ -6,6 +6,7 @@ from server.src.routes.routes import register_routes
 from server.src.services.spotify_service import SpotifyService
 from server.src.services.job_service import JobService
 from server.src.services.data_service import DataService
+from server.src.services.openai_service import OpenAIService
 from server.database.database import db, init_db
 import os
 
@@ -44,10 +45,11 @@ def create_app():
         os.getenv('SPOTIFY_CLIENT_SECRET'),
         os.getenv('SPOTIFY_REDIRECT_URI')
     )
+    openai_service = OpenAIService()
     job_service = JobService(data_service, spotify_service)
 
     # Register routes
-    register_routes(app, job_service)
+    register_routes(app, job_service, openai_service)
 
     return app
 
