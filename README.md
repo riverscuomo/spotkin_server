@@ -87,7 +87,29 @@ Simply add columns in the "recipes" sheet and in the "settings" sheet. I like ke
 ## Running
 
 Once you have completed all the installation steps, run spotkin script by running `py -m spotkin`.
-Run the server with 'flask run"
+Run the server with `flask run`
+
+## Deployment
+
+### Heroku Deployment
+
+The server is configured to deploy to Heroku. The deployment should be set up to automatically deploy whenever changes are pushed to the main branch via GitHub integration.
+
+To set up automatic deployments:
+
+1. Go to the [Heroku Dashboard](https://dashboard.heroku.com/apps/spotkin/deploy/github)
+2. Connect your GitHub repository
+3. Enable automatic deploys from the main branch
+
+If automatic deployment is not set up or if you need to manually deploy:
+
+```powershell
+# Login to Heroku
+heroku login
+
+# Deploy the application
+git push heroku main
+```
 
 ## Contributing
 
