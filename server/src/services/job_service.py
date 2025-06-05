@@ -531,6 +531,7 @@ class JobService:
                     artist_id = album['artists'][0]['id']
                     artist_top_tracks = spotify.artist_top_tracks(artist_id)
                     tracks.extend(artist_top_tracks['tracks'])
+            
             else:
                 raise ValueError(f"Invalid source type: {source_type}")
                 
