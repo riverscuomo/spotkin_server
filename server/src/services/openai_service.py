@@ -13,6 +13,7 @@ class OpenAIService:
         prompt = f"""
         Give me the essential info about "{track_name}" by {artist_names} from "{album}".
         Include key details on its creation, reception, style, themes, and any notable trivia.
+        Share any interesting insider anecdotes about the track if you know them, but DON'T make anything up.
         Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without being overly enthusiastic.
         Keep it brief (max 2 paragraphs).
         """
@@ -28,6 +29,7 @@ class OpenAIService:
         prompt = f"""
         Break down what makes "{artist_name}" significant.{genre_text}
         Cover their background, style, major achievements, industry influence, and key works.
+        Include any interesting insider anecdotes or behind-the-scenes stories if you know them, but DON'T make anything up.
         Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without unnecessary hype.
         Keep it brief (max 2 paragraphs).
         """
@@ -42,6 +44,7 @@ class OpenAIService:
         prompt = f"""
         What's the deal with "{album_name}" by {artist_names}?{release_info}
         Cover its creation, reception, style, themes, impact, and any standout facts.
+        Share any interesting insider anecdotes about the album or recording process if you know them, but DON'T make anything up.
         Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without unnecessary enthusiasm.
         Keep it brief (max 2 paragraphs).
         """
