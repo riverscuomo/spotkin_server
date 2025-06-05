@@ -8,6 +8,7 @@ import spotipy
 from flask import Response, jsonify
 from server.src.models.models import db
 from rich import print
+import uuid
 
 
 class JobService:
@@ -309,6 +310,295 @@ class JobService:
             else:
                 return jsonify({"status": "error", "message": "User not found"}), 404
 
+    def get_job_by_id(self, job_id):
+        """
+        Get a job by its ID
+        
+        Parameters:
+        - job_id: The ID of the job to retrieve
+        
+        Returns: Job object or None if not found
+        """
+        return Job.query.filter_by(id=job_id).first()
+    
+    def add_source_from_recommendation(self, job_id, source_type, item_id, item_name, user_id):
+        """
+        Add a source to a job based on recommendations from a track, artist, or album
+        
+        Parameters:
+        - job_id: ID of the job to update
+        - source_type: 'track', 'artist', or 'album'
+        - item_id: Spotify ID of the item
+        - item_name: Name for display purposes
+        - user_id: ID of the user making the request
+        
+        Returns: Updated job object
+        """
+        # Get the job to update
+        job = Job.query.filter_by(id=job_id, user_id=user_id).first()
+        if not job:
+            raise ValueError(f"Job not found with ID: {job_id}")
+        
+        # Get token for the user
+        token = Token.query.filter_by(user_id=user_id).first()
+        if not token or not token.token_info.get('access_token'):
+            raise ValueError(f"No valid token found for user: {user_id}")
+            
+        # Try to refresh the token if needed
+        try:
+            token_info_with_refresh = self.spotify_service.refresh_token_if_expired(token.token_info)
+            # Update token in database if refreshed
+            if token_info_with_refresh != token.token_info:
+                token.token_info = token_info_with_refresh
+                db.session.commit()
+                
+            # Create Spotify client with refreshed token
+            spotify = spotipy.Spotify(auth=token.token_info.get('access_token'))
+        except Exception as e:
+            print(f"Error refreshing token: {e}")
+            raise ValueError(f"Failed to refresh Spotify access token: {str(e)}")
+            
+        
+        # Initialize tracks list that we'll populate
+        tracks = []
+        
+        try:
+            if source_type == 'track':
+                # Verify track exists
+                track = spotify.track(item_id)
+                track_name = track['name']
+                name_prefix = f"Based on track: {item_name}"
+                print(f"Track validated: {track_name}")
+                
+                # Get the artist of the track
+                artist_id = track['artists'][0]['id']
+                
+                try:
+                    # Try to get top tracks from the artist's country
+                    artist_top_tracks = spotify.artist_top_tracks(artist_id, country='US')
+                    tracks = artist_top_tracks['tracks']
+                    print(f"Found {len(tracks)} top tracks from artist")
+                except Exception as e:
+                    print(f"Error getting artist top tracks: {e}")
+                    # Fallback to just using the track itself
+                    tracks = [track]
+                
+            elif source_type == 'artist':
+                # Verify artist exists
+                artist = spotify.artist(item_id)
+                artist_name = artist['name']
+                print(f"Artist validated: {artist_name}")
+                
+                # Try to find "This Is [Artist]" playlist first
+                search_query = f"This Is {artist_name}"
+                print(f"Searching for '{search_query}'")
+                spotify_playlist = None
+                
+                try:
+                    results = spotify.search(q=search_query, type='playlist', limit=5)
+                    playlists = results.get('playlists', {}).get('items', [])
+                    
+                    # Look through results for an official "This Is" playlist
+                    for playlist in playlists:
+                        if playlist['name'].lower().startswith('this is') and artist_name.lower() in playlist['name'].lower():
+                            # Check if it's from Spotify
+                            if playlist['owner']['id'] == 'spotify':
+                                print(f"Found official 'This Is {artist_name}' playlist!")
+                                spotify_playlist = playlist
+                                break
+                    
+                    if spotify_playlist:
+                        # Use the Spotify "This Is" playlist directly
+                        playlist_data = {
+                            "id": spotify_playlist['id'],
+                            "name": spotify_playlist['name'],
+                            "uri": spotify_playlist['uri'],
+                            "images": spotify_playlist.get('images', []),
+                            "description": spotify_playlist.get('description', f"Spotify's This Is {artist_name} playlist"),
+                            "is_official_spotify_playlist": True  # Add a flag to mark this as official
+                        }
+                        
+                        ingredient_data = {
+                            'id': str(uuid.uuid4()),
+                            'job_id': str(job.id),
+                            'playlist': playlist_data,
+                            'quantity': 2  # Default quantity
+                        }
+                        
+                        # Create and add ingredient
+                        ingredient = Ingredient.from_dict(ingredient_data)
+                        job.recipe.append(ingredient)
+                        
+                        # Update job timestamp
+                        job.last_updated = int(time.time())
+                        
+                        # Save to database
+                        db.session.commit()
+                        
+                        # Return early with the updated job
+                        print(f"Added official 'This Is {artist_name}' playlist directly to job")
+                        return job.to_dict()
+                
+                except Exception as e:
+                    print(f"Error searching for or using 'This Is' playlist: {e}")
+                
+                # If no "This Is" playlist was found, fallback to creating our own playlist
+                print(f"No official 'This Is {artist_name}' playlist found. Creating custom playlist.")
+                name_prefix = f"Based on artist: {item_name}"
+                
+                # Get the artist's top tracks
+                try:
+                    # Get the artist's top tracks - specify US as the country
+                    artist_top_tracks = spotify.artist_top_tracks(item_id, country='US')
+                    tracks = artist_top_tracks['tracks']
+                    print(f"Found {len(tracks)} top tracks for {artist_name}")
+                except Exception as e:
+                    print(f"Error getting top tracks: {e}")
+                    raise ValueError(f"Could not get top tracks for artist: {str(e)}")
+                
+                # Try to get related artists if we need more tracks
+                if len(tracks) < 15:
+                    try:
+                        print(f"Getting related artists for {artist_name}")
+                        related_artists = spotify.artist_related_artists(item_id)
+                        related_count = 0
+                        
+                        for related in related_artists['artists'][:3]:  # Add tracks from up to 3 related artists
+                            try:
+                                related_top = spotify.artist_top_tracks(related['id'], country='US')
+                                if related_top and 'tracks' in related_top:
+                                    print(f"Adding tracks from related artist: {related['name']}")
+                                    tracks.extend(related_top['tracks'][:5])  # Add up to 5 tracks per related artist
+                                    related_count += 1
+                            except Exception as e:
+                                print(f"Could not get top tracks for related artist {related['name']}: {e}")
+                        print(f"Added tracks from {related_count} related artists")
+                    except Exception as e:
+                        print(f"Error getting related artists: {e}")
+                        # Continue without related artists
+                
+            elif source_type == 'album':
+                # Verify album exists
+                album = spotify.album(item_id)
+                album_name = album['name']
+                name_prefix = f"Based on album: {item_name}"
+                print(f"Album validated: {album_name}")
+                
+                # Get all tracks from the album
+                try:
+                    tracks = []
+                    album_tracks = spotify.album_tracks(item_id)
+                    
+                    # Process initial results
+                    track_items = album_tracks['items']
+                    for track in track_items:
+                        if track.get('id'):
+                            # Get full track data
+                            try:
+                                full_track = spotify.track(track['id'])
+                                tracks.append(full_track)
+                            except Exception as e:
+                                print(f"Error getting full track data for {track['id']}: {e}")
+                    
+                    # Handle pagination if there are more tracks
+                    while album_tracks['next']:
+                        album_tracks = spotify.next(album_tracks)
+                        for track in album_tracks['items']:
+                            if track.get('id'):
+                                try:
+                                    full_track = spotify.track(track['id'])
+                                    tracks.append(full_track)
+                                except Exception as e:
+                                    print(f"Error getting full track data for {track['id']}: {e}")
+                    
+                    print(f"Found {len(tracks)} tracks from album")
+                    
+
+                    # If we couldn't get enough tracks from the album, get artist's top tracks as well
+                    if len(tracks) < 10 and album['artists']:
+                        try:
+                            artist_id = album['artists'][0]['id']
+                            artist_top_tracks = spotify.artist_top_tracks(artist_id, country='US')
+                            tracks.extend(artist_top_tracks['tracks'])
+                            print(f"Added artist top tracks, now have {len(tracks)} tracks")
+                        except Exception as e:
+                            print(f"Error getting artist top tracks: {e}")
+                
+                except Exception as e:
+                    print(f"Error getting album tracks: {e}")
+                    tracks = []
+                
+                    artist_id = album['artists'][0]['id']
+                    artist_top_tracks = spotify.artist_top_tracks(artist_id)
+                    tracks.extend(artist_top_tracks['tracks'])
+            else:
+                raise ValueError(f"Invalid source type: {source_type}")
+                
+            # Limit to 20 tracks and remove duplicates
+            track_ids_seen = set()
+            unique_tracks = []
+            for track in tracks:
+                if track['id'] not in track_ids_seen and len(unique_tracks) < 20:
+                    track_ids_seen.add(track['id'])
+                    unique_tracks.append(track)
+            
+            tracks = unique_tracks
+            
+            if not tracks:
+                raise ValueError(f"No tracks found for {source_type} {item_name}")
+                
+        except spotipy.exceptions.SpotifyException as e:
+            if e.http_status == 404:
+                raise ValueError(f"The {source_type} with ID '{item_id}' was not found on Spotify")
+            else:
+                raise ValueError(f"Spotify API error: {str(e)}")
+        except Exception as e:
+            raise ValueError(f"Error getting tracks: {str(e)}")
+            
+        print(f"Successfully got {len(tracks)} tracks for {source_type} {item_name}")
+        
+        # Create a playlist from collected tracks
+        playlist = spotify.user_playlist_create(
+            user=user_id,
+            name=name_prefix,
+            public=False,
+            description=f"Tracks {name_prefix}"
+        )
+        
+        # Add tracks to playlist
+        if tracks:
+            track_uris = [track['uri'] for track in tracks]
+            if track_uris:
+                spotify.playlist_add_items(playlist['id'], track_uris)
+        
+        # Create ingredient from the playlist
+        playlist_data = {
+            "id": playlist['id'],
+            "name": playlist['name'],
+            "uri": playlist['uri'],
+            "images": playlist.get('images', [])
+        }
+        
+        ingredient_data = {
+            'id': str(uuid.uuid4()),
+            'job_id': str(job.id),
+            'playlist': playlist_data,
+            'quantity': 1  # Default quantity
+        }
+        
+        # Create and add ingredient
+        ingredient = Ingredient.from_dict(ingredient_data)
+        job.recipe.append(ingredient)
+        
+        # Update job timestamp
+        job.last_updated = int(time.time())
+        
+        # Save to database
+        db.session.commit()
+        
+        # Return updated job
+        return job.to_dict()
+    
     def update_job(self, job_id, updated_job_data, user_id):
         print(f"Updating job {job_id} for user {user_id}")
         # ensure the user is in the db

@@ -153,6 +153,47 @@ def register_routes(app, job_service, openai_service):
             return jsonify({"response": ai_response})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+            
+    @app.route('/jobs/<job_id>/sources', methods=['POST'])
+    def add_source_to_job(job_id):
+        """Add a source to a job based on a track, artist, or album"""
+        access_token = request.headers.get('Authorization')
+        if not access_token:
+            return jsonify({"error": "Access token missing"}), 401
+
+        data = request.json
+        source_type = data.get('type')  # 'track', 'artist', or 'album'
+        item_id = data.get('item_id')   # Spotify ID of the item
+        item_name = data.get('item_name')  # Name for display purposes
+        user_id = data.get('user_id')
+        
+        if not all([source_type, item_id, item_name, user_id]):
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        # # Extract user_id from Spotify API using the access token
+        # user_id = get_user_id_from_spotify(access_token)
+        
+        # if not user_id:
+        #     return jsonify({"error": "Failed to get user ID from Spotify"}), 401
+        
+        try:
+            # Get the job
+            job = job_service.get_job_by_id(job_id)
+            
+            if not job:
+                return jsonify({"error": f"Job with id {job_id} not found"}), 404
+            
+            # Verify job belongs to user
+            if job.user_id != user_id:
+                return jsonify({"error": "Unauthorized to modify this job"}), 403
+            
+            # Create a source ingredient based on recommendations and add to job
+            updated_job = job_service.add_source_from_recommendation(job_id, source_type, item_id, item_name, user_id)
+            
+            return jsonify(updated_job), 200
+            
+        except Exception as e:
+            return jsonify({"error": f"Error adding source to job: {str(e)}"}), 500
 
 
 def get_user_id_from_spotify(access_token):
