@@ -11,10 +11,10 @@ class OpenAIService:
         artist_names = ', '.join(artists) if isinstance(artists, list) else artists
         
         prompt = f"""
-        Give me interesting information, facts, and background about the song "{track_name}" by {artist_names} from the album "{album}".
-        Include details about its creation, reception, musical style, lyrical themes, chart performance, and any interesting trivia.
-        Format the response in a conversational, engaging way, like you're enthusiastically sharing this information with a music fan.
-        Keep the response concise (maximum 3 paragraphs).
+        Give me the essential info about "{track_name}" by {artist_names} from "{album}".
+        Include key details on its creation, reception, style, themes, and any notable trivia.
+        Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without being overly enthusiastic.
+        Keep it brief (max 2 paragraphs).
         """
         
         return self._make_openai_request(prompt)
@@ -26,10 +26,10 @@ class OpenAIService:
             genre_text = f" Their genres include {', '.join(genres)}."
         
         prompt = f"""
-        Give me interesting information and facts about the music artist "{artist_name}".{genre_text}
-        Include details about their background, musical style, career highlights, influence on music, notable albums/songs, and any interesting trivia.
-        Format the response in a conversational, engaging way, like you're enthusiastically sharing this information with a music fan.
-        Keep the response concise (maximum 3 paragraphs).
+        Break down what makes "{artist_name}" significant.{genre_text}
+        Cover their background, style, major achievements, industry influence, and key works.
+        Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without unnecessary hype.
+        Keep it brief (max 2 paragraphs).
         """
         
         return self._make_openai_request(prompt)
@@ -40,10 +40,10 @@ class OpenAIService:
         release_info = f" Released in {release_date}." if release_date else ""
         
         prompt = f"""
-        Give me interesting information and facts about the album "{album_name}" by {artist_names}.{release_info}
-        Include details about its creation, reception, musical style, lyrical themes, chart performance, and any interesting trivia.
-        Format the response in a conversational, engaging way, like you're enthusiastically sharing this information with a music fan.
-        Keep the response concise (maximum 3 paragraphs).
+        What's the deal with "{album_name}" by {artist_names}?{release_info}
+        Cover its creation, reception, style, themes, impact, and any standout facts.
+        Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without unnecessary enthusiasm.
+        Keep it brief (max 2 paragraphs).
         """
         
         return self._make_openai_request(prompt)
@@ -52,13 +52,13 @@ class OpenAIService:
         """Make a request to the OpenAI API."""
         try:
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o",
                 messages=[
-                    {"role": "system", "content": "You are a knowledgeable music expert providing concise information about songs, artists, and albums."},
+                    {"role": "system", "content": "You're a music expert who talks like a cool, knowledgeable older brother/uncle. Be insightful but not verbose. Focus on substance over style."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.7,
-                max_tokens=500
+                temperature=0.6,
+                max_tokens=300
             )
             
             return response.choices[0].message.content.strip()
