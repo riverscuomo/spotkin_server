@@ -11,10 +11,10 @@ class OpenAIService:
         artist_names = ', '.join(artists) if isinstance(artists, list) else artists
         
         prompt = f"""
-        Give me the essential info about "{track_name}" by {artist_names} from "{album}".
-        Include key details on its creation, reception, style, themes, and any notable trivia.
-        Share any interesting insider anecdotes about the track if you know them, but DON'T make anything up.
-        Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without being overly enthusiastic.
+        Provide information about "{track_name}" by {artist_names} from "{album}".
+        Include factual details about its creation, reception, style, and themes if available.
+        If you know any verified anecdotes about the track, include them, but DON'T make anything up.
+        Present the information in a straightforward, factual manner without exaggeration.
         Keep it brief (max 2 paragraphs).
         """
         
@@ -27,10 +27,10 @@ class OpenAIService:
             genre_text = f" Their genres include {', '.join(genres)}."
         
         prompt = f"""
-        Break down what makes "{artist_name}" significant.{genre_text}
-        Cover their background, style, major achievements, industry influence, and key works.
-        Include any interesting insider anecdotes or behind-the-scenes stories if you know them, but DON'T make anything up.
-        Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without unnecessary hype.
+        Provide information about "{artist_name}".{genre_text}
+        Cover their background, style, works, and factual information about their career.
+        If you know any verified anecdotes, include them, but DON'T make anything up.
+        Present the information in a straightforward, factual manner without exaggeration.
         Keep it brief (max 2 paragraphs).
         """
         
@@ -42,10 +42,10 @@ class OpenAIService:
         release_info = f" Released in {release_date}." if release_date else ""
         
         prompt = f"""
-        What's the deal with "{album_name}" by {artist_names}?{release_info}
-        Cover its creation, reception, style, themes, impact, and any standout facts.
-        Share any interesting insider anecdotes about the album or recording process if you know them, but DON'T make anything up.
-        Format the response like a knowledgeable older friend or uncle - straight-talking, insightful, and confident without unnecessary enthusiasm.
+        Provide information about "{album_name}" by {artist_names}.{release_info}
+        Include factual details about its creation, reception, style, and themes if available.
+        If you know any verified anecdotes about the album or recording process, include them, but DON'T make anything up.
+        Present the information in a straightforward, factual manner without exaggeration.
         Keep it brief (max 2 paragraphs).
         """
         
@@ -57,7 +57,7 @@ class OpenAIService:
             response = self.client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
-                    {"role": "system", "content": "You're a music expert who talks like a cool, knowledgeable older brother/uncle. Be insightful but not verbose. Focus on substance over style."},
+                    {"role": "system", "content": "You're a music information provider. Present factual information without unnecessary hype. Focus on accuracy and clarity."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.6,
