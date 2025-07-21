@@ -88,3 +88,57 @@ The application is designed to be deployed on Heroku with:
 - Jobs are processed based on their `scheduled_time` (hour of day)
 - The server handles timestamp conversion between milliseconds and seconds
 - Future timestamps are detected and skipped to prevent processing errors
+
+## API Documentation
+
+### GET /jobs/{user_id}
+
+Returns all jobs for a user, including freeze status information.
+
+#### Headers
+- `Authorization`: Spotify access token (required)
+
+#### Response
+Each job in the response now includes freeze status information:
+
+```json
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "My Daily Mix",
+  "scheduled_time": 8,
+  "last_updated": 1737123456,
+  "freeze_status": {
+    "is_frozen": false,
+    "days_since_update": 15.3,
+    "days_until_freeze": 5.7,
+    "freeze_threshold_days": 21
+  },
+  // ... other job fields
+}
+```
+
+#### Freeze Status Fields
+- `is_frozen`: Boolean indicating if the job is currently frozen (won't be processed)
+- `days_since_update`: Number of days since the job configuration was last updated
+- `days_until_freeze`: Days remaining before the job will be frozen (null if already frozen)
+- `freeze_threshold_days`: The freeze threshold in days (currently 21)
+
+### Client Implementation Example
+
+```javascript
+// Display freeze warnings in your UI
+jobs.forEach(job => {
+  const status = job.freeze_status;
+  
+  if (status.is_frozen) {
+    // Show red alert
+    showError(`${job.name} is frozen! Update settings to reactivate.`);
+  } else if (status.days_until_freeze < 7) {
+    // Show yellow warning
+    showWarning(`${job.name} will freeze in ${status.days_until_freeze} days`);
+  }
+  
+  // Always show last update info
+  showInfo(`Last updated ${status.days_since_update} days ago`);
+});
+```
