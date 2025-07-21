@@ -83,6 +83,34 @@ class Job(db.Model):
 
     def to_dict(self):
         print('Job.to_dict')
+        
+        # Calculate freeze status
+        current_time = int(time.time())
+        freeze_threshold = 1814400  # 21 days in seconds
+        
+        # Calculate time since last update
+        time_since_update = None
+        days_since_update = None
+        is_frozen = False
+        days_until_freeze = None
+        
+        if self.last_updated:
+            # Handle milliseconds vs seconds
+            if self.last_updated > 1e12:
+                last_updated_seconds = self.last_updated / 1000
+            else:
+                last_updated_seconds = self.last_updated
+                
+            time_since_update = current_time - last_updated_seconds
+            days_since_update = time_since_update / 86400  # Convert to days
+            
+            is_frozen = time_since_update > freeze_threshold
+            if not is_frozen:
+                days_until_freeze = (freeze_threshold - time_since_update) / 86400
+        else:
+            # Job without last_updated is considered frozen
+            is_frozen = True
+        
         return {
             'id': str(self.id),  # Convert UUID to string
             'user_id': self.user_id,
@@ -108,6 +136,14 @@ class Job(db.Model):
             'banned_albums': self.banned_albums or [],
             'banned_tracks': self.banned_tracks or [],
             'banned_genres': self.banned_genres or [],
+            # New freeze status fields
+            'last_updated': self.last_updated,
+            'freeze_status': {
+                'is_frozen': is_frozen,
+                'days_since_update': round(days_since_update, 1) if days_since_update is not None else None,
+                'days_until_freeze': round(days_until_freeze, 1) if days_until_freeze is not None else None,
+                'freeze_threshold_days': 21
+            }
         }
 
     @classmethod

@@ -19,6 +19,19 @@ def register_routes(app, job_service, openai_service):
     @app.route('/')
     def home():
         return 'Spotkin API is running!'
+    
+    # # TEMPORARY: Test endpoint to get a token for testing
+    # @app.route('/test/get-token/<user_id>', methods=['GET'])
+    # def get_test_token(user_id):
+    #     """Temporary endpoint for testing - REMOVE IN PRODUCTION"""
+    #     token = Token.query.filter_by(user_id=user_id).first()
+    #     if token and token.token_info:
+    #         return jsonify({
+    #             "user_id": user_id,
+    #             "access_token": token.token_info.get('access_token'),
+    #             "note": "Use this token in Authorization header for testing"
+    #         }), 200
+    #     return jsonify({"error": "No token found for user"}), 404
 
     @app.route('/jobs/<user_id>', methods=['GET'])
     def get_jobs(user_id):
