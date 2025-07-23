@@ -66,60 +66,15 @@ class FilterTool:
     #     return False
 
     def _is_banned_by_audio_features(self, track_name, artist_name, track, audio_features):
-
-        energy = audio_features["energy"] * \
-            100 if audio_features["energy"] else 0
-        danceability = audio_features["danceability"] * \
-            100 if audio_features["danceability"] else 0
-        acousticness = audio_features["acousticness"] * \
-            100 if audio_features["acousticness"] else 0
-        duration_ms = audio_features["duration_ms"]
-        popularity = track["popularity"]
-        # Energy checks
-        if self.job.get("min_energy") is not None and energy < self.job["min_energy"]:
-            log(f"- {track_name} by {artist_name} banned for low energy: {energy}")
-            return True
-
-        if self.job.get("max_energy") is not None and energy > self.job["max_energy"]:
-            log(f"- {track_name} by {artist_name} banned for high energy: {energy}")
-            return True
-
-        # Danceability checks
-        if self.job.get("min_danceability") is not None and danceability < self.job["min_danceability"]:
-            log(f"- {track_name} by {artist_name} banned for low danceability: {danceability}")
-            return True
-
-        if self.job.get("max_danceability") is not None and danceability > self.job["max_danceability"]:
-            log(f"- {track_name} by {artist_name} banned for high danceability: {danceability}")
-            return True
-
-        # Acousticness checks
-        if self.job.get("min_acousticness") is not None and acousticness < self.job["min_acousticness"]:
-            log(f"- {track_name} by {artist_name} banned for low acousticness: {acousticness}")
-            return True
-
-        if self.job.get("max_acousticness") is not None and acousticness > self.job["max_acousticness"]:
-            log(f"- {track_name} by {artist_name} banned for high acousticness: {acousticness}")
-            return True
-
-        # Duration checks
-        if self.job.get("min_duration") is not None and duration_ms < self.job["min_duration"]:
-            log(f"- {track_name} by {artist_name} banned for short duration: {duration_ms}")
-            return True
-
-        if self.job.get("max_duration") is not None and duration_ms > self.job["max_duration"]:
-            log(f"- {track_name} by {artist_name} banned for long duration: {duration_ms}")
-            return True
-
-        # Popularity checks
-        if self.job.get("min_popularity") is not None and popularity < self.job["min_popularity"]:
-            log(f"- {track_name} by {artist_name} banned for low popularity: {popularity}")
-            return True
-
-        if self.job.get("max_popularity") is not None and popularity > self.job["max_popularity"]:
-            log(f"- {track_name} by {artist_name} banned for high popularity: {popularity}")
-            return True
-
+        # Properties no longer being checked as per requirements:
+        # - min_acousticness, max_acousticness
+        # - min_danceability, max_danceability
+        # - min_duration, max_duration
+        # - min_energy, max_energy
+        # - min_popularity, max_popularity
+        
+        # These properties are no longer settable, so we ignore them even if they're in the job object
+        
         # If no condition bans the track
         return False
 
