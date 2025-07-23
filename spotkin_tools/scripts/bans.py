@@ -114,8 +114,8 @@ class FilterTool:
     def _is_banned_by_explicit_lyrics(self, track_name, artist_name, track):
         """ Check if the track has explicit lyrics and should be banned """
         
-        # Default is to allow explicit lyrics (allowExplicit=true), so only ban if explicitly set to false
-        if "allowExplicit" not in self.job or self.job["allowExplicit"] is not False:
+        # Default is to allow explicit lyrics (banExplicitLyrics=false), so only ban if explicitly set to true
+        if "banExplicitLyrics" not in self.job or self.job["banExplicitLyrics"] is not True:
             return False
             
         # Check if the track is marked as explicit in Spotify
