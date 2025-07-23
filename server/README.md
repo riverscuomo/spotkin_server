@@ -42,6 +42,9 @@ if time_difference > 1814400:
   - `last_updated`: Timestamp updated when job is processed (used for freeze logic)
   - `last_autorun`: Timestamp of last automatic execution
   - `scheduled_time`: Hour of day (0-23) when job should run
+  - `ban_skits`: Boolean flag to filter out tracks with 'skit' in title (default: false)
+  - `banExplicitLyrics`: Boolean flag to filter out tracks marked explicit by Spotify (default: false)
+  - Filtering properties for popularity, duration, danceability, energy, and acousticness have been removed
 - **Token**: Stores Spotify OAuth tokens for users
 
 ## Key Services

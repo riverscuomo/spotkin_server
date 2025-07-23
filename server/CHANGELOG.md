@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - **Freeze Status API**: Jobs now include a `freeze_status` object in the `/jobs/{user_id}` endpoint response
   - Exposes whether a job is frozen due to 21-day inactivity
   - Provides `is_frozen`, `days_since_update`, `days_until_freeze`, and `freeze_threshold_days` fields
@@ -15,8 +16,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Server-side calculation ensures consistency across all clients
 
 ### Changed
+
 - Enhanced `Job.to_dict()` method to calculate and include freeze status information
 - Updated job response payload to include `last_updated` timestamp
+
+## [2025-07-23]
+
+### Added
+
+- **Explicit Lyrics Filter**: New `banExplicitLyrics` property added to Jobs
+  - Boolean property (default: false) that controls filtering of explicit tracks
+  - When set to true, tracks marked as explicit by Spotify will be filtered out
+  - No effect on playlists when false or omitted (default behavior)
+
+### Changed
+
+- Removed deprecated audio feature properties from Job model
+  - Removed min/max properties for acousticness, danceability, duration, energy, and popularity
+  - These properties are no longer settable or used for filtering
 
 ### Technical Details
 - Jobs freeze after 21 days (1,814,400 seconds) without configuration updates
