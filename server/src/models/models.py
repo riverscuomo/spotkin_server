@@ -65,18 +65,10 @@ class Job(db.Model):
     banned_tracks = db.Column(JSON, nullable=True)
     banned_genres = db.Column(JSON, nullable=True)
     ban_skits = db.Column(db.Boolean, default=False)
+    banExplicitLyrics = db.Column(db.Boolean, default=False)
     exceptions_to_banned_genres = db.Column(JSON, nullable=True)
     last_tracks = db.Column(JSON, nullable=True)
-    min_popularity = db.Column(db.Integer, nullable=True)
-    max_popularity = db.Column(db.Integer, nullable=True)
-    min_duration = db.Column(db.Integer, nullable=True)
-    max_duration = db.Column(db.Integer, nullable=True)
-    min_danceability = db.Column(db.Integer, nullable=True)
-    max_danceability = db.Column(db.Integer, nullable=True)
-    min_energy = db.Column(db.Integer, nullable=True)
-    max_energy = db.Column(db.Integer, nullable=True)
-    min_acousticness = db.Column(db.Integer, nullable=True)
-    max_acousticness = db.Column(db.Integer, nullable=True)
+    # Removed deprecated audio feature properties as they are no longer settable
 
     recipe = db.relationship('Ingredient', backref='job',
                              lazy=True, cascade="all, delete-orphan")
@@ -119,19 +111,11 @@ class Job(db.Model):
             'scheduled_time': self.scheduled_time,
             'description': self.description,
             'ban_skits': self.ban_skits,
+            'banExplicitLyrics': self.banExplicitLyrics,
             'last_tracks': self.last_tracks or [],
             'exceptions_to_banned_genres': self.exceptions_to_banned_genres or [],
             'recipe': [ingredient.to_dict() for ingredient in self.recipe],
-            'min_popularity': self.min_popularity,
-            'max_popularity': self.max_popularity,
-            'min_duration': self.min_duration,
-            'max_duration': self.max_duration,
-            'min_danceability': self.min_danceability,
-            'max_danceability': self.max_danceability,
-            'min_energy': self.min_energy,
-            'max_energy': self.max_energy,
-            'min_acousticness': self.min_acousticness,
-            'max_acousticness': self.max_acousticness,
+            # Removed deprecated audio feature properties
             'banned_artists': self.banned_artists or [],
             'banned_albums': self.banned_albums or [],
             'banned_tracks': self.banned_tracks or [],
