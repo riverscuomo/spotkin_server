@@ -15,6 +15,7 @@ class FilterTool:
             self._is_banned_by_skit(track_name, artist_name) or \
             self._is_banned_by_audio_features(
                 track_name, artist_name, track, audio_features) or \
+            self._is_banned_by_explicit_lyrics(track_name, artist_name, track) or \
             self.is_banned_by_album_id(album_id, artist_name, track_name) or \
             self._is_banned_by_artist_id(artist_id, track_name) or \
             self._is_banned_by_track_id(track_id, artist_name, track_name)
@@ -109,6 +110,20 @@ class FilterTool:
                 f"Removed {track_name} by {artist_name} because it is a skit"
             )
             return True
+            
+    def _is_banned_by_explicit_lyrics(self, track_name, artist_name, track):
+        """ Check if the track has explicit lyrics and should be banned """
+        
+        # Default is to allow explicit lyrics (allowExplicit=true), so only ban if explicitly set to false
+        if "allowExplicit" not in self.job or self.job["allowExplicit"] is not False:
+            return False
+            
+        # Check if the track is marked as explicit in Spotify
+        if track and track.get("explicit", False):
+            log(f"Removed {track_name} by {artist_name} because it contains explicit lyrics")
+            return True
+            
+        return False
 
     # def _is_banned_by_song_title(self, artist_name, track_name):
     #     # print("_is_banned_by_song_title")
